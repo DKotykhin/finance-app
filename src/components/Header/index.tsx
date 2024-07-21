@@ -7,14 +7,14 @@ import Navigation from './Navigation';
 
 const Header: React.FC = () => {
   return (
-    <header className="bg-gradient-to-b from-blue-700 to-blue-500 px-4 py-8 lg:px-14 pb-36">
+    <header className="bg-gradient-to-b from-blue-700 to-blue-500 px-6 py-8 lg:px-14 pb-36">
       <div className="max-w-screen-2xl mx-auto">
         <div className="w-full flex items-center justify-between mb-14">
           <div className="flex items-center lg:gap-x-16">
             <Link href="/">
               <div className="items-center hidden lg:flex">
-                <Image src="/logo.svg" width={28} height={28} alt="logo" />
-                <p className="ml-2 text-white text-2xl font-semibold">Finance</p>
+                <Image src="/logo.svg" width={40} height={40} alt="logo" />
+                <p className="ml-2 text-white text-3xl font-semibold">Finance</p>
               </div>
             </Link>
             <Navigation />
