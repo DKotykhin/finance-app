@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 
 import { UIProvider } from '@/providers/UIProvider';
 import { AuthProvider } from '@/providers/AuthProvider';
+import { ToastProvider } from '@/providers/ToastProvider';
 
 import './globals.css';
 
@@ -24,6 +25,7 @@ export default function RootLayout({
         <UIProvider>
           <AuthProvider>{children}</AuthProvider>
         </UIProvider>
+        <ToastProvider />
       </body>
     </html>
   );
