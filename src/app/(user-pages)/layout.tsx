@@ -1,3 +1,4 @@
+import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import type { Metadata } from 'next';
 
@@ -12,9 +13,10 @@ export default function UserPagesLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <div className='flex flex-col h-screen'>
       <Header />
-      <main className="px-3 lg:px-14">{children}</main>
-    </>
+      <main className="px-3 lg:px-14 flex-grow">{children}</main>
+      <Footer />
+    </div>
   );
 }

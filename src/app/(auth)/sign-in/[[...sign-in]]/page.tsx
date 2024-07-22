@@ -17,7 +17,7 @@ const SignInPage = () => {
         </ClerkLoading>
       </div>
       <div className="h-full bg-blue-600 hidden lg:flex items-center justify-center">
-        <Image src="/logo.svg" width={100} height={100} alt="logo" />
+        <Image src="/logo-white.svg" width={100} height={100} alt="logo" />
         <p className='ml-4 text-white text-6xl font-bold'>Finance</p>
       </div>
     </div>
