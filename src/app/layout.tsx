@@ -1,9 +1,11 @@
-import type { Metadata } from 'next';
+import { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
+import type { Metadata } from 'next';
 
 import { UIProvider } from '@/providers/UIProvider';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { ToastProvider } from '@/providers/ToastProvider';
+import { QueryProvider } from '@/providers/QueryProvider';
 
 import './globals.css';
 
@@ -17,13 +19,15 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en">
       <body className={inter.className}>
         <UIProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <QueryProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </QueryProvider>
         </UIProvider>
         <ToastProvider />
       </body>

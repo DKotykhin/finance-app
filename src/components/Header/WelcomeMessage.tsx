@@ -3,7 +3,7 @@
 import React from 'react';
 import { useUser } from '@clerk/nextjs';
 
-const WelcomeMessage = () => {
+const WelcomeMessage: React.FC = () => {
   const { user, isLoaded } = useUser();
 
   return (

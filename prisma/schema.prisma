@@ -8,20 +8,22 @@ datasource db {
 }
 
 model Account {
-  id        String   @id @default(cuid())
-  userId    String  @map("user_id")
-  userName  String  @map("user_name")
-  balance   Float
-  currency  String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id           String        @id @default(cuid())
+  userId       String        @map("user_id")
+  accountName  String        @map("account_name")
+  balance      Float         @default(value: 0)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  transactions Transaction[]
 }
 
 model Transaction {
   id        String   @id @default(cuid())
-  userId    String  @map("user_id")
+  userId    String   @map("user_id")
   amount    Float
   currency  String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  accountId String   @map("account_id")
+  account   Account  @relation(fields: [accountId], references: [id])
 }

@@ -1,6 +1,8 @@
+import { ReactNode } from 'react';
+import type { Metadata } from 'next';
+
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
-import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Financial App',
@@ -10,7 +12,7 @@ export const metadata: Metadata = {
 export default function UserPagesLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <div className='flex flex-col h-screen'>
