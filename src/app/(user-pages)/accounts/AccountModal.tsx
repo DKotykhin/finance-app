@@ -1,25 +1,16 @@
 'use client';
 
-import React from 'react';
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  useDisclosure,
-} from '@nextui-org/react';
+import React, { useEffect } from 'react';
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 import { Controller, Mode, Resolver, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
-import { Plus } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { AccountFormTypes, accountFormValidationSchema } from '@/validation/accountValidation';
-import { createAccount } from '@/actions/Account/_index';
+import { createAccount, updateAccount } from '@/actions/Account/_index';
+import { Account } from '@prisma/client';
 
 interface AccountFormValidationTypes {
   defaultValues: AccountFormTypes;
@@ -27,26 +18,50 @@ interface AccountFormValidationTypes {
   mode: Mode;
 }
 
+interface AccountModalProps {
+  isOpen: boolean;
+  onOpenChange: () => void;
+  account?: Account | null;
+}
+
 const AccountFormValidation: AccountFormValidationTypes = {
   defaultValues: {
     accountName: '',
   },
   resolver: zodResolver(accountFormValidationSchema),
-  mode: 'onBlur',
+  mode: 'onSubmit',
 };
 
-export const AccountModal: React.FC = () => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
+export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange, account }) => {
   const { user } = useUser();
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    reset({ accountName: account?.accountName || '' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account?.accountName]);
+
   const createMutation = useMutation({
-    mutationFn: ({ userId, accountName }: any) => createAccount({ userId, accountName }),
+    mutationFn: ({ userId, accountName }: { userId: string; accountName: string }) =>
+      createAccount({ userId, accountName }),
     onSuccess: (data) => {
       reset();
       onOpenChange();
       toast.success(`Account ${data.accountName} created successfully`);
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ accountId, accountName }: { accountId: string; accountName: string }) =>
+      updateAccount({ accountId, accountName }),
+    onSuccess: (data) => {
+      reset();
+      onOpenChange();
+      toast.success(`Account ${data.accountName} updated successfully`);
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
     onError: (error) => {
@@ -62,59 +77,58 @@ export const AccountModal: React.FC = () => {
   } = useForm<AccountFormTypes>(AccountFormValidation);
 
   const onSubmit: SubmitHandler<AccountFormTypes> = async ({ accountName }) => {
-    await createMutation.mutateAsync({ userId: user?.id, accountName });
+    account?.id
+      ? await updateMutation.mutateAsync({ accountId: account?.id as string, accountName })
+      : await createMutation.mutateAsync({ userId: user?.id as string, accountName });
   };
 
   return (
-    <>
-      <Button
-        color="secondary"
-        onPress={() => {
-          onOpen(), reset();
-        }}
-        className="w-full sm:w-auto"
-      >
-        <Plus size={16} />
-        Add New
-      </Button>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex justify-center">Create New Account</ModalHeader>
-              <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
-                <ModalBody>
-                  <Controller
-                    name="accountName"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        isRequired
-                        type="text"
-                        label="Account name"
-                        labelPlacement="outside"
-                        placeholder="Enter account name"
-                        description="e.g. Personal, Business, Savings"
-                        isInvalid={!!errors.accountName}
-                        errorMessage={errors.accountName?.message}
-                      />
-                    )}
-                  />
-                </ModalBody>
-                <ModalFooter>
-                  <Button type="button" color="default" variant="light" onPress={onClose}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" color="primary" isDisabled={createMutation.isPending}>
-                    Create
-                  </Button>
-                </ModalFooter>
-              </form>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={() => {
+        onOpenChange(), reset();
+      }}
+      isDismissable={false}
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex justify-center">
+              {account?.id ? 'Update Account Name' : 'Create New Account'}
+            </ModalHeader>
+            <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
+              <ModalBody>
+                <Controller
+                  name="accountName"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      isRequired
+                      autoFocus
+                      type="text"
+                      label="Account name"
+                      labelPlacement="outside"
+                      placeholder="Enter account name"
+                      description="e.g. Personal, Business, Savings"
+                      isInvalid={!!errors.accountName}
+                      errorMessage={errors.accountName?.message}
+                    />
+                  )}
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button type="button" color="default" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button type="submit" color="primary" isDisabled={createMutation.isPending}>
+                  {account?.id ? 'Update' : 'Create'}
+                </Button>
+              </ModalFooter>
+            </form>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
   );
 };

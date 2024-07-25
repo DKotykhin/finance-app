@@ -15,6 +15,11 @@ const config: Config = {
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
     },
+    // colors: {    // This is the default color scheme.Remove Tailwind default colors
+    //   white: '#fff',
+    //   red: '#f15922',
+    //   grey: '#808080',
+    // },
   },
   darkMode: 'class',
   plugins: [
