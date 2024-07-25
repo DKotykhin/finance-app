@@ -36,6 +36,9 @@ const config: Config = {
             warning: {
               DEFAULT: '#f15922',
             },
+            danger: {
+              DEFAULT: '#ef4444',
+            },
             divider: '#e6e6e6',
           },
         },

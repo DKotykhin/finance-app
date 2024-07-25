@@ -4,20 +4,13 @@ import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 import { Account } from '@prisma/client';
 
-export const getAccount = async ({
-  userId,
-  accountId,
-}: {
-  userId: string;
-  accountId: string;
-}): Promise<Account | null> => {
-  if (!userId || accountId) return null;
+export const getUserAccounts = async (userId: string): Promise<Account[]> => {
+  if (!userId) return [];
 
   try {
-    const account = await db.account.findFirst({
+    const account = await db.account.findMany({
       where: {
         userId,
-        id: accountId,
       },
     });
 

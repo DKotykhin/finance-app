@@ -1,0 +1,18 @@
+'use server';
+
+import { db } from '@/libs/db';
+import { ApiError } from '@/handlers/apiError';
+
+export const bulkDeleteAccounts = async (accountIds: string[]): Promise<void> => {
+  try {
+    await db.account.deleteMany({
+      where: {
+        id: {
+          in: accountIds,
+        },
+      },
+    });
+  } catch (error) {
+    throw ApiError.internalError('Failed to delete accounts');
+  }
+};

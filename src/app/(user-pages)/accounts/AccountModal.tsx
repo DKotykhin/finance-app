@@ -78,8 +78,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
 
   const onSubmit: SubmitHandler<AccountFormTypes> = async ({ accountName }) => {
     account?.id
-      ? await updateMutation.mutateAsync({ accountId: account?.id as string, accountName })
-      : await createMutation.mutateAsync({ userId: user?.id as string, accountName });
+      ? updateMutation.mutateAsync({ accountId: account?.id as string, accountName })
+      : createMutation.mutateAsync({ userId: user?.id as string, accountName });
   };
 
   return (
