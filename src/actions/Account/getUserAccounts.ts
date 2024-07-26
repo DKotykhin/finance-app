@@ -12,6 +12,9 @@ export const getUserAccounts = async (userId: string): Promise<Account[]> => {
       where: {
         userId,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     return account;
