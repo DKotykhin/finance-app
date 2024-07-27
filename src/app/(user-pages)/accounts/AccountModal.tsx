@@ -121,7 +121,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
                 <Button type="button" color="default" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit" color="primary" isDisabled={createMutation.isPending}>
+                <Button type="submit" color="primary" isDisabled={createMutation.isPending || updateMutation.isPending}>
                   {account?.id ? 'Update' : 'Create'}
                 </Button>
               </ModalFooter>

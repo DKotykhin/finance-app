@@ -69,7 +69,13 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
               <p className="font-bold text-xl">Account page</p>
               <div className="flex gap-4 w-full sm:w-auto">
                 {idList.length > 0 && (
-                  <Button color="warning" variant="bordered" onPress={onDelete} className="w-full sm:w-auto">
+                  <Button
+                    color="warning"
+                    variant="bordered"
+                    onPress={onDelete}
+                    isDisabled={bulkDeleteMutation.isPending}
+                    className="w-full sm:w-auto"
+                  >
                     <Trash2 size={16} />
                     Delete ({idList.length})
                   </Button>

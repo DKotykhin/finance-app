@@ -19,14 +19,17 @@ const columns = [
   {
     key: 'accountName',
     label: 'Account Name',
+    sortable: true,
   },
   {
     key: 'balance',
     label: 'Balance',
+    sortable: true,
   },
   {
     key: 'createdAt',
     label: 'Created',
+    sortable: true,
   },
   {
     key: 'actions',
@@ -61,16 +64,25 @@ export interface AccountNameAndId {
   accountName: string;
 }
 
+interface SortDescriptor {
+  column: (typeof columns)[number]['key'];
+  direction: 'ascending' | 'descending';
+}
+
 export const AccountTable: React.FC<AccountTableProps> = ({ accountData, isLoading, selectedKeysFn }) => {
   const [account, setAccount] = useState<AccountNameAndId | null>(null);
   const [filterValue, setFilterValue] = useState('');
-  const [selectedKeys, setSelectedKeys] = useState<any>([]);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: 'createdAt',
+    direction: 'descending',
+  });
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [accountListLength, setAccountListLength] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState('5');
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Delete Account',
@@ -137,27 +149,36 @@ export const AccountTable: React.FC<AccountTableProps> = ({ accountData, isLoadi
     setPages(Math.ceil(dataToUse.length / +rowsPerPage));
     setAccountListLength(dataToUse.length);
 
-    return dataToUse.slice(start, end).map((account) => ({
-      id: account.id,
-      accountName: account.accountName,
-      balance: account.balance,
-      createdAt: format(new Date(account.createdAt), 'dd MMM yyyy'),
-      actions: (
-        <div className="flex justify-center gap-4">
-          <Pencil size={24} className="cursor-pointer text-orange-300" onClick={() => updateClick(account)} />
-          <Trash2
-            size={24}
-            className={cn(
-              'cursor-pointer text-red-500',
-              deleteMutation.isPending && account.id === deleteMutation.variables ? 'opacity-50' : ''
-            )}
-            onClick={() => handleClick(account.id)}
-          />
-        </div>
-      ),
-    }));
+    return dataToUse
+      .sort((a, b) => {
+        const first = a[sortDescriptor.column as keyof typeof a];
+        const second = b[sortDescriptor.column as keyof typeof b];
+        const cmp = first < second ? -1 : first > second ? 1 : 0;
+
+        return sortDescriptor.direction === 'descending' ? -cmp : cmp;
+      })
+      .slice(start, end)
+      .map((account) => ({
+        id: account.id,
+        accountName: account.accountName,
+        balance: account.balance,
+        createdAt: format(new Date(account.createdAt), 'dd MMM yyyy'),
+        actions: (
+          <div className="flex justify-center gap-4">
+            <Pencil size={24} className="cursor-pointer text-orange-300" onClick={() => updateClick(account)} />
+            <Trash2
+              size={24}
+              className={cn(
+                'cursor-pointer text-red-500',
+                deleteMutation.isPending && account.id === deleteMutation.variables ? 'opacity-50' : ''
+              )}
+              onClick={() => handleClick(account.id)}
+            />
+          </div>
+        ),
+      }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, accountData, filterValue, rowsPerPage]);
+  }, [page, accountData, filterValue, rowsPerPage, sortDescriptor]);
 
   const TopContent = () => (
     <div className="flex gap-6 sm:items-center sm:justify-between mb-6 flex-col sm:flex-row">
@@ -215,12 +236,18 @@ export const AccountTable: React.FC<AccountTableProps> = ({ accountData, isLoadi
         selectionMode="multiple"
         selectedKeys={selectedKeys}
         onSelectionChange={onSelectedKeys}
+        sortDescriptor={sortDescriptor}
+        onSortChange={(descriptor) => setSortDescriptor(descriptor as SortDescriptor)}
         classNames={{ wrapper: pages > 1 ? 'min-h-[330px]' : '' }}
         className="hidden sm:block"
       >
         <TableHeader columns={columns}>
           {(column) => (
-            <TableColumn key={column.key} align={column.key === 'accountName' ? 'start' : 'center'}>
+            <TableColumn
+              key={column.key}
+              align={column.key === 'accountName' ? 'start' : 'center'}
+              allowsSorting={column.sortable}
+            >
               {column.label}
             </TableColumn>
           )}
