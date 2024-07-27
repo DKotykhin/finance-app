@@ -10,7 +10,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { AccountFormTypes, accountFormValidationSchema } from '@/validation/accountValidation';
 import { createAccount, updateAccount } from '@/actions/Account/_index';
-import { Account } from '@prisma/client';
+import { AccountNameAndId } from './AccountTable';
 
 interface AccountFormValidationTypes {
   defaultValues: AccountFormTypes;
@@ -21,7 +21,7 @@ interface AccountFormValidationTypes {
 interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
-  account?: Account | null;
+  account?: AccountNameAndId | null;
 }
 
 const AccountFormValidation: AccountFormValidationTypes = {
