@@ -7,11 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Currency {
+  USD
+  EUR
+  GBP
+  UAH
+}
+
 model Account {
   id           String        @id @default(cuid())
   userId       String        @map("user_id")
   accountName  String        @map("account_name")
   balance      Float         @default(value: 0)
+  currency     Currency      @default(value: USD)
+  hideDecimal  Boolean       @default(value: false)
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
   transactions Transaction[]

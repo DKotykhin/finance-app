@@ -2,15 +2,16 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
+import { Button, Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
 import { Pencil, SearchIcon, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, getKeyValue } from '@nextui-org/react';
 
 import { deleteAccount } from '@/actions/Account/_index';
-import { Account } from '@prisma/client';
+import { Account, Currency } from '@prisma/client';
 import { useConfirm } from '@/hooks/use-confirm';
+import { AccountFormTypes } from '@/validation/accountValidation';
 import { cn } from '@/utils/cn';
 
 import { AccountModal } from './AccountModal';
@@ -52,6 +53,13 @@ const rowsPerPageArray = [
   },
 ];
 
+const currencyMap = new Map([
+  [Currency.USD, { sign: '$' }],
+  [Currency.EUR, { sign: '€' }],
+  [Currency.GBP, { sign: '£' }],
+  [Currency.UAH, { sign: '₴' }],
+]);
+
 interface AccountTableProps {
   accountData?: Account[];
   isLoading: boolean;
@@ -59,9 +67,8 @@ interface AccountTableProps {
   selectedKeysFn: (keys: any) => void;
 }
 
-export interface AccountNameAndId {
+export interface AccountUpdate extends AccountFormTypes {
   id: string;
-  accountName: string;
 }
 
 interface SortDescriptor {
@@ -70,7 +77,7 @@ interface SortDescriptor {
 }
 
 export const AccountTable: React.FC<AccountTableProps> = ({ accountData, isLoading, selectedKeysFn }) => {
-  const [account, setAccount] = useState<AccountNameAndId | null>(null);
+  const [account, setAccount] = useState<AccountUpdate | null>(null);
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
@@ -109,7 +116,7 @@ export const AccountTable: React.FC<AccountTableProps> = ({ accountData, isLoadi
     }
   };
 
-  const updateClick = (account: AccountNameAndId) => {
+  const updateClick = (account: AccountUpdate) => {
     setAccount(account);
     onOpen();
   };
@@ -160,20 +167,33 @@ export const AccountTable: React.FC<AccountTableProps> = ({ accountData, isLoadi
       .slice(start, end)
       .map((account) => ({
         id: account.id,
-        accountName: account.accountName,
-        balance: account.balance,
-        createdAt: format(new Date(account.createdAt), 'dd MMM yyyy'),
+        accountNameValue: account.accountName,
+        currencyValue: account.currency,
+        hideDecimal: account.hideDecimal,
+        accountName: <p className="font-semibold">{account.accountName}</p>,
+        balance: (
+          <div className="flex gap-2 justify-center items-center">
+            <div>{currencyMap.get(account.currency)?.sign}</div>
+            <div className={cn('font-semibold', account.balance < 0 ? 'text-red-500' : '')}>
+              {account.hideDecimal ? Math.round(account.balance) : account.balance}
+            </div>
+          </div>
+        ),
+        createdAt: <p className="font-semibold">{format(new Date(account.createdAt), 'dd MMM yyyy')}</p>,
         actions: (
           <div className="flex justify-center gap-4">
-            <Pencil size={24} className="cursor-pointer text-orange-300" onClick={() => updateClick(account)} />
-            <Trash2
-              size={24}
-              className={cn(
-                'cursor-pointer text-red-500',
-                deleteMutation.isPending && account.id === deleteMutation.variables ? 'opacity-50' : ''
-              )}
-              onClick={() => handleClick(account.id)}
-            />
+            <Button isIconOnly size="sm" variant="light">
+              <Pencil className="cursor-pointer text-orange-300" onClick={() => updateClick(account)} />
+            </Button>
+            <Button isIconOnly size="sm" variant="light">
+              <Trash2
+                className={cn(
+                  'cursor-pointer text-red-500',
+                  deleteMutation.isPending && account.id === deleteMutation.variables ? 'opacity-50' : ''
+                )}
+                onClick={() => handleClick(account.id)}
+              />
+            </Button>
           </div>
         ),
       }));
@@ -238,7 +258,7 @@ export const AccountTable: React.FC<AccountTableProps> = ({ accountData, isLoadi
         onSelectionChange={onSelectedKeys}
         sortDescriptor={sortDescriptor}
         onSortChange={(descriptor) => setSortDescriptor(descriptor as SortDescriptor)}
-        classNames={{ wrapper: pages > 1 ? 'min-h-[330px]' : '' }}
+        classNames={{ wrapper: pages > 1 ? 'min-h-[370px]' : '' }}
         className="hidden sm:block"
       >
         <TableHeader columns={columns}>
@@ -278,7 +298,18 @@ export const AccountTable: React.FC<AccountTableProps> = ({ accountData, isLoadi
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-semibold">{account.accountName}</h3>
                   <div className="flex gap-4">
-                    <Pencil size={24} className="cursor-pointer text-orange-300" onClick={() => updateClick(account)} />
+                    <Pencil
+                      size={24}
+                      className="cursor-pointer text-orange-300"
+                      onClick={() =>
+                        updateClick({
+                          accountName: account.accountNameValue,
+                          id: account.id,
+                          currency: account.currencyValue,
+                          hideDecimal: account.hideDecimal,
+                        })
+                      }
+                    />
                     <Trash2
                       size={24}
                       className={cn(
@@ -290,8 +321,8 @@ export const AccountTable: React.FC<AccountTableProps> = ({ accountData, isLoadi
                   </div>
                 </div>
                 <div className="flex justify-between items-center mt-2">
-                  <p className="text-sm text-gray-500">{account.balance}</p>
-                  <p className="text-sm text-gray-500">{account.createdAt}</p>
+                  <div className="text-sm text-gray-500">{account.balance}</div>
+                  <div className="text-sm text-gray-500">{account.createdAt}</div>
                 </div>
               </div>
             ))

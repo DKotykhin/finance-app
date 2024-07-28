@@ -1,7 +1,18 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
+import {
+  Button,
+  Checkbox,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Select,
+  SelectItem,
+} from '@nextui-org/react';
 import { Controller, Mode, Resolver, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
@@ -10,7 +21,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { AccountFormTypes, accountFormValidationSchema } from '@/validation/accountValidation';
 import { createAccount, updateAccount } from '@/actions/Account/_index';
-import { AccountNameAndId } from './AccountTable';
+import { Currency } from '@prisma/client';
+
+import { AccountUpdate } from './AccountTable';
 
 interface AccountFormValidationTypes {
   defaultValues: AccountFormTypes;
@@ -21,12 +34,14 @@ interface AccountFormValidationTypes {
 interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
-  account?: AccountNameAndId | null;
+  account?: AccountUpdate | null;
 }
 
 const AccountFormValidation: AccountFormValidationTypes = {
   defaultValues: {
     accountName: '',
+    currency: Currency.USD,
+    hideDecimal: false,
   },
   resolver: zodResolver(accountFormValidationSchema),
   mode: 'onSubmit',
@@ -37,13 +52,17 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    reset({ accountName: account?.accountName || '' });
+    reset({
+      accountName: account?.accountName || '',
+      currency: account?.currency || Currency.USD,
+      hideDecimal: account?.hideDecimal || false,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account?.accountName]);
+  }, [account?.accountName, account?.currency, account?.hideDecimal]);
 
   const createMutation = useMutation({
-    mutationFn: ({ userId, accountName }: { userId: string; accountName: string }) =>
-      createAccount({ userId, accountName }),
+    mutationFn: ({ userId, accountData }: { userId: string; accountData: AccountFormTypes }) =>
+      createAccount({ userId, accountData }),
     onSuccess: (data) => {
       reset();
       onOpenChange();
@@ -56,8 +75,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ accountId, accountName }: { accountId: string; accountName: string }) =>
-      updateAccount({ accountId, accountName }),
+    mutationFn: ({ accountId, accountData }: { accountId: string; accountData: AccountFormTypes }) =>
+      updateAccount({ accountId, accountData }),
     onSuccess: (data) => {
       reset();
       onOpenChange();
@@ -76,10 +95,18 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
     reset,
   } = useForm<AccountFormTypes>(AccountFormValidation);
 
-  const onSubmit: SubmitHandler<AccountFormTypes> = async ({ accountName }) => {
+  const onSubmit: SubmitHandler<AccountFormTypes> = async (accountData) => {
+    if (
+      account?.accountName === accountData.accountName &&
+      account?.currency === accountData.currency &&
+      account?.hideDecimal === accountData.hideDecimal
+    ) {
+      toast.info('No changes detected');
+      return;
+    }
     account?.id
-      ? updateMutation.mutateAsync({ accountId: account?.id as string, accountName })
-      : createMutation.mutateAsync({ userId: user?.id as string, accountName });
+      ? updateMutation.mutateAsync({ accountId: account?.id as string, accountData })
+      : createMutation.mutateAsync({ userId: user?.id as string, accountData });
   };
 
   return (
@@ -94,7 +121,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
         {(onClose) => (
           <>
             <ModalHeader className="flex justify-center">
-              {account?.id ? 'Update Account Name' : 'Create New Account'}
+              {account?.id ? 'Update Account' : 'Create New Account'}
             </ModalHeader>
             <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
               <ModalBody>
@@ -114,6 +141,38 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
                       isInvalid={!!errors.accountName}
                       errorMessage={errors.accountName?.message}
                     />
+                  )}
+                />
+                <Controller
+                  name="currency"
+                  control={control}
+                  defaultValue={Currency.USD}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      label="Select Currency"
+                      labelPlacement="outside"
+                      defaultSelectedKeys={[account?.currency || Currency.USD]}
+                    >
+                      {Object.values(Currency).map((currency) => (
+                        <SelectItem key={currency}>{currency}</SelectItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+                <Controller
+                  name="hideDecimal"
+                  control={control}
+                  defaultValue={false}
+                  render={({ field }) => (
+                    <Checkbox
+                      {...field}
+                      value={field.value.toString()}
+                      className="mt-2"
+                      defaultSelected={account?.hideDecimal || false}
+                    >
+                      Hide decimal
+                    </Checkbox>
                   )}
                 />
               </ModalBody>

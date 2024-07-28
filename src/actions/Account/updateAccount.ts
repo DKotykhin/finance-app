@@ -3,25 +3,24 @@
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 import { Account } from '@prisma/client';
+import { AccountFormTypes } from '@/validation/accountValidation';
 
 export const updateAccount = async ({
   accountId,
-  accountName,
+  accountData,
 }: {
   accountId: string;
-  accountName: string;
+  accountData: AccountFormTypes;
 }): Promise<Account> => {
   try {
-    const account = await db.account.update({
+    return await db.account.update({
       where: {
         id: accountId,
       },
       data: {
-        accountName,
+        ...accountData,
       },
     });
-
-    return account;
   } catch (error) {
     throw ApiError.internalError('Failed to update account');
   }

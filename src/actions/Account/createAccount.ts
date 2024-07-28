@@ -3,23 +3,22 @@
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 import { Account } from '@prisma/client';
+import { AccountFormTypes } from '@/validation/accountValidation';
 
 export const createAccount = async ({
   userId,
-  accountName,
+  accountData,
 }: {
   userId: string;
-  accountName: string;
+  accountData: AccountFormTypes;
 }): Promise<Account> => {
   try {
-    const account = await db.account.create({
+    return await db.account.create({
       data: {
         userId,
-        accountName,
+        ...accountData,
       },
     });
-
-    return account;
   } catch (error) {
     throw ApiError.internalError('Failed to create account');
   }
