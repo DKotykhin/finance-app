@@ -7,37 +7,37 @@ import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import dynamic from 'next/dynamic';
 
-import { bulkDeleteAccounts, getAccounts } from '@/actions/Account/_index';
+import { bulkDeleteCategories, getCategories } from '@/actions/Category/_index';
 import { useConfirm } from '@/hooks/use-confirm';
 
-import { AccountModal } from './AccountModal';
-const AccountList = dynamic(async () => (await import('./AccountList')).AccountList, { ssr: false });
+import { CategoryModal } from './CategoryModal';
+const CategoryList = dynamic(async () => (await import('./CategoryList')).CategoryList, { ssr: false });
 
-export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => {
+export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const [idList, setIdList] = useState<string[]>([]);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const queryClient = useQueryClient();
 
   const [ConfirmModal, confirm] = useConfirm({
-    title: 'Delete Account',
+    title: 'Delete Category',
     message:
       idList.length === 1
-        ? 'Are you sure you want to delete this account?'
-        : 'Are you sure you want to delete all these accounts?',
+        ? 'Are you sure you want to delete this category?'
+        : 'Are you sure you want to delete all these categories?',
   });
 
-  const { data: accountData, isLoading } = useQuery({
+  const { data: categoryData, isLoading } = useQuery({
     enabled: !!userId,
-    queryKey: ['accounts'],
-    queryFn: () => getAccounts(userId as string),
+    queryKey: ['categories'],
+    queryFn: () => getCategories(userId as string),
   });
 
   const bulkDeleteMutation = useMutation({
-    mutationFn: (idList: string[]) => bulkDeleteAccounts(idList),
+    mutationFn: (idList: string[]) => bulkDeleteCategories(idList),
     onSuccess: () => {
-      toast.success('Accounts deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      toast.success('Categories deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
     onError: (error) => {
       toast.error(error.message);
@@ -66,7 +66,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
             </>
           ) : (
             <>
-              <p className="font-bold text-xl">Account page</p>
+              <p className="font-bold text-xl">Category page</p>
               <div className="flex gap-4 w-full sm:w-auto">
                 {idList.length > 0 && (
                   <Button
@@ -89,10 +89,10 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
           )}
         </CardHeader>
         <CardBody>
-          <AccountList accountData={accountData} isLoading={isLoading} selectedKeysFn={selectedKeysFn} />
+          <CategoryList categoryData={categoryData} isLoading={isLoading} selectedKeysFn={selectedKeysFn} />
         </CardBody>
       </Card>
-      <AccountModal isOpen={isOpen} onOpenChange={onOpenChange} />
+      <CategoryModal isOpen={isOpen} onOpenChange={onOpenChange} />
       <ConfirmModal />
     </>
   );

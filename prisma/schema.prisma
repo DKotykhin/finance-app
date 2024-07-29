@@ -24,6 +24,7 @@ model Account {
   balance      Float         @default(value: 0)
   currency     Currency      @default(value: USD)
   hideDecimal  Boolean       @default(value: false)
+
   transactions Transaction[]
 }
 
@@ -35,6 +36,8 @@ model Category {
   name         String
   description  String?
   userId       String        @map("user_id")
+  visible      Boolean       @default(value: true)
+
   transactions Transaction[]
 }
 
