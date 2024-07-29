@@ -15,24 +15,41 @@ enum Currency {
 }
 
 model Account {
-  id           String        @id @default(cuid())
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   userId       String        @map("user_id")
   accountName  String        @map("account_name")
   balance      Float         @default(value: 0)
   currency     Currency      @default(value: USD)
   hideDecimal  Boolean       @default(value: false)
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  transactions Transaction[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  name         String
+  description  String?
+  userId       String        @map("user_id")
   transactions Transaction[]
 }
 
 model Transaction {
   id        String   @id @default(cuid())
-  userId    String   @map("user_id")
-  amount    Float
-  currency  String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  accountId String   @map("account_id")
-  account   Account  @relation(fields: [accountId], references: [id])
+
+  amount Float    @default(value: 0)
+  notes  String?
+  date   DateTime @default(now()) @map("transaction_date")
+
+  accountId String  @map("account_id")
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }

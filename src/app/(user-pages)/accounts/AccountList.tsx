@@ -9,66 +9,19 @@ import { format } from 'date-fns';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, getKeyValue } from '@nextui-org/react';
 
 import { deleteAccount } from '@/actions/Account/_index';
-import { Account, Currency } from '@prisma/client';
+import { Account } from '@prisma/client';
 import { useConfirm } from '@/hooks/use-confirm';
 import { AccountFormTypes } from '@/validation/accountValidation';
 import { cn } from '@/utils/cn';
 
 import { AccountModal } from './AccountModal';
+import { columns, currencyMap, rowsPerPageArray } from './const';
 
-const columns = [
-  {
-    key: 'accountName',
-    label: 'Account Name',
-    sortable: true,
-  },
-  {
-    key: 'balance',
-    label: 'Balance',
-    sortable: true,
-  },
-  {
-    key: 'createdAt',
-    label: 'Created',
-    sortable: true,
-  },
-  {
-    key: 'actions',
-    label: 'Actions',
-  },
-];
-
-const rowsPerPageArray = [
-  {
-    key: '5',
-    label: '5',
-  },
-  {
-    key: '10',
-    label: '10',
-  },
-  {
-    key: '20',
-    label: '20',
-  },
-];
-
-const currencyMap = new Map([
-  [Currency.USD, { sign: '$' }],
-  [Currency.EUR, { sign: '€' }],
-  [Currency.GBP, { sign: '£' }],
-  [Currency.UAH, { sign: '₴' }],
-]);
-
-interface AccountTableProps {
+interface AccountListProps {
   accountData?: Account[];
   isLoading: boolean;
   // eslint-disable-next-line no-unused-vars
   selectedKeysFn: (keys: any) => void;
-}
-
-export interface AccountUpdate extends AccountFormTypes {
-  id: string;
 }
 
 interface SortDescriptor {
@@ -76,7 +29,11 @@ interface SortDescriptor {
   direction: 'ascending' | 'descending';
 }
 
-export const AccountTable: React.FC<AccountTableProps> = ({ accountData, isLoading, selectedKeysFn }) => {
+export interface AccountUpdate extends AccountFormTypes {
+  id: string;
+}
+
+export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading, selectedKeysFn }) => {
   const [account, setAccount] = useState<AccountUpdate | null>(null);
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
@@ -291,40 +248,42 @@ export const AccountTable: React.FC<AccountTableProps> = ({ accountData, isLoadi
         </div>
       ) : (
         <div className="sm:hidden">
-          <TopContent />
           {tableContent?.length > 0 ? (
             tableContent?.map((account) => (
-              <div key={account.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">{account.accountName}</h3>
-                  <div className="flex gap-4">
-                    <Pencil
-                      size={24}
-                      className="cursor-pointer text-orange-300"
-                      onClick={() =>
-                        updateClick({
-                          accountName: account.accountNameValue,
-                          id: account.id,
-                          currency: account.currencyValue,
-                          hideDecimal: account.hideDecimal,
-                        })
-                      }
-                    />
-                    <Trash2
-                      size={24}
-                      className={cn(
-                        'cursor-pointer text-red-500',
-                        deleteMutation.isPending && account.id === deleteMutation.variables ? 'opacity-50' : ''
-                      )}
-                      onClick={() => handleClick(account.id)}
-                    />
+              <React.Fragment key={account.id}>
+                <TopContent />
+                <div className="bg-white shadow-md rounded-lg p-4 mb-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold">{account.accountName}</h3>
+                    <div className="flex gap-4">
+                      <Pencil
+                        size={24}
+                        className="cursor-pointer text-orange-300"
+                        onClick={() =>
+                          updateClick({
+                            accountName: account.accountNameValue,
+                            id: account.id,
+                            currency: account.currencyValue,
+                            hideDecimal: account.hideDecimal,
+                          })
+                        }
+                      />
+                      <Trash2
+                        size={24}
+                        className={cn(
+                          'cursor-pointer text-red-500',
+                          deleteMutation.isPending && account.id === deleteMutation.variables ? 'opacity-50' : ''
+                        )}
+                        onClick={() => handleClick(account.id)}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="text-sm text-gray-500">{account.balance}</div>
+                    <div className="text-sm text-gray-500">{account.createdAt}</div>
                   </div>
                 </div>
-                <div className="flex justify-between items-center mt-2">
-                  <div className="text-sm text-gray-500">{account.balance}</div>
-                  <div className="text-sm text-gray-500">{account.createdAt}</div>
-                </div>
-              </div>
+              </React.Fragment>
             ))
           ) : (
             <div className="sm:hidden bg-white shadow-md rounded-lg p-4 mb-4">

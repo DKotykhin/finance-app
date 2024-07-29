@@ -11,7 +11,7 @@ import { bulkDeleteAccounts, getUserAccounts } from '@/actions/Account/_index';
 import { useConfirm } from '@/hooks/use-confirm';
 
 import { AccountModal } from './AccountModal';
-const AccountTable = dynamic(async () => (await import('./AccountTable')).AccountTable, { ssr: false });
+const AccountList = dynamic(async () => (await import('./AccountList')).AccountList, { ssr: false });
 
 export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const [idList, setIdList] = useState<string[]>([]);
@@ -89,7 +89,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
           )}
         </CardHeader>
         <CardBody>
-          <AccountTable accountData={accountData} isLoading={isLoading} selectedKeysFn={selectedKeysFn} />
+          <AccountList accountData={accountData} isLoading={isLoading} selectedKeysFn={selectedKeysFn} />
         </CardBody>
       </Card>
       <AccountModal isOpen={isOpen} onOpenChange={onOpenChange} />

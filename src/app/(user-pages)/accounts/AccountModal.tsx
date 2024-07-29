@@ -23,7 +23,7 @@ import { AccountFormTypes, accountFormValidationSchema } from '@/validation/acco
 import { createAccount, updateAccount } from '@/actions/Account/_index';
 import { Currency } from '@prisma/client';
 
-import { AccountUpdate } from './AccountTable';
+import { AccountUpdate } from './AccountList';
 
 interface AccountFormValidationTypes {
   defaultValues: AccountFormTypes;
