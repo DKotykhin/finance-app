@@ -123,11 +123,11 @@ export const CategoryList: React.FC<CategoryListProps> = ({ categoryData, isLoad
       .map((category) => ({
         id: category.id,
         nameValue: category.name,
-        visibleValue: category.visible,
+        hiddenValue: category.hidden,
         name: <p className="font-semibold">{category.name}</p>,
-        visible: (
-          <p className={cn('text-sm mt-2', category.visible ? 'text-green-500' : 'text-red-500')}>
-            {category.visible ? 'Visible' : 'Hided'}
+        hidden: (
+          <p className={cn('text-sm mt-2', category.hidden ? 'text-red-500' : 'text-green-500')}>
+            {category.hidden ? 'Hidden' : 'Visible'}
           </p>
         ),
         actions: (
@@ -244,10 +244,10 @@ export const CategoryList: React.FC<CategoryListProps> = ({ categoryData, isLoad
       ) : (
         <div className="sm:hidden">
           {tableContent?.length > 0 ? (
-            tableContent?.map((category) => (
-              <React.Fragment key={category.id}>
-                <TopContent />
-                <div className="bg-white shadow-md rounded-lg p-4 mb-4">
+            <>
+              <TopContent />
+              {tableContent?.map((category) => (
+                <div key={category.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
                   <div className="flex justify-between items-center">
                     <h3 className="text-lg font-semibold">{category.name}</h3>
                     <div className="flex gap-4">
@@ -258,7 +258,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({ categoryData, isLoad
                           updateClick({
                             name: category.nameValue,
                             id: category.id,
-                            visible: category.visibleValue,
+                            hidden: category.hiddenValue,
                           })
                         }
                       />
@@ -272,12 +272,12 @@ export const CategoryList: React.FC<CategoryListProps> = ({ categoryData, isLoad
                       />
                     </div>
                   </div>
-                  <div className={cn('text-sm mt-2', category.visible ? 'text-green-500' : 'text-red-500')}>
-                    {category.visible ? 'Visible' : 'Hided'}
+                  <div className={cn('text-sm mt-2', category.hiddenValue ? 'text-red-500' : 'text-green-500')}>
+                    {category.hiddenValue ? 'Hidden' : 'Visible'}
                   </div>
                 </div>
-              </React.Fragment>
-            ))
+              ))}
+            </>
           ) : (
             <div className="sm:hidden bg-white shadow-md rounded-lg p-4 mb-4">
               <p className="text-center">No categories to display.</p>

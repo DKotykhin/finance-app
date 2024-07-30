@@ -54,7 +54,7 @@ const Navigation: React.FC = () => {
           </div>
         ))}
       </nav>
-      <nav className="lg:hidden">
+      <nav className="lg:hidden z-30">
         <Menu
           width={40}
           height={40}
@@ -69,7 +69,7 @@ const Navigation: React.FC = () => {
           onClick={() => setOpenMenu(false)}
         ></div>
         <div
-          className={`fixed top-0 left-0 min-w-[250px] h-full p-4 bg-white shadow-md rounded-md transform transition-all duration-300 ease-in-out ${
+          className={`fixed top-0 left-0 min-w-[250px] h-full p-4 bg-white shadow-md rounded-md transform transition-all duration-300 ease-in-out z-50 ${
             openMenu ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 pointer-events-none'
           }`}
           onClick={() => setOpenMenu(false)}

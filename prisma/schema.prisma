@@ -19,11 +19,11 @@ model Account {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  userId       String        @map("user_id")
-  accountName  String        @map("account_name")
-  balance      Float         @default(value: 0)
-  currency     Currency      @default(value: USD)
-  hideDecimal  Boolean       @default(value: false)
+  userId      String   @map("user_id")
+  accountName String   @map("account_name")
+  balance     Float    @default(value: 0)
+  currency    Currency @default(value: USD)
+  hideDecimal Boolean  @default(value: false)
 
   transactions Transaction[]
 }
@@ -33,10 +33,10 @@ model Category {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  name         String
-  description  String?
-  userId       String        @map("user_id")
-  visible      Boolean       @default(value: true)
+  name        String
+  description String?
+  userId      String  @map("user_id")
+  hidden      Boolean @default(value: false)
 
   transactions Transaction[]
 }

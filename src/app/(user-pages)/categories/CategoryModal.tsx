@@ -28,7 +28,7 @@ interface CategoryModalProps {
 const CategoryFormValidation: CategoryFormValidationTypes = {
   defaultValues: {
     name: '',
-    visible: false,
+    hidden: false,
   },
   resolver: zodResolver(categoryFormValidationSchema),
   mode: 'onSubmit',
@@ -41,10 +41,10 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
   useEffect(() => {
     reset({
       name: category?.name || '',
-      visible: category?.visible || false,
+      hidden: category?.hidden || false,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category?.name, category?.visible]);
+  }, [category?.name, category?.hidden]);
 
   const createMutation = useMutation({
     mutationFn: ({ userId, categoryData }: { userId: string; categoryData: CategoryFormTypes }) =>
@@ -82,13 +82,13 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
   } = useForm<CategoryFormTypes>(CategoryFormValidation);
 
   const onSubmit: SubmitHandler<CategoryFormTypes> = async (categoryData) => {
-    if (category?.name === categoryData.name && category?.visible === categoryData.visible) {
+    if (category?.name === categoryData.name && category?.hidden === categoryData.hidden) {
       toast.info('No changes detected');
       return;
     }
     category?.id
       ? updateMutation.mutateAsync({ categoryId: category?.id as string, categoryData })
-      : createMutation.mutateAsync({ userId: user?.id as string, categoryData: { ...categoryData, visible: true } });
+      : createMutation.mutateAsync({ userId: user?.id as string, categoryData });
   };
 
   return (
@@ -127,16 +127,12 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
                 />
                 {category?.id && (
                   <Controller
-                    name="visible"
+                    name="hidden"
                     control={control}
                     defaultValue={false}
                     render={({ field }) => (
-                      <Checkbox
-                        {...field}
-                        value={field?.value?.toString()}
-                        defaultSelected={category?.visible || false}
-                      >
-                        Visible
+                      <Checkbox {...field} value={field?.value?.toString()} defaultSelected={category?.hidden || false}>
+                        Hidden
                       </Checkbox>
                     )}
                   />

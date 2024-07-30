@@ -5,7 +5,7 @@ export const columns = [
     sortable: true,
   },
   {
-    key: 'visible',
+    key: 'hidden',
     label: 'Status',
     sortable: true,
   },

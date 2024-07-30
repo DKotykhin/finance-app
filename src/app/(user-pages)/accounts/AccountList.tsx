@@ -251,10 +251,10 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
       ) : (
         <div className="sm:hidden">
           {tableContent?.length > 0 ? (
-            tableContent?.map((account) => (
-              <React.Fragment key={account.id}>
-                <TopContent />
-                <div className="bg-white shadow-md rounded-lg p-4 mb-4">
+            <>
+              <TopContent />
+              {tableContent?.map((account) => (
+                <div key={account.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
                   <div className="flex justify-between items-center">
                     <h3 className="text-lg font-semibold">{account.accountName}</h3>
                     <div className="flex gap-4">
@@ -285,8 +285,8 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
                     <div className="text-sm text-gray-500">{account.createdAt}</div>
                   </div>
                 </div>
-              </React.Fragment>
-            ))
+              ))}
+            </>
           ) : (
             <div className="sm:hidden bg-white shadow-md rounded-lg p-4 mb-4">
               <p className="text-center">No accounts to display.</p>
