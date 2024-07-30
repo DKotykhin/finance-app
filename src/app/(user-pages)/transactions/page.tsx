@@ -1,9 +1,11 @@
 import React from 'react';
 
+import { TransactionCard } from './TransactionCard';
+
 const Transactions: React.FC = () => {
   return (
     <div className="max-w-screen-2xl mx-auto">
-      <h1>Transactions</h1>
+      <TransactionCard />
     </div>
   );
 };

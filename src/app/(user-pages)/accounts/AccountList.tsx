@@ -1,12 +1,21 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, Key } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
 import { Pencil, SearchIcon, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, getKeyValue } from '@nextui-org/react';
+import {
+  Selection,
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  getKeyValue,
+} from '@nextui-org/react';
 
 import { deleteAccount } from '@/actions/Account/_index';
 import { Account } from '@prisma/client';
@@ -21,7 +30,7 @@ interface AccountListProps {
   accountData?: Account[];
   isLoading: boolean;
   // eslint-disable-next-line no-unused-vars
-  selectedKeysFn: (keys: any) => void;
+  selectedKeysFn: (keys: Key[]) => void;
 }
 
 interface SortDescriptor {
@@ -36,7 +45,7 @@ export interface AccountUpdate extends AccountFormTypes {
 export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading, selectedKeysFn }) => {
   const [account, setAccount] = useState<AccountUpdate | null>(null);
   const [filterValue, setFilterValue] = useState('');
-  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: 'createdAt',
     direction: 'descending',
@@ -97,7 +106,7 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
     setPage(1);
   }, []);
 
-  const onSelectedKeys = (keys: any) => {
+  const onSelectedKeys = (keys: Selection) => {
     setSelectedKeys(keys);
     selectedKeysFn(keys === 'all' ? tableContent?.map((account) => account.id) : Array.from(keys));
   };

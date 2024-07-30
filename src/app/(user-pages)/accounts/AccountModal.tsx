@@ -24,16 +24,16 @@ import { Currency } from '@prisma/client';
 
 import { AccountUpdate } from './AccountList';
 
-interface AccountFormValidationTypes {
-  defaultValues: AccountFormTypes;
-  resolver: Resolver<any>;
-  mode: Mode;
-}
-
 interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
   account?: AccountUpdate | null;
+}
+
+interface AccountFormValidationTypes {
+  defaultValues: AccountFormTypes;
+  resolver: Resolver<any>;
+  mode: Mode;
 }
 
 const AccountFormValidation: AccountFormValidationTypes = {

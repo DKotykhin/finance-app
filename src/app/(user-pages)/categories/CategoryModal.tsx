@@ -12,16 +12,16 @@ import { createCategory, updateCategory } from '@/actions/Category/_index';
 
 import { CategoryUpdate } from './CategoryList';
 
-interface CategoryFormValidationTypes {
-  defaultValues: CategoryFormTypes;
-  resolver: Resolver<any>;
-  mode: Mode;
-}
-
 interface CategoryModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
   category?: CategoryUpdate | null;
+}
+
+interface CategoryFormValidationTypes {
+  defaultValues: CategoryFormTypes;
+  resolver: Resolver<any>;
+  mode: Mode;
 }
 
 const CategoryFormValidation: CategoryFormValidationTypes = {
