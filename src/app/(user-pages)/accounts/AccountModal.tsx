@@ -16,7 +16,6 @@ import {
 import { Controller, Mode, Resolver, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
-import { useUser } from '@clerk/nextjs';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { AccountFormTypes, accountFormValidationSchema } from '@/validation/accountValidation';
@@ -48,7 +47,6 @@ const AccountFormValidation: AccountFormValidationTypes = {
 };
 
 export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange, account }) => {
-  const { user } = useUser();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -61,8 +59,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
   }, [account?.accountName, account?.currency, account?.hideDecimal]);
 
   const createMutation = useMutation({
-    mutationFn: ({ userId, accountData }: { userId: string; accountData: AccountFormTypes }) =>
-      createAccount({ userId, accountData }),
+    mutationFn: ({ accountData }: { accountData: AccountFormTypes }) =>
+      createAccount({ accountData }),
     onSuccess: (data) => {
       reset();
       onOpenChange();
@@ -106,7 +104,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
     }
     account?.id
       ? updateMutation.mutateAsync({ accountId: account?.id as string, accountData })
-      : createMutation.mutateAsync({ userId: user?.id as string, accountData });
+      : createMutation.mutateAsync({ accountData });
   };
 
   return (

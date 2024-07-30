@@ -5,7 +5,6 @@ import { Button, Checkbox, Input, Modal, ModalBody, ModalContent, ModalFooter, M
 import { Controller, Mode, Resolver, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
-import { useUser } from '@clerk/nextjs';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { CategoryFormTypes, categoryFormValidationSchema } from '@/validation/categoryValidation';
@@ -35,7 +34,6 @@ const CategoryFormValidation: CategoryFormValidationTypes = {
 };
 
 export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChange, category }) => {
-  const { user } = useUser();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -47,8 +45,8 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
   }, [category?.name, category?.hidden]);
 
   const createMutation = useMutation({
-    mutationFn: ({ userId, categoryData }: { userId: string; categoryData: CategoryFormTypes }) =>
-      createCategory({ userId, categoryData }),
+    mutationFn: ({ categoryData }: { categoryData: CategoryFormTypes }) =>
+      createCategory({ categoryData }),
     onSuccess: (data) => {
       reset();
       onOpenChange();
@@ -88,7 +86,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
     }
     category?.id
       ? updateMutation.mutateAsync({ categoryId: category?.id as string, categoryData })
-      : createMutation.mutateAsync({ userId: user?.id as string, categoryData });
+      : createMutation.mutateAsync({ categoryData });
   };
 
   return (

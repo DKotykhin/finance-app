@@ -158,7 +158,12 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
   }, [page, accountData, filterValue, rowsPerPage, sortDescriptor]);
 
   const TopContent = () => (
-    <div className="flex gap-6 sm:items-center sm:justify-between mb-6 flex-col sm:flex-row">
+    <div
+      className={cn(
+        'gap-6 sm:items-center sm:justify-between mb-6 flex-col sm:flex-row',
+        tableContent?.length > 0 ? 'flex' : 'hidden'
+      )}
+    >
       <div className="flex gap-6 items-center">
         <Input
           isClearable
@@ -250,43 +255,41 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
         </div>
       ) : (
         <div className="sm:hidden">
+          <TopContent />
           {tableContent?.length > 0 ? (
-            <>
-              <TopContent />
-              {tableContent?.map((account) => (
-                <div key={account.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">{account.accountName}</h3>
-                    <div className="flex gap-4">
-                      <Pencil
-                        size={24}
-                        className="cursor-pointer text-orange-300"
-                        onClick={() =>
-                          updateClick({
-                            accountName: account.accountNameValue,
-                            id: account.id,
-                            currency: account.currencyValue,
-                            hideDecimal: account.hideDecimal,
-                          })
-                        }
-                      />
-                      <Trash2
-                        size={24}
-                        className={cn(
-                          'cursor-pointer text-red-500',
-                          deleteMutation.isPending && account.id === deleteMutation.variables ? 'opacity-50' : ''
-                        )}
-                        onClick={() => handleClick(account.id)}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="text-sm text-gray-500">{account.balance}</div>
-                    <div className="text-sm text-gray-500">{account.createdAt}</div>
+            tableContent?.map((account) => (
+              <div key={account.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">{account.accountName}</h3>
+                  <div className="flex gap-4">
+                    <Pencil
+                      size={24}
+                      className="cursor-pointer text-orange-300"
+                      onClick={() =>
+                        updateClick({
+                          accountName: account.accountNameValue,
+                          id: account.id,
+                          currency: account.currencyValue,
+                          hideDecimal: account.hideDecimal,
+                        })
+                      }
+                    />
+                    <Trash2
+                      size={24}
+                      className={cn(
+                        'cursor-pointer text-red-500',
+                        deleteMutation.isPending && account.id === deleteMutation.variables ? 'opacity-50' : ''
+                      )}
+                      onClick={() => handleClick(account.id)}
+                    />
                   </div>
                 </div>
-              ))}
-            </>
+                <div className="flex justify-between items-center mt-2">
+                  <div className="text-sm text-gray-500">{account.balance}</div>
+                  <div className="text-sm text-gray-500">{account.createdAt}</div>
+                </div>
+              </div>
+            ))
           ) : (
             <div className="sm:hidden bg-white shadow-md rounded-lg p-4 mb-4">
               <p className="text-center">No accounts to display.</p>

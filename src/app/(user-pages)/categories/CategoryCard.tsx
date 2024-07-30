@@ -30,7 +30,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
   const { data: categoryData, isLoading } = useQuery({
     enabled: !!userId,
     queryKey: ['categories'],
-    queryFn: () => getCategories(userId as string),
+    queryFn: () => getCategories({ userId: userId as string }),
   });
 
   const bulkDeleteMutation = useMutation({
