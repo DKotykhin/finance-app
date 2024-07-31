@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Button,
+  Chip,
   DatePicker,
   Input,
   Modal,
@@ -11,6 +12,7 @@ import {
   ModalFooter,
   ModalHeader,
   Select,
+  Selection,
   SelectItem,
   Textarea,
 } from '@nextui-org/react';
@@ -25,6 +27,7 @@ import { getAccounts } from '@/actions/Account/getAccounts';
 import { getCategories } from '@/actions/Category/getCategories';
 import { createTransaction } from '@/actions/Transaction/createTransaction';
 import { TransactionFormTypes, transactionFormValidationSchema } from '@/validation/transactionValidation';
+import { currencyMap } from '../accounts/const';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -53,12 +56,19 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   const { user } = useUser();
   const queryClient = useQueryClient();
   const [dateValue, setDateValue] = useState<DateValue>(parseAbsoluteToLocal(new Date().toISOString()));
+  const [accountValue, setAccountValue] = useState<Selection>(new Set([]));
+  const [categoryValue, setCategoryValue] = useState<Selection>(new Set([]));
 
   const { data: accountData, isLoading: isAccountLoading } = useQuery({
     enabled: !!user?.id,
     queryKey: ['accounts'],
     queryFn: () => getAccounts(user?.id as string),
   });
+
+  const currencySign = useMemo(() => {
+    const acc = accountData && accountData.find((account) => account.id === Array.from(accountValue)[0]);
+    return acc?.currency ? currencyMap.get(acc.currency)?.sign : '';
+  }, [accountData, accountValue]);
 
   const { data: categoryData, isLoading: isCategoryLoading } = useQuery({
     enabled: !!user?.id,
@@ -112,6 +122,41 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
             </ModalHeader>
             <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
               <ModalBody>
+                <DatePicker
+                  label="Date"
+                  granularity="day"
+                  value={dateValue}
+                  onChange={setDateValue}
+                  isRequired
+                  isInvalid={!dateValue}
+                  errorMessage="Please select a date"
+                />
+                <Controller
+                  name="amount"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      isRequired
+                      type="number"
+                      label="Amount"
+                      placeholder="0.00"
+                      step={0.01}
+                      startContent={
+                        <Chip
+                          size="sm"
+                          color={+field.value === 0 ? 'default' : +field.value > 0 ? 'success' : 'danger'}
+                          onClick={() => field.onChange(+field.value * -1)}
+                          className="cursor-pointer"
+                        >
+                          {currencySign}
+                        </Chip>
+                      }
+                      isInvalid={!!errors.amount}
+                      errorMessage={errors.amount?.message}
+                    />
+                  )}
+                />
                 {accountData && accountData.length > 0 && (
                   <Controller
                     name="accountId"
@@ -125,6 +170,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                         isDisabled={isAccountLoading}
                         isInvalid={!!errors.accountId}
                         errorMessage={errors.accountId?.message}
+                        selectedKeys={accountValue}
+                        onSelectionChange={setAccountValue}
                       >
                         {(account) => <SelectItem key={account.id}>{account.accountName}</SelectItem>}
                       </Select>
@@ -144,6 +191,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                         isDisabled={isCategoryLoading}
                         isInvalid={!!errors.categoryId}
                         errorMessage={errors.categoryId?.message}
+                        selectedKeys={categoryValue}
+                        onSelectionChange={setCategoryValue}
                       >
                         {(category) => <SelectItem key={category.id}>{category.name}</SelectItem>}
                       </Select>
@@ -151,40 +200,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                   />
                 )}
                 <Controller
-                  name="amount"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      isRequired
-                      type="number"
-                      label="Amount"
-                      // labelPlacement="outside"
-                      placeholder="Enter amount"
-                      isInvalid={!!errors.amount}
-                      errorMessage={errors.amount?.message}
-                    />
-                  )}
-                />
-                <DatePicker
-                  label="Date"
-                  // labelPlacement="outside"
-                  granularity="day"
-                  value={dateValue}
-                  onChange={setDateValue}
-                  isRequired
-                  isInvalid={!dateValue}
-                  errorMessage="Please select a date"
-                />
-                <Controller
                   name="notes"
                   control={control}
                   render={({ field }) => (
                     <Textarea
                       {...field}
                       type="text"
-                      label="Notes (optional)"
-                      placeholder="Enter notes"
+                      label="Notes"
+                      placeholder="Optional notes"
                       isInvalid={!!errors.notes}
                       errorMessage={errors.notes?.message}
                     />
