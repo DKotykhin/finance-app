@@ -12,6 +12,7 @@ import {
   ModalHeader,
   Select,
   SelectItem,
+  Textarea,
 } from '@nextui-org/react';
 import { DateValue, getLocalTimeZone, parseAbsoluteToLocal } from '@internationalized/date';
 import { Controller, Mode, Resolver, SubmitHandler, useForm } from 'react-hook-form';
@@ -22,8 +23,8 @@ import { useUser } from '@clerk/nextjs';
 
 import { getAccounts } from '@/actions/Account/getAccounts';
 import { getCategories } from '@/actions/Category/getCategories';
-import { TransactionFormTypes, transactionFormValidationSchema } from '@/validation/transactionValidation';
 import { createTransaction } from '@/actions/Transaction/createTransaction';
+import { TransactionFormTypes, transactionFormValidationSchema } from '@/validation/transactionValidation';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -70,7 +71,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       createTransaction({
         ...transactionData,
         amount: parseFloat(transactionData.amount),
-        date: dateValue.toDate(getLocalTimeZone()),
+        date: dateValue?.toDate(getLocalTimeZone()),
       }),
     onSuccess: () => {
       reset();
@@ -91,6 +92,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   } = useForm<TransactionFormTypes>(TransactionFormValidation);
 
   const onSubmit: SubmitHandler<TransactionFormTypes> = async (transactionData) => {
+    if (!dateValue) return;
     createMutation.mutate({ transactionData });
   };
 
@@ -117,11 +119,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                     render={({ field }) => (
                       <Select
                         {...field}
-                        isRequired
                         items={accountData}
                         label="Select an account"
                         isLoading={isAccountLoading}
                         isDisabled={isAccountLoading}
+                        isInvalid={!!errors.accountId}
+                        errorMessage={errors.accountId?.message}
                       >
                         {(account) => <SelectItem key={account.id}>{account.accountName}</SelectItem>}
                       </Select>
@@ -135,11 +138,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                     render={({ field }) => (
                       <Select
                         {...field}
-                        isRequired
                         items={categoryData}
                         label="Select a category"
                         isLoading={isCategoryLoading}
                         isDisabled={isCategoryLoading}
+                        isInvalid={!!errors.categoryId}
+                        errorMessage={errors.categoryId?.message}
                       >
                         {(category) => <SelectItem key={category.id}>{category.name}</SelectItem>}
                       </Select>
@@ -152,36 +156,39 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                   render={({ field }) => (
                     <Input
                       {...field}
+                      isRequired
                       type="number"
                       label="Amount"
-                      labelPlacement="outside"
+                      // labelPlacement="outside"
                       placeholder="Enter amount"
                       isInvalid={!!errors.amount}
                       errorMessage={errors.amount?.message}
                     />
                   )}
                 />
+                <DatePicker
+                  label="Date"
+                  // labelPlacement="outside"
+                  granularity="day"
+                  value={dateValue}
+                  onChange={setDateValue}
+                  isRequired
+                  isInvalid={!dateValue}
+                  errorMessage="Please select a date"
+                />
                 <Controller
                   name="notes"
                   control={control}
                   render={({ field }) => (
-                    <Input
+                    <Textarea
                       {...field}
                       type="text"
-                      label="Notes"
-                      labelPlacement="outside"
+                      label="Notes (optional)"
                       placeholder="Enter notes"
                       isInvalid={!!errors.notes}
                       errorMessage={errors.notes?.message}
                     />
                   )}
-                />
-                <DatePicker
-                  label="Date"
-                  labelPlacement="outside"
-                  granularity="day"
-                  value={dateValue}
-                  onChange={setDateValue}
                 />
               </ModalBody>
               <ModalFooter>

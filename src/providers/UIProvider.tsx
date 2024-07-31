@@ -6,5 +6,5 @@ import { ReactNode } from 'react';
 import { NextUIProvider } from '@nextui-org/react';
 
 export const UIProvider = ({ children }: { children: ReactNode }) => {
-  return <NextUIProvider locale='uk-UA'>{children}</NextUIProvider>;
+  return <NextUIProvider locale='en-GB'>{children}</NextUIProvider>;
 };
