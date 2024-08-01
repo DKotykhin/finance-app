@@ -44,10 +44,6 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
     },
   });
 
-  const selectedKeysFn = (keys: string[]) => {
-    setIdList(keys);
-  };
-
   const onDelete = async () => {
     const ok = await confirm();
     if (ok) {
@@ -89,7 +85,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
           )}
         </CardHeader>
         <CardBody>
-          <CategoryList categoryData={categoryData} isLoading={isLoading} selectedKeysFn={selectedKeysFn} />
+          <CategoryList categoryData={categoryData} isLoading={isLoading} selectedKeysFn={setIdList} />
         </CardBody>
       </Card>
       <CategoryModal isOpen={isOpen} onOpenChange={onOpenChange} />

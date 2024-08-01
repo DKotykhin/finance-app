@@ -14,7 +14,7 @@ export const createTransaction = async ({
 }: {
   amount: number;
   date: Date;
-  notes: string;
+  notes?: string;
   accountId: string;
   categoryId: string;
 }): Promise<Transaction> => {
@@ -25,7 +25,7 @@ export const createTransaction = async ({
       data: {
         date,
         amount,
-        notes,
+        notes: notes || null,
         accountId,
         categoryId,
       },

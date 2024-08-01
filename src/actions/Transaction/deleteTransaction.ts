@@ -4,7 +4,7 @@ import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 import { checkAuth } from '../checkAuth';
 
-export const deleteTransaction = async ({ id }: { id: string }): Promise<void> => {
+export const deleteTransaction = async (id: string): Promise<void> => {
   checkAuth();
 
   try {

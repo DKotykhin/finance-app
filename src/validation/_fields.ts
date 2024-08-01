@@ -8,7 +8,7 @@ export const textFieldRequired = z
 
 export const textFieldOptional = z.string().trim().max(50, { message: 'Maximum 50 characters to fill' });
 
-export const areaTextField = z.string().trim().max(250, { message: 'Maximum 250 characters to fill' });
+export const areaTextField = z.string().trim().max(250, { message: 'Maximum 250 characters to fill' }).optional();
 
 export const price = z
   .string()

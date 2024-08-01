@@ -44,10 +44,6 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
     },
   });
 
-  const selectedKeysFn = (keys: string[]) => {
-    setIdList(keys);
-  };
-
   const onDelete = async () => {
     const ok = await confirm();
     if (ok) {
@@ -89,7 +85,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
           )}
         </CardHeader>
         <CardBody>
-          <AccountList accountData={accountData} isLoading={isLoading} selectedKeysFn={selectedKeysFn} />
+          <AccountList accountData={accountData} isLoading={isLoading} selectedKeysFn={setIdList} />
         </CardBody>
       </Card>
       <AccountModal isOpen={isOpen} onOpenChange={onOpenChange} />

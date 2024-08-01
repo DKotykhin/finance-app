@@ -4,35 +4,25 @@ import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 import { Transaction } from '@prisma/client';
 import { checkAuth } from '../checkAuth';
+import { TransactionToUpdate } from '@/app/(user-pages)/transactions/TransactionModal';
 
 export const updateTransaction = async ({
-  id,
-  amount,
-  date,
-  notes,
-  accountId,
-  categoryId,
+  transactionId,
+  transactionData,
 }: {
-  id: string;
-  amount: number;
-  date: Date;
-  notes: string;
-  accountId: string;
-  categoryId: string;
+  transactionId: string;
+  transactionData: TransactionToUpdate;
 }): Promise<Transaction> => {
   checkAuth();
 
   try {
     const transaction = await db.transaction.update({
       where: {
-        id,
+        id: transactionId,
       },
       data: {
-        date,
-        amount,
-        notes,
-        accountId,
-        categoryId,
+        ...transactionData,
+        amount: parseFloat(transactionData.amount),
       },
     });
 

@@ -23,22 +23,28 @@ import { toast } from 'react-toastify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@clerk/nextjs';
 
-import { getAccounts } from '@/actions/Account/getAccounts';
 import { getCategories } from '@/actions/Category/getCategories';
 import { createTransaction } from '@/actions/Transaction/createTransaction';
 import { TransactionFormTypes, transactionFormValidationSchema } from '@/validation/transactionValidation';
-import { currencyMap } from '../accounts/const';
+import { currencyMap } from '@/utils/_index';
+import { TransactionUpdate } from './TransactionList';
+import { getAccounts } from '@/actions/Account/getAccounts';
+import { updateTransaction } from '@/actions/Transaction/updateTransaction';
 
 interface TransactionModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
-  transaction?: null;
+  transaction?: TransactionUpdate | null;
 }
 
 interface TransactionFormValidationTypes {
   defaultValues: TransactionFormTypes;
   resolver: Resolver<any>;
   mode: Mode;
+}
+
+export interface TransactionToUpdate extends TransactionFormTypes {
+  date: Date;
 }
 
 const TransactionFormValidation: TransactionFormValidationTypes = {
@@ -55,9 +61,15 @@ const TransactionFormValidation: TransactionFormValidationTypes = {
 export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOpenChange, transaction }) => {
   const { user } = useUser();
   const queryClient = useQueryClient();
-  const [dateValue, setDateValue] = useState<DateValue>(parseAbsoluteToLocal(new Date().toISOString()));
-  const [accountValue, setAccountValue] = useState<Selection>(new Set([]));
-  const [categoryValue, setCategoryValue] = useState<Selection>(new Set([]));
+  const [dateValue, setDateValue] = useState<DateValue>(
+    parseAbsoluteToLocal(transaction?.date.toISOString() || new Date().toISOString())
+  );
+  const [accountValue, setAccountValue] = useState<Selection>(
+    transaction?.accountId ? new Set([transaction?.accountId]) : new Set([])
+  );
+  const [categoryValue, setCategoryValue] = useState<Selection>(
+    transaction?.categoryId ? new Set([transaction?.categoryId]) : new Set([])
+  );
 
   const { data: accountData, isLoading: isAccountLoading } = useQuery({
     enabled: !!user?.id,
@@ -66,13 +78,23 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   });
 
   useEffect(() => {
-    if (accountData && accountData.length > 0) {
+    if (accountData && accountData.length > 0 && !transaction?.id) {
       const defaultAccountId = accountData.find((account) => account.isDefault)?.id;
       if (defaultAccountId) {
         setAccountValue(new Set([defaultAccountId]));
       }
     }
-  }, [accountData]);
+  }, [accountData, transaction?.id]);
+
+  useEffect(() => {
+    reset({
+      amount: transaction?.amount || '',
+      notes: transaction?.notes || '',
+      categoryId: transaction?.categoryId || '',
+      accountId: transaction?.accountId || '',
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const currencySign = useMemo(() => {
     const acc = accountData && accountData.find((account) => account.id === Array.from(accountValue)[0]);
@@ -86,7 +108,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   });
 
   const createMutation = useMutation({
-    mutationFn: ({ transactionData }: { transactionData: TransactionFormTypes }) =>
+    mutationFn: ({ transactionData }: { transactionData: TransactionToUpdate }) =>
       createTransaction({
         ...transactionData,
         amount: parseFloat(transactionData.amount),
@@ -103,6 +125,25 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({
+      transactionId,
+      transactionData,
+    }: {
+      transactionId: string;
+      transactionData: TransactionToUpdate;
+    }) => updateTransaction({ transactionId, transactionData }),
+    onSuccess: () => {
+      reset();
+      onOpenChange();
+      toast.success(`Transaction updated successfully`);
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   const {
     control,
     handleSubmit,
@@ -112,7 +153,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
 
   const onSubmit: SubmitHandler<TransactionFormTypes> = async (transactionData) => {
     if (!dateValue) return;
-    createMutation.mutate({ transactionData });
+    transaction?.id
+      ? updateMutation.mutate({ transactionId: transaction.id, transactionData: { ...transactionData, date: dateValue?.toDate(getLocalTimeZone()) } })
+      : createMutation.mutate({ transactionData: { ...transactionData, date: dateValue?.toDate(getLocalTimeZone()) } });
   };
 
   return (
@@ -127,7 +170,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
         {(onClose) => (
           <>
             <ModalHeader className="flex justify-center">
-              {transaction ? 'Update Transaction' : 'Create New Transaction'}
+              {transaction?.id ? 'Update Transaction' : 'Create New Transaction'}
             </ModalHeader>
             <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
               <ModalBody>
@@ -231,7 +274,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                   Cancel
                 </Button>
                 <Button type="submit" color="primary">
-                  {transaction ? 'Update' : 'Create'}
+                  {transaction?.id ? 'Update' : 'Create'}
                 </Button>
               </ModalFooter>
             </form>

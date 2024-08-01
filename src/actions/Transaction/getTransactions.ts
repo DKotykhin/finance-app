@@ -4,18 +4,23 @@ import { subDays } from 'date-fns';
 
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { Transaction } from '@prisma/client';
+import { Currency, Transaction } from '@prisma/client';
 import { checkAuth } from '../checkAuth';
 
+export interface ExtendedTransaction extends Transaction {
+  category: { name: string };
+  account: { accountName: string; currency: Currency; hideDecimal: boolean };
+}
+
 export const getTransactions = async ({
-  accountId,
+  accountIds,
   from,
   to,
 }: {
-  accountId: string;
+  accountIds: string[];
   from?: Date;
   to?: Date;
-}): Promise<Transaction[]> => {
+}): Promise<ExtendedTransaction[]> => {
   checkAuth();
 
   const defaultTo = new Date();
@@ -24,7 +29,9 @@ export const getTransactions = async ({
   try {
     const transactions = await db.transaction.findMany({
       where: {
-        accountId,
+        accountId: {
+          in: accountIds,
+        },
         date: {
           gte: from || defaultFrom,
           lte: to || defaultTo,
@@ -34,6 +41,13 @@ export const getTransactions = async ({
         category: {
           select: {
             name: true,
+          },
+        },
+        account: {
+          select: {
+            accountName: true,
+            currency: true,
+            hideDecimal: true,
           },
         },
       },

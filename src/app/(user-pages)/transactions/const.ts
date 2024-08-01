@@ -1,17 +1,22 @@
 export const columns = [
   {
-    key: 'accountName',
-    label: 'Account Name',
+    key: 'date',
+    label: 'Date',
     sortable: true,
   },
   {
-    key: 'balance',
-    label: 'Balance',
+    key: 'amount',
+    label: 'Amount',
     sortable: true,
   },
   {
-    key: 'createdAt',
-    label: 'Created',
+    key: 'category',
+    label: 'Category',
+    sortable: true,
+  },
+  {
+    key: 'account',
+    label: 'Account',
     sortable: true,
   },
   {
