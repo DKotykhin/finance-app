@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback, Key } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
 import { Pencil, SearchIcon, Trash2 } from 'lucide-react';
@@ -30,7 +30,7 @@ interface AccountListProps {
   accountData?: Account[];
   isLoading: boolean;
   // eslint-disable-next-line no-unused-vars
-  selectedKeysFn: (keys: Key[]) => void;
+  selectedKeysFn: (keys: any) => void;
 }
 
 interface SortDescriptor {
@@ -135,8 +135,18 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
         id: account.id,
         accountNameValue: account.accountName,
         currencyValue: account.currency,
+        isDefault: account.isDefault,
         hideDecimal: account.hideDecimal,
-        accountName: <p className="font-semibold">{account.accountName}</p>,
+        accountName: (
+          <div className="flex gap-2 items-center font-semibold">
+            <span>{account.accountName}</span>
+            {account.isDefault && (
+              <Chip size="sm" variant="flat">
+                default
+              </Chip>
+            )}
+          </div>
+        ),
         balance: (
           <div className="flex gap-2 justify-center items-center">
             <div>{currencyMap.get(account.currency)?.sign}</div>
@@ -269,7 +279,7 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
             tableContent?.map((account) => (
               <div key={account.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">{account.accountName}</h3>
+                  <div className="text-lg font-semibold">{account.accountName}</div>
                   <div className="flex gap-4">
                     <Pencil
                       size={24}
@@ -280,6 +290,7 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
                           id: account.id,
                           currency: account.currencyValue,
                           hideDecimal: account.hideDecimal,
+                          isDefault: account.isDefault,
                         })
                       }
                     />

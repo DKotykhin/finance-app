@@ -41,6 +41,7 @@ const AccountFormValidation: AccountFormValidationTypes = {
     accountName: '',
     currency: Currency.USD,
     hideDecimal: false,
+    isDefault: false,
   },
   resolver: zodResolver(accountFormValidationSchema),
   mode: 'onSubmit',
@@ -59,8 +60,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
   }, [account?.accountName, account?.currency, account?.hideDecimal]);
 
   const createMutation = useMutation({
-    mutationFn: ({ accountData }: { accountData: AccountFormTypes }) =>
-      createAccount({ accountData }),
+    mutationFn: ({ accountData }: { accountData: AccountFormTypes }) => createAccount({ accountData }),
     onSuccess: (data) => {
       reset();
       onOpenChange();
@@ -97,7 +97,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
     if (
       account?.accountName === accountData.accountName &&
       account?.currency === accountData.currency &&
-      account?.hideDecimal === accountData.hideDecimal
+      account?.hideDecimal === accountData.hideDecimal &&
+      account?.isDefault === accountData.isDefault
     ) {
       toast.info('No changes detected');
       return;
@@ -158,21 +159,38 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
                     </Select>
                   )}
                 />
-                <Controller
-                  name="hideDecimal"
-                  control={control}
-                  defaultValue={false}
-                  render={({ field }) => (
-                    <Checkbox
-                      {...field}
-                      value={field.value.toString()}
-                      className="mt-2"
-                      defaultSelected={account?.hideDecimal || false}
-                    >
-                      Hide decimal
-                    </Checkbox>
-                  )}
-                />
+                <div className="flex flex-col sm:flex-row gap-2 justify-around">
+                  <Controller
+                    name="hideDecimal"
+                    control={control}
+                    defaultValue={false}
+                    render={({ field }) => (
+                      <Checkbox
+                        {...field}
+                        value={field.value.toString()}
+                        className="mt-2"
+                        defaultSelected={account?.hideDecimal || false}
+                      >
+                        Hide decimal
+                      </Checkbox>
+                    )}
+                  />
+                  <Controller
+                    name="isDefault"
+                    control={control}
+                    defaultValue={false}
+                    render={({ field }) => (
+                      <Checkbox
+                        {...field}
+                        value={field.value.toString()}
+                        className="mt-2"
+                        defaultSelected={account?.isDefault || false}
+                      >
+                        {account?.isDefault ? 'Default account' : 'Set as default'}
+                      </Checkbox>
+                    )}
+                  />
+                </div>
               </ModalBody>
               <ModalFooter>
                 <Button type="button" color="default" variant="light" onPress={onClose}>

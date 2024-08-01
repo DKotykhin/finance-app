@@ -15,7 +15,21 @@ export const updateAccount = async ({
 }): Promise<Account> => {
   checkAuth();
 
+  if (!accountId) {
+    throw ApiError.badRequest('Account ID is required');
+  }
   try {
+    if (accountData.isDefault) {
+      await db.account.updateMany({
+        where: {
+          isDefault: true,
+        },
+        data: {
+          isDefault: false,
+        },
+      });
+    }
+
     return await db.account.update({
       where: {
         id: accountId,

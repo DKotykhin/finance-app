@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Chip,
@@ -64,6 +64,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
     queryKey: ['accounts'],
     queryFn: () => getAccounts(user?.id as string),
   });
+
+  useEffect(() => {
+    if (accountData && accountData.length > 0) {
+      const defaultAccountId = accountData.find((account) => account.isDefault)?.id;
+      if (defaultAccountId) {
+        setAccountValue(new Set([defaultAccountId]));
+      }
+    }
+  }, [accountData]);
 
   const currencySign = useMemo(() => {
     const acc = accountData && accountData.find((account) => account.id === Array.from(accountValue)[0]);
@@ -143,14 +152,17 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                       placeholder="0.00"
                       step={0.01}
                       startContent={
-                        <Chip
-                          size="sm"
-                          color={+field.value === 0 ? 'default' : +field.value > 0 ? 'success' : 'danger'}
-                          onClick={() => field.onChange(+field.value * -1)}
-                          className="cursor-pointer"
-                        >
-                          {currencySign}
-                        </Chip>
+                        currencySign ? (
+                          <Chip
+                            size="sm"
+                            variant="flat"
+                            color={+field.value === 0 ? 'default' : +field.value > 0 ? 'success' : 'danger'}
+                            onClick={() => field.onChange(+field.value * -1)}
+                            className="cursor-pointer"
+                          >
+                            {currencySign}
+                          </Chip>
+                        ) : null
                       }
                       isInvalid={!!errors.amount}
                       errorMessage={errors.amount?.message}

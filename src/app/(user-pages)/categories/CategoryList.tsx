@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback, Key } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
 import { Pencil, SearchIcon, Trash2 } from 'lucide-react';
@@ -29,7 +29,7 @@ interface CategoryListProps {
   categoryData?: Category[];
   isLoading: boolean;
   // eslint-disable-next-line no-unused-vars
-  selectedKeysFn: (keys: Key[]) => void;
+  selectedKeysFn: (keys: any) => void;
 }
 
 interface SortDescriptor {

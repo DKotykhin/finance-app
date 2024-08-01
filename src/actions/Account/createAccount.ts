@@ -10,6 +10,17 @@ export const createAccount = async ({ accountData }: { accountData: AccountFormT
   const userId = checkAuth();
 
   try {
+    if (accountData.isDefault) {
+      await db.account.updateMany({
+        where: {
+          isDefault: true,
+        },
+        data: {
+          isDefault: false,
+        },
+      });
+    }
+
     return await db.account.create({
       data: {
         userId,
