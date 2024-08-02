@@ -21,6 +21,7 @@ import { DateValue, getLocalTimeZone, parseAbsoluteToLocal } from '@internationa
 
 import { deleteTransaction, getTransactions } from '@/actions/Transaction/_index';
 import { getAccounts } from '@/actions/Account/_index';
+import { getCategories } from '@/actions/Category/_index';
 import { useConfirm } from '@/hooks/use-confirm';
 import { cn, currencyMap, numberWithSpaces } from '@/utils/_index';
 
@@ -40,7 +41,7 @@ interface SortDescriptor {
 export interface TransactionUpdate {
   id: string;
   date: Date;
-  amount: string;
+  amount: number;
   categoryId: string | null;
   accountId: string;
   notes?: string;
@@ -61,6 +62,8 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
     start: parseAbsoluteToLocal(subDays(new Date(), 30).toISOString()),
     end: parseAbsoluteToLocal(new Date().toISOString()),
   });
+  const [accountValue, setAccountValue] = useState<Selection>(new Set(['all']));
+  const [categoryValue, setCategoryValue] = useState<Selection>(new Set(['all']));
 
   const { user } = useUser();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -72,13 +75,19 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
 
   const queryClient = useQueryClient();
 
-  const { data: accountData } = useQuery({
+  const { data: accountData, isLoading: isAccountLoading } = useQuery({
     enabled: !!user?.id,
     queryKey: ['accounts'],
     queryFn: () => getAccounts(user?.id as string),
   });
 
-  const { data: transactionData, isLoading } = useQuery({
+  const { data: categoryData, isLoading: isCategoryLoading } = useQuery({
+    enabled: !!user?.id,
+    queryKey: ['categories'],
+    queryFn: () => getCategories({ userId: user?.id as string }),
+  });
+
+  const { data: transactionData, isLoading: isTransactionLoading } = useQuery({
     enabled: !!accountData,
     queryKey: ['transactions', dateValue],
     queryFn: () =>
@@ -126,7 +135,20 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
     const start = (page - 1) * +rowsPerPage;
     const end = start + +rowsPerPage;
 
-    const coercedTransactionData = transactionData?.map((transaction) => ({
+    const filteredData = transactionData
+      ?.filter((transaction) => {
+        const accountMatch =
+          Array.from(accountValue).toString() === 'all' || new Set(Array.from(accountValue)).has(transaction.accountId);
+        return accountMatch;
+      })
+      .filter((transaction) => {
+        const categoryMatch =
+          Array.from(categoryValue).toString() === 'all' ||
+          (transaction.categoryId ? new Set(Array.from(categoryValue)).has(transaction.categoryId) : false);
+        return categoryMatch;
+      });
+
+    const coercedTransactionData = filteredData?.map((transaction) => ({
       ...transaction,
       accountName: transaction.account.accountName,
       categoryName: transaction.category?.name,
@@ -164,7 +186,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
         ),
         amount: (
           <div className="flex gap-2 justify-center items-center">
-            <div>{currencyMap.get(transaction.account.currency)?.sign}</div>
+            <div className={transaction.amount < 0 ? 'text-red-500' : ''}>
+              {currencyMap.get(transaction.account.currency)?.sign}
+            </div>
             <div className={cn('font-semibold', transaction.amount < 0 ? 'text-red-500' : '')}>
               {numberWithSpaces(
                 transaction.account.hideDecimal
@@ -187,7 +211,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
                 onClick={() =>
                   updateClick({
                     ...transaction,
-                    amount: transaction?.amount?.toString() || '',
+                    amount: transaction?.amount || 0,
                     notes: transaction?.notes || '',
                     date: transaction.date,
                   })
@@ -207,26 +231,52 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
         ),
       }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, transactionData, rowsPerPage, sortDescriptor]);
+  }, [page, transactionData, rowsPerPage, sortDescriptor, accountValue, categoryValue]);
 
   const TopContent = () => (
-    <div className="flex gap-6 sm:items-center sm:justify-between mb-6 flex-col sm:flex-row">
-      <div className="flex gap-6 items-center">
-        <div className="flex flex-col sm:flex-row gap-2 items-center w-full">
-          <DatePicker
-            label="Date from"
-            granularity="day"
-            value={dateValue.start}
-            onChange={(value) => setDateValue((v) => ({ ...v, start: value }))}
-            className="w-full sm:max-w-[200px]"
-          />
-          <DatePicker
-            label="Date to"
-            granularity="day"
-            value={dateValue.end}
-            onChange={(value) => setDateValue((v) => ({ ...v, end: value }))}
-          />
-        </div>
+    <div className="flex flex-wrap lg:flex-nowrap gap-6 sm:items-center sm:justify-between mb-6 flex-col sm:flex-row">
+      <div className="flex flex-col sm:flex-row gap-2 items-center w-full sm:w-auto">
+        <DatePicker
+          label="Date from"
+          granularity="day"
+          value={dateValue.start}
+          onChange={(value) => setDateValue((v) => ({ ...v, start: value }))}
+          className="w-full sm:max-w-[200px]"
+        />
+        <DatePicker
+          label="Date to"
+          granularity="day"
+          value={dateValue.end}
+          onChange={(value) => setDateValue((v) => ({ ...v, end: value }))}
+        />
+      </div>
+      <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
+        {accountData && accountData.length > 0 && (
+          <Select
+            items={[{ id: 'all', accountName: 'All accounts' }, ...accountData]}
+            label="Select account"
+            isLoading={isAccountLoading}
+            isDisabled={isAccountLoading}
+            selectedKeys={accountValue}
+            onSelectionChange={setAccountValue}
+            className="w-full lg:w-[150px]"
+          >
+            {(account) => <SelectItem key={account.id}>{account.accountName}</SelectItem>}
+          </Select>
+        )}
+        {categoryData && categoryData.length > 0 && (
+          <Select
+            items={[{ id: 'all', name: 'All categories' }, ...categoryData]}
+            label="Select category"
+            isLoading={isCategoryLoading}
+            isDisabled={isCategoryLoading}
+            selectedKeys={categoryValue}
+            onSelectionChange={setCategoryValue}
+            className="w-full lg:w-[150px]"
+          >
+            {(category) => <SelectItem key={category.id}>{category.name}</SelectItem>}
+          </Select>
+        )}
       </div>
       <div className="flex gap-4 justify-between items-center w-full">
         {transactionListLength > 0 && (
@@ -237,7 +287,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
         <Select
           label="Select rows per page"
           // labelPlacement="outside-left"
-          className="max-w-[200px] self-end"
+          className="max-w-[180px] self-end"
           selectedKeys={[rowsPerPage]}
           onChange={onRowsPerPageChange}
         >
@@ -277,7 +327,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
         sortDescriptor={sortDescriptor}
         onSortChange={(descriptor) => setSortDescriptor(descriptor as SortDescriptor)}
         classNames={{ wrapper: pages > 1 ? 'min-h-[370px]' : '' }}
-        className="hidden sm:block"
+        className="hidden md:block"
       >
         <TableHeader columns={columns}>
           {(column) => (
@@ -293,7 +343,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
         <TableBody
           items={tableContent || []}
           emptyContent={'No transactions to display.'}
-          isLoading={isLoading}
+          isLoading={isTransactionLoading}
           loadingContent={<Spinner label="Loading..." />}
         >
           {(item) => (
@@ -303,12 +353,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
       </Table>
 
       {/* Mobile content */}
-      {isLoading ? (
+      {isTransactionLoading ? (
         <div className="flex justify-center bg-white shadow-md rounded-lg p-4 mb-4">
           <Spinner label="Loading..." />
         </div>
       ) : (
-        <div className="sm:hidden">
+        <div className="md:hidden">
           <TopContent />
           {tableContent?.length > 0 ? (
             tableContent?.map((transaction) => (
@@ -323,7 +373,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
                       onClick={() =>
                         updateClick({
                           id: transaction.id,
-                          amount: transaction.amountValue.toString(),
+                          amount: transaction.amountValue,
                           accountId: transaction.accountId,
                           categoryId: transaction.categoryId,
                           date: transaction.dateValue,

@@ -48,6 +48,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
     const ok = await confirm();
     if (ok) {
       bulkDeleteMutation.mutateAsync(idList);
+      setIdList([]);
     }
   };
 

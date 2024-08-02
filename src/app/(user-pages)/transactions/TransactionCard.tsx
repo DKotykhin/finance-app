@@ -42,6 +42,7 @@ export const TransactionCard: React.FC = () => {
     const ok = await confirm();
     if (ok) {
       bulkDeleteMutation.mutateAsync(idList);
+      setIdList([]);
     }
   };
 

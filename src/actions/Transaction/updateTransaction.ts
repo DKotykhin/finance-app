@@ -22,7 +22,6 @@ export const updateTransaction = async ({
       },
       data: {
         ...transactionData,
-        amount: parseFloat(transactionData.amount),
       },
     });
 

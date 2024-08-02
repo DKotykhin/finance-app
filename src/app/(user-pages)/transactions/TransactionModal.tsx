@@ -45,7 +45,7 @@ interface TransactionFormValidationTypes {
 
 const TransactionFormValidation: TransactionFormValidationTypes = {
   defaultValues: {
-    amount: '',
+    amount: 0,
     notes: '',
     categoryId: '',
     accountId: '',
@@ -79,18 +79,18 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       const defaultAccountId = accountData.find((account) => account.isDefault)?.id;
       if (defaultAccountId) {
         setAccountValue(new Set([defaultAccountId]));
-        reset({ accountId: defaultAccountId });
+        reset({ accountId: defaultAccountId, categoryId: Array.from(categoryValue).toString() });
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountData, transaction?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   useEffect(() => {
     transaction?.categoryId && setCategoryValue(new Set([transaction?.categoryId]));
     transaction?.accountId && setAccountValue(new Set([transaction?.accountId]));
     transaction?.date && setDateValue(parseAbsoluteToLocal(transaction?.date.toISOString()));
     reset({
-      amount: transaction?.amount || '',
+      amount: transaction?.amount ? +transaction?.amount : 0,
       notes: transaction?.notes || '',
       categoryId: transaction?.categoryId || '',
       accountId: transaction?.accountId || '',
@@ -107,7 +107,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
     mutationFn: ({ transactionData }: { transactionData: Omit<TransactionUpdate, 'id'> }) =>
       createTransaction({
         ...transactionData,
-        amount: parseFloat(transactionData.amount),
         date: dateValue?.toDate(getLocalTimeZone()),
       }),
     onSuccess: () => {
@@ -188,6 +187,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                   render={({ field }) => (
                     <Input
                       {...field}
+                      value={field.value?.toString()}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
                       isRequired
                       type="number"
                       label="Amount"
@@ -198,7 +199,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                           <Chip
                             size="sm"
                             variant="flat"
-                            color={+field?.value ? +field.value > 0 ? 'success' : 'danger' : 'default'}
+                            color={+field?.value ? (+field.value > 0 ? 'success' : 'danger') : 'default'}
                             onClick={() => field.value && field.onChange(+field.value * -1)}
                             className="cursor-pointer"
                           >
