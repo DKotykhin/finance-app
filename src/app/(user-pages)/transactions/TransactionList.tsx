@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Chip, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, Chip, DatePicker, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { format, subDays } from 'date-fns';
+import { useUser } from '@clerk/nextjs';
 import {
   Selection,
   Table,
@@ -15,19 +17,18 @@ import {
   TableCell,
   getKeyValue,
 } from '@nextui-org/react';
+import { DateValue, getLocalTimeZone, parseAbsoluteToLocal } from '@internationalized/date';
 
-import { deleteTransaction, ExtendedTransaction } from '@/actions/Transaction/_index';
+import { deleteTransaction, getTransactions } from '@/actions/Transaction/_index';
+import { getAccounts } from '@/actions/Account/_index';
 import { useConfirm } from '@/hooks/use-confirm';
 import { TransactionFormTypes } from '@/validation/transactionValidation';
 import { cn, currencyMap, numberWithSpaces } from '@/utils/_index';
 
 import { TransactionModal } from './TransactionModal';
 import { columns, rowsPerPageArray } from './const';
-import { format } from 'date-fns';
 
 interface TransactionListProps {
-  transactionData?: ExtendedTransaction[];
-  isLoading: boolean;
   // eslint-disable-next-line no-unused-vars
   selectedKeysFn: (keys: any) => void;
 }
@@ -42,7 +43,7 @@ export interface TransactionUpdate extends TransactionFormTypes {
   date: Date;
 }
 
-export const TransactionList: React.FC<TransactionListProps> = ({ transactionData, isLoading, selectedKeysFn }) => {
+export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn }) => {
   const [transaction, setTransaction] = useState<TransactionUpdate | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
@@ -53,7 +54,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactionDat
   const [pages, setPages] = useState(1);
   const [transactionListLength, setTransactionListLength] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState('5');
+  const [dateValue, setDateValue] = useState<{ start: DateValue; end: DateValue }>({
+    start: parseAbsoluteToLocal(subDays(new Date(), 30).toISOString()),
+    end: parseAbsoluteToLocal(new Date().toISOString()),
+  });
 
+  const { user } = useUser();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [ConfirmModal, confirm] = useConfirm({
@@ -62,6 +68,23 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactionDat
   });
 
   const queryClient = useQueryClient();
+
+  const { data: accountData } = useQuery({
+    enabled: !!user?.id,
+    queryKey: ['accounts'],
+    queryFn: () => getAccounts(user?.id as string),
+  });
+
+  const { data: transactionData, isLoading } = useQuery({
+    enabled: !!accountData,
+    queryKey: ['transactions', dateValue],
+    queryFn: () =>
+      getTransactions({
+        accountIds: accountData?.map((account) => account.id) ?? [],
+        from: dateValue.start.toDate(getLocalTimeZone()),
+        to: dateValue.end.toDate(getLocalTimeZone()),
+      }),
+  });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteTransaction(id),
@@ -173,30 +196,42 @@ export const TransactionList: React.FC<TransactionListProps> = ({ transactionDat
   }, [page, transactionData, rowsPerPage, sortDescriptor]);
 
   const TopContent = () => (
-    <div
-      className={cn(
-        'gap-6 sm:items-center sm:justify-between mb-6 flex-col sm:flex-row',
-        tableContent?.length > 0 ? 'flex' : 'hidden'
-      )}
-    >
+    <div className="flex gap-6 sm:items-center sm:justify-between mb-6 flex-col sm:flex-row">
       <div className="flex gap-6 items-center">
+        <div className="flex flex-col sm:flex-row gap-2 items-center w-full">
+          <DatePicker
+            label="Date from"
+            granularity="day"
+            value={dateValue.start}
+            onChange={(value) => setDateValue((v) => ({ ...v, start: value }))}
+            className="w-full sm:max-w-[200px]"
+          />
+          <DatePicker
+            label="Date to"
+            granularity="day"
+            value={dateValue.end}
+            onChange={(value) => setDateValue((v) => ({ ...v, end: value }))}
+          />
+        </div>
+      </div>
+      <div className='flex gap-4 justify-between items-center w-full'>
         {transactionListLength > 0 && (
           <Chip radius="md" color="secondary">
             {transactionListLength}
           </Chip>
         )}
+        <Select
+          label="Select rows per page"
+          labelPlacement="outside-left"
+          className="max-w-[200px] self-end"
+          selectedKeys={[rowsPerPage]}
+          onChange={onRowsPerPageChange}
+        >
+          {rowsPerPageArray.map((row) => (
+            <SelectItem key={row.key}>{row.label}</SelectItem>
+          ))}
+        </Select>
       </div>
-      <Select
-        label="Select rows per page"
-        labelPlacement="outside-left"
-        className="w-full sm:max-w-[200px] self-end"
-        selectedKeys={[rowsPerPage]}
-        onChange={onRowsPerPageChange}
-      >
-        {rowsPerPageArray.map((row) => (
-          <SelectItem key={row.key}>{row.label}</SelectItem>
-        ))}
-      </Select>
     </div>
   );
 

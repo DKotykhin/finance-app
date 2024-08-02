@@ -23,13 +23,13 @@ import { toast } from 'react-toastify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@clerk/nextjs';
 
-import { getCategories } from '@/actions/Category/getCategories';
-import { createTransaction } from '@/actions/Transaction/createTransaction';
+import { getCategories } from '@/actions/Category/_index';
+import { getAccounts } from '@/actions/Account/_index';
+import { createTransaction, updateTransaction } from '@/actions/Transaction/_index';
 import { TransactionFormTypes, transactionFormValidationSchema } from '@/validation/transactionValidation';
 import { currencyMap } from '@/utils/_index';
+
 import { TransactionUpdate } from './TransactionList';
-import { getAccounts } from '@/actions/Account/getAccounts';
-import { updateTransaction } from '@/actions/Transaction/updateTransaction';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -41,10 +41,6 @@ interface TransactionFormValidationTypes {
   defaultValues: TransactionFormTypes;
   resolver: Resolver<any>;
   mode: Mode;
-}
-
-export interface TransactionToUpdate extends TransactionFormTypes {
-  date: Date;
 }
 
 const TransactionFormValidation: TransactionFormValidationTypes = {
@@ -61,15 +57,10 @@ const TransactionFormValidation: TransactionFormValidationTypes = {
 export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOpenChange, transaction }) => {
   const { user } = useUser();
   const queryClient = useQueryClient();
-  const [dateValue, setDateValue] = useState<DateValue>(
-    parseAbsoluteToLocal(transaction?.date.toISOString() || new Date().toISOString())
-  );
-  const [accountValue, setAccountValue] = useState<Selection>(
-    transaction?.accountId ? new Set([transaction?.accountId]) : new Set([])
-  );
-  const [categoryValue, setCategoryValue] = useState<Selection>(
-    transaction?.categoryId ? new Set([transaction?.categoryId]) : new Set([])
-  );
+
+  const [dateValue, setDateValue] = useState<DateValue>(parseAbsoluteToLocal(new Date().toISOString()));
+  const [accountValue, setAccountValue] = useState<Selection>(new Set([]));
+  const [categoryValue, setCategoryValue] = useState<Selection>(new Set([]));
 
   const { data: accountData, isLoading: isAccountLoading } = useQuery({
     enabled: !!user?.id,
@@ -77,16 +68,27 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
     queryFn: () => getAccounts(user?.id as string),
   });
 
+  const { data: categoryData, isLoading: isCategoryLoading } = useQuery({
+    enabled: !!user?.id,
+    queryKey: ['categories'],
+    queryFn: () => getCategories({ userId: user?.id as string }),
+  });
+
   useEffect(() => {
     if (accountData && accountData.length > 0 && !transaction?.id) {
       const defaultAccountId = accountData.find((account) => account.isDefault)?.id;
       if (defaultAccountId) {
         setAccountValue(new Set([defaultAccountId]));
+        reset({ accountId: defaultAccountId });
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountData, transaction?.id]);
 
   useEffect(() => {
+    transaction?.categoryId && setCategoryValue(new Set([transaction?.categoryId]));
+    transaction?.accountId && setAccountValue(new Set([transaction?.accountId]));
+    transaction?.date && setDateValue(parseAbsoluteToLocal(transaction?.date.toISOString()));
     reset({
       amount: transaction?.amount || '',
       notes: transaction?.notes || '',
@@ -94,21 +96,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       accountId: transaction?.accountId || '',
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [transaction]);
 
   const currencySign = useMemo(() => {
     const acc = accountData && accountData.find((account) => account.id === Array.from(accountValue)[0]);
     return acc?.currency ? currencyMap.get(acc.currency)?.sign : '';
   }, [accountData, accountValue]);
 
-  const { data: categoryData, isLoading: isCategoryLoading } = useQuery({
-    enabled: !!user?.id,
-    queryKey: ['categories'],
-    queryFn: () => getCategories({ userId: user?.id as string }),
-  });
-
   const createMutation = useMutation({
-    mutationFn: ({ transactionData }: { transactionData: TransactionToUpdate }) =>
+    mutationFn: ({ transactionData }: { transactionData: Omit<TransactionUpdate, 'id'> }) =>
       createTransaction({
         ...transactionData,
         amount: parseFloat(transactionData.amount),
@@ -131,7 +127,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       transactionData,
     }: {
       transactionId: string;
-      transactionData: TransactionToUpdate;
+      transactionData: Omit<TransactionUpdate, 'id'>;
     }) => updateTransaction({ transactionId, transactionData }),
     onSuccess: () => {
       reset();
@@ -154,7 +150,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   const onSubmit: SubmitHandler<TransactionFormTypes> = async (transactionData) => {
     if (!dateValue) return;
     transaction?.id
-      ? updateMutation.mutate({ transactionId: transaction.id, transactionData: { ...transactionData, date: dateValue?.toDate(getLocalTimeZone()) } })
+      ? updateMutation.mutate({
+          transactionId: transaction.id,
+          transactionData: { ...transactionData, date: dateValue?.toDate(getLocalTimeZone()) },
+        })
       : createMutation.mutate({ transactionData: { ...transactionData, date: dateValue?.toDate(getLocalTimeZone()) } });
   };
 

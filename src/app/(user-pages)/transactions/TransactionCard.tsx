@@ -4,19 +4,18 @@ import React, { useState } from 'react';
 import { Button, Card, CardBody, CardHeader, Skeleton, useDisclosure } from '@nextui-org/react';
 import { Plus, Trash2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 
 import { useConfirm } from '@/hooks/use-confirm';
-import { useQuery } from '@tanstack/react-query';
-import { getTransactions } from '@/actions/Transaction/getTransactions';
-
-import { useUser } from '@clerk/nextjs';
-import { getAccounts } from '@/actions/Account/getAccounts';
+import { bulkDeleteTransactions } from '@/actions/Transaction/_index';
 
 import { TransactionModal } from './TransactionModal';
 const TransactionList = dynamic(async () => (await import('./TransactionList')).TransactionList, { ssr: false });
 
 export const TransactionCard: React.FC = () => {
-  const { user } = useUser();
+  const queryClient = useQueryClient();
+
   const [idList, setIdList] = useState<string[]>([]);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -28,24 +27,25 @@ export const TransactionCard: React.FC = () => {
         : 'Are you sure you want to delete all these transactions?',
   });
 
-  const { data: accountData } = useQuery({
-    enabled: !!user?.id,
-    queryKey: ['accounts'],
-    queryFn: () => getAccounts(user?.id as string),
-  });
-
-  const { data: transactionData, isLoading } = useQuery({
-    enabled: !!accountData,
-    queryKey: ['transactions'],
-    queryFn: () => getTransactions({ accountIds: accountData?.map((account) => account.id) ?? [] }),
+  const bulkDeleteMutation = useMutation({
+    mutationFn: (idList: string[]) => bulkDeleteTransactions(idList),
+    onSuccess: () => {
+      toast.success('Transactions deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
 
   const onDelete = async () => {
     const ok = await confirm();
     if (ok) {
-      console.log('delete', idList);
+      bulkDeleteMutation.mutateAsync(idList);
     }
   };
+
+  const isLoading = false;
 
   return (
     <>
@@ -65,7 +65,7 @@ export const TransactionCard: React.FC = () => {
                     color="warning"
                     variant="bordered"
                     onPress={onDelete}
-                    // isDisabled={bulkDeleteMutation.isPending}
+                    isDisabled={bulkDeleteMutation.isPending}
                     className="w-full sm:w-auto"
                   >
                     <Trash2 size={16} />
@@ -81,7 +81,7 @@ export const TransactionCard: React.FC = () => {
           )}
         </CardHeader>
         <CardBody>
-          <TransactionList isLoading={isLoading} selectedKeysFn={setIdList} transactionData={transactionData} />
+          <TransactionList selectedKeysFn={setIdList} />
         </CardBody>
       </Card>
       <TransactionModal isOpen={isOpen} onOpenChange={onOpenChange} />

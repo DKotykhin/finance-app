@@ -1,4 +1,5 @@
 export * from './createTransaction';
 export * from './deleteTransaction';
-export * from './updateTransaction';
+export * from './bulkDeleteTransactions';
 export * from './getTransactions';
+export * from './updateTransaction';

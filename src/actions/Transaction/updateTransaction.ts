@@ -4,14 +4,14 @@ import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 import { Transaction } from '@prisma/client';
 import { checkAuth } from '../checkAuth';
-import { TransactionToUpdate } from '@/app/(user-pages)/transactions/TransactionModal';
+import { TransactionUpdate } from '@/app/(user-pages)/transactions/TransactionList';
 
 export const updateTransaction = async ({
   transactionId,
   transactionData,
 }: {
   transactionId: string;
-  transactionData: TransactionToUpdate;
+  transactionData: Omit<TransactionUpdate, 'id'>;
 }): Promise<Transaction> => {
   checkAuth();
 
