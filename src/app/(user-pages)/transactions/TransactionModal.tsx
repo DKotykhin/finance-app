@@ -198,8 +198,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                           <Chip
                             size="sm"
                             variant="flat"
-                            color={+field.value === 0 ? 'default' : +field.value > 0 ? 'success' : 'danger'}
-                            onClick={() => field.onChange(+field.value * -1)}
+                            color={+field?.value ? +field.value > 0 ? 'success' : 'danger' : 'default'}
+                            onClick={() => field.value && field.onChange(+field.value * -1)}
                             className="cursor-pointer"
                           >
                             {currencySign}

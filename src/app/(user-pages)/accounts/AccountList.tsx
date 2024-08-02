@@ -59,7 +59,7 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
 
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Delete Account',
-    message: 'Are you sure you want to delete this account?',
+    message: 'Are you sure you want to delete this account? All transactions associated with this account will be deleted.',
   });
 
   const queryClient = useQueryClient();

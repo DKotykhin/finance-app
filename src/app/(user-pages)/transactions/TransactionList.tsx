@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Chip, DatePicker, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, TriangleAlert } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format, subDays } from 'date-fns';
 import { useUser } from '@clerk/nextjs';
@@ -22,7 +22,6 @@ import { DateValue, getLocalTimeZone, parseAbsoluteToLocal } from '@internationa
 import { deleteTransaction, getTransactions } from '@/actions/Transaction/_index';
 import { getAccounts } from '@/actions/Account/_index';
 import { useConfirm } from '@/hooks/use-confirm';
-import { TransactionFormTypes } from '@/validation/transactionValidation';
 import { cn, currencyMap, numberWithSpaces } from '@/utils/_index';
 
 import { TransactionModal } from './TransactionModal';
@@ -38,9 +37,13 @@ interface SortDescriptor {
   direction: 'ascending' | 'descending';
 }
 
-export interface TransactionUpdate extends TransactionFormTypes {
+export interface TransactionUpdate {
   id: string;
   date: Date;
+  amount: string;
+  categoryId: string | null;
+  accountId: string;
+  notes?: string;
 }
 
 export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn }) => {
@@ -122,7 +125,15 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
   const tableContent = useMemo(() => {
     const start = (page - 1) * +rowsPerPage;
     const end = start + +rowsPerPage;
-    const dataToUse = transactionData || [];
+
+    const coercedTransactionData = transactionData?.map((transaction) => ({
+      ...transaction,
+      accountName: transaction.account.accountName,
+      categoryName: transaction.category?.name,
+      amountValue: transaction.amount,
+      dateValue: transaction.date,
+    }));
+    const dataToUse = coercedTransactionData || [];
 
     setPages(Math.ceil(dataToUse.length / +rowsPerPage));
     setTransactionListLength(dataToUse.length);
@@ -131,21 +142,24 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
       .sort((a, b) => {
         const first = a[sortDescriptor.column as keyof typeof a];
         const second = b[sortDescriptor.column as keyof typeof b];
-        const cmp = first !== null && second !== null ? (first < second ? -1 : first > second ? 1 : 0) : 0;
+        const cmp = (first ?? 0) < (second ?? 0) ? -1 : (first ?? 0) > (second ?? 0) ? 1 : 0;
 
         return sortDescriptor.direction === 'descending' ? -cmp : cmp;
       })
       .slice(start, end)
       .map((transaction) => ({
         ...transaction,
-        amountValue: transaction.amount,
-        dateValue: transaction.date,
-        categoryName: transaction.category.name,
-        accountName: transaction.account.accountName,
         date: <p className="font-semibold">{format(new Date(transaction.date), 'dd MMM, yyyy')}</p>,
-        category: (
-          <Chip color="secondary" variant="faded">
-            {transaction.category.name}
+        categoryName: (
+          <Chip
+            color={transaction.categoryName ? 'secondary' : 'danger'}
+            variant={transaction.categoryName ? 'faded' : 'light'}
+          >
+            {transaction.categoryName ?? (
+              <p className="flex gap-1">
+                <TriangleAlert size={18} /> <span>Uncategorized</span>
+              </p>
+            )}
           </Chip>
         ),
         amount: (
@@ -160,9 +174,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
             </div>
           </div>
         ),
-        account: (
-          <Chip color="primary" variant="faded">
-            {transaction.account.accountName}
+        accountName: (
+          <Chip color="primary" variant={transaction.account.isDefault ? 'solid' : 'faded'}>
+            {transaction.accountName}
           </Chip>
         ),
         actions: (
@@ -214,7 +228,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
           />
         </div>
       </div>
-      <div className='flex gap-4 justify-between items-center w-full'>
+      <div className="flex gap-4 justify-between items-center w-full">
         {transactionListLength > 0 && (
           <Chip radius="md" color="secondary">
             {transactionListLength}
@@ -222,7 +236,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
         )}
         <Select
           label="Select rows per page"
-          labelPlacement="outside-left"
+          // labelPlacement="outside-left"
           className="max-w-[200px] self-end"
           selectedKeys={[rowsPerPage]}
           onChange={onRowsPerPageChange}
@@ -326,7 +340,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
                     />
                   </div>
                 </div>
-                <div className="flex justify-between items-center mt-2">
+                <div className="flex justify-between items-center mt-3">
                   <div className="text-sm text-gray-500">{transaction.categoryName}</div>
                   <div className="text-sm text-gray-500">{transaction.accountName}</div>
                 </div>

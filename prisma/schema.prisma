@@ -54,6 +54,6 @@ model Transaction {
   accountId String  @map("account_id")
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
-  categoryId String   @map("category_id")
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String?   @map("category_id")
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 }

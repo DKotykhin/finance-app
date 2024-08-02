@@ -10,12 +10,12 @@ export const columns = [
     sortable: true,
   },
   {
-    key: 'category',
+    key: 'categoryName',
     label: 'Category',
     sortable: true,
   },
   {
-    key: 'account',
+    key: 'accountName',
     label: 'Account',
     sortable: true,
   },

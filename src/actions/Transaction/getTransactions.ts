@@ -8,8 +8,8 @@ import { Currency, Transaction } from '@prisma/client';
 import { checkAuth } from '../checkAuth';
 
 export interface ExtendedTransaction extends Transaction {
-  category: { name: string };
-  account: { accountName: string; currency: Currency; hideDecimal: boolean };
+  category: { name: string } | null;
+  account: { accountName: string; currency: Currency; hideDecimal: boolean; isDefault: boolean };
 }
 
 export const getTransactions = async ({
@@ -48,6 +48,7 @@ export const getTransactions = async ({
             accountName: true,
             currency: true,
             hideDecimal: true,
+            isDefault: true,
           },
         },
       },

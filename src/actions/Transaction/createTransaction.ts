@@ -16,7 +16,7 @@ export const createTransaction = async ({
   date: Date;
   notes?: string;
   accountId: string;
-  categoryId: string;
+  categoryId: string | null;
 }): Promise<Transaction> => {
   checkAuth();
 
