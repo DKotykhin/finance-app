@@ -20,9 +20,7 @@ export const updateTransaction = async ({
       where: {
         id: transactionId,
       },
-      data: {
-        ...transactionData,
-      },
+      data: transactionData,
     });
 
     return transaction;

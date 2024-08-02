@@ -17,7 +17,7 @@ export default function UserPagesLayout({
   return (
     <div className='flex flex-col h-screen'>
       <Header />
-      <main className="px-3 lg:px-14 flex-grow">{children}</main>
+      <main className="px-4 lg:px-8 flex-grow">{children}</main>
       <Footer />
     </div>
   );

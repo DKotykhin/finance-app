@@ -45,7 +45,7 @@ interface TransactionFormValidationTypes {
 
 const TransactionFormValidation: TransactionFormValidationTypes = {
   defaultValues: {
-    amount: 0,
+    amount: '',
     notes: '',
     categoryId: '',
     accountId: '',
@@ -86,11 +86,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   }, [isOpen]);
 
   useEffect(() => {
-    transaction?.categoryId && setCategoryValue(new Set([transaction?.categoryId]));
-    transaction?.accountId && setAccountValue(new Set([transaction?.accountId]));
-    transaction?.date && setDateValue(parseAbsoluteToLocal(transaction?.date.toISOString()));
+    transaction?.categoryId ? setCategoryValue(new Set([transaction?.categoryId])) : setCategoryValue(new Set([]));
+    transaction?.accountId ? setAccountValue(new Set([transaction?.accountId])) : setAccountValue(new Set([]));
+    transaction?.date
+      ? setDateValue(parseAbsoluteToLocal(transaction?.date.toISOString()))
+      : setDateValue(parseAbsoluteToLocal(new Date().toISOString()));
     reset({
-      amount: transaction?.amount ? +transaction?.amount : 0,
+      amount: transaction?.amount ? transaction?.amount.toString() : '',
       notes: transaction?.notes || '',
       categoryId: transaction?.categoryId || '',
       accountId: transaction?.accountId || '',
@@ -105,10 +107,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
 
   const createMutation = useMutation({
     mutationFn: ({ transactionData }: { transactionData: Omit<TransactionUpdate, 'id'> }) =>
-      createTransaction({
-        ...transactionData,
-        date: dateValue?.toDate(getLocalTimeZone()),
-      }),
+      createTransaction(transactionData),
     onSuccess: () => {
       reset();
       onOpenChange();
@@ -148,12 +147,36 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
 
   const onSubmit: SubmitHandler<TransactionFormTypes> = async (transactionData) => {
     if (!dateValue) return;
+    const notes1 = transaction?.notes ? transaction.notes : '';
+    const notes2 = transactionData.notes ? transactionData.notes : '';
+    if (
+      notes1 === notes2 &&
+      transaction?.amount === parseFloat(transactionData.amount) &&
+      transaction?.categoryId === transactionData.categoryId &&
+      transaction?.accountId === transactionData.accountId &&
+      transaction?.date.toISOString() === dateValue?.toDate(getLocalTimeZone()).toISOString()
+    ) {
+      toast.info('No changes detected');
+      return;
+    }
     transaction?.id
       ? updateMutation.mutate({
           transactionId: transaction.id,
-          transactionData: { ...transactionData, date: dateValue?.toDate(getLocalTimeZone()) },
+          transactionData: {
+            ...transactionData,
+            date: dateValue?.toDate(getLocalTimeZone()),
+            amount: Math.round(parseFloat(transactionData.amount) * 100) / 100,
+            notes: transactionData.notes || null,
+          },
         })
-      : createMutation.mutate({ transactionData: { ...transactionData, date: dateValue?.toDate(getLocalTimeZone()) } });
+      : createMutation.mutate({
+          transactionData: {
+            ...transactionData,
+            date: dateValue?.toDate(getLocalTimeZone()),
+            amount: Math.round(parseFloat(transactionData.amount) * 100) / 100,
+            notes: transactionData.notes || null,
+          },
+        });
   };
 
   return (
@@ -187,8 +210,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                   render={({ field }) => (
                     <Input
                       {...field}
-                      value={field.value?.toString()}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
                       isRequired
                       type="number"
                       label="Amount"

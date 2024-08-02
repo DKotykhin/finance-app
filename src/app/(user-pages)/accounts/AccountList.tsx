@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
 import { Pencil, SearchIcon, Trash2 } from 'lucide-react';
@@ -31,6 +31,8 @@ interface AccountListProps {
   isLoading: boolean;
   // eslint-disable-next-line no-unused-vars
   selectedKeysFn: (keys: any) => void;
+  // eslint-disable-next-line no-unused-vars
+  accountListLengthFn: (length: number) => void;
 }
 
 interface SortDescriptor {
@@ -42,7 +44,12 @@ export interface AccountUpdate extends AccountFormTypes {
   id: string;
 }
 
-export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading, selectedKeysFn }) => {
+export const AccountList: React.FC<AccountListProps> = ({
+  accountData,
+  isLoading,
+  selectedKeysFn,
+  accountListLengthFn,
+}) => {
   const [account, setAccount] = useState<AccountUpdate | null>(null);
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
@@ -57,9 +64,15 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+  useEffect(() => {
+    accountListLengthFn(accountListLength);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountListLength]);
+
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Delete Account',
-    message: 'Are you sure you want to delete this account? All transactions associated with this account will be deleted.',
+    message:
+      'Are you sure you want to delete this account? All transactions associated with this account will be deleted.',
   });
 
   const queryClient = useQueryClient();
@@ -146,7 +159,7 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
           </div>
         ),
         balance: (
-          <div className="flex gap-2 justify-center items-center">
+          <div className="flex gap-2 items-center">
             <div>{currencyMap.get(account.currency)?.sign}</div>
             <div className={cn('font-semibold', account.balance < 0 ? 'text-red-500' : '')}>
               {numberWithSpaces(
@@ -183,27 +196,20 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
         tableContent?.length > 0 ? 'flex' : 'hidden'
       )}
     >
-      <div className="flex gap-6 items-center">
-        <Input
-          isClearable
-          autoFocus
-          placeholder="Search"
-          className="max-w-[250px]"
-          startContent={<SearchIcon />}
-          value={filterValue}
-          onClear={() => onClear()}
-          onValueChange={onSearchChange}
-        />
-        {accountListLength > 0 && (
-          <Chip radius="md" color="secondary">
-            {accountListLength}
-          </Chip>
-        )}
-      </div>
+      <Input
+        isClearable
+        autoFocus
+        placeholder="Search"
+        className="w-full sm:max-w-[250px]"
+        startContent={<SearchIcon />}
+        value={filterValue}
+        onClear={() => onClear()}
+        onValueChange={onSearchChange}
+      />
       <Select
         label="Select rows per page"
         labelPlacement="outside-left"
-        className="w-full sm:max-w-[200px] self-end"
+        className="max-w-[400px] sm:max-w-[200px] self-end"
         selectedKeys={[rowsPerPage]}
         onChange={onRowsPerPageChange}
       >
@@ -248,7 +254,7 @@ export const AccountList: React.FC<AccountListProps> = ({ accountData, isLoading
           {(column) => (
             <TableColumn
               key={column.key}
-              align={column.key === 'accountName' ? 'start' : 'center'}
+              align={column.key === 'accountName' || column.key === 'balance' ? 'start' : 'center'}
               allowsSorting={column.sortable}
             >
               {column.label}

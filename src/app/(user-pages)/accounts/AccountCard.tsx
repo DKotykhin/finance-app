@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Card, CardBody, CardHeader, Skeleton, useDisclosure } from '@nextui-org/react';
+import { Button, Card, CardBody, CardHeader, Chip, Skeleton, useDisclosure } from '@nextui-org/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -16,6 +16,7 @@ const AccountList = dynamic(async () => (await import('./AccountList')).AccountL
 export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const [idList, setIdList] = useState<string[]>([]);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [accountListLength, setAccountListLength] = useState(0);
 
   const queryClient = useQueryClient();
 
@@ -38,6 +39,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
     onSuccess: () => {
       toast.success('Accounts deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      setIdList([]);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -48,7 +50,6 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
     const ok = await confirm();
     if (ok) {
       bulkDeleteMutation.mutateAsync(idList);
-      setIdList([]);
     }
   };
 
@@ -63,7 +64,14 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
             </>
           ) : (
             <>
-              <p className="font-bold text-xl">Account page</p>
+              <div className="flex items-center gap-4">
+                <p className="font-bold text-xl">Account page</p>
+                {accountListLength > 0 && (
+                  <Chip radius="md" color="secondary">
+                    {accountListLength}
+                  </Chip>
+                )}
+              </div>
               <div className="flex gap-4 w-full sm:w-auto">
                 {idList.length > 0 && (
                   <Button
@@ -86,7 +94,12 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
           )}
         </CardHeader>
         <CardBody>
-          <AccountList accountData={accountData} isLoading={isLoading} selectedKeysFn={setIdList} />
+          <AccountList
+            accountData={accountData}
+            isLoading={isLoading}
+            selectedKeysFn={setIdList}
+            accountListLengthFn={setAccountListLength}
+          />
         </CardBody>
       </Card>
       <AccountModal isOpen={isOpen} onOpenChange={onOpenChange} />
