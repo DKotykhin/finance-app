@@ -261,7 +261,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                     render={({ field }) => (
                       <Select
                         {...field}
-                        items={categoryData}
+                        items={categoryData.filter((category) => category.hidden === false)}
                         label="Select a category"
                         isLoading={isCategoryLoading}
                         isDisabled={isCategoryLoading}

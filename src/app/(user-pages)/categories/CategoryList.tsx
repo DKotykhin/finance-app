@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
 import { Pencil, SearchIcon, Trash2 } from 'lucide-react';
@@ -30,6 +30,8 @@ interface CategoryListProps {
   isLoading: boolean;
   // eslint-disable-next-line no-unused-vars
   selectedKeysFn: (keys: any) => void;
+  // eslint-disable-next-line no-unused-vars
+  categoryListLengthFn: (length: number) => void;
 }
 
 interface SortDescriptor {
@@ -41,7 +43,12 @@ export interface CategoryUpdate extends CategoryFormTypes {
   id: string;
 }
 
-export const CategoryList: React.FC<CategoryListProps> = ({ categoryData, isLoading, selectedKeysFn }) => {
+export const CategoryList: React.FC<CategoryListProps> = ({
+  categoryData,
+  isLoading,
+  selectedKeysFn,
+  categoryListLengthFn,
+}) => {
   const [category, setCategory] = useState<CategoryUpdate | null>(null);
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
@@ -55,6 +62,11 @@ export const CategoryList: React.FC<CategoryListProps> = ({ categoryData, isLoad
   const [rowsPerPage, setRowsPerPage] = useState('5');
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  useEffect(() => {
+    categoryListLengthFn(categoryListLength);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryListLength]);
 
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Delete Category',
@@ -133,11 +145,15 @@ export const CategoryList: React.FC<CategoryListProps> = ({ categoryData, isLoad
         id: category.id,
         nameValue: category.name,
         hiddenValue: category.hidden,
-        name: <p className="font-semibold">{category.name}</p>,
+        name: (
+          <Chip color="secondary" variant="faded">
+            {category.name}
+          </Chip>
+        ),
         hidden: (
-          <p className={cn('text-sm mt-2', category.hidden ? 'text-red-500' : 'text-green-500')}>
+          <Chip color={category.hidden ? 'danger' : 'success'} variant="bordered">
             {category.hidden ? 'Hidden' : 'Visible'}
-          </p>
+          </Chip>
         ),
         actions: (
           <div className="flex justify-center gap-4">
@@ -166,27 +182,20 @@ export const CategoryList: React.FC<CategoryListProps> = ({ categoryData, isLoad
         tableContent?.length > 0 ? 'flex' : 'hidden'
       )}
     >
-      <div className="flex gap-6 items-center">
-        <Input
-          isClearable
-          autoFocus
-          placeholder="Search"
-          className="max-w-[250px]"
-          startContent={<SearchIcon />}
-          value={filterValue}
-          onClear={() => onClear()}
-          onValueChange={onSearchChange}
-        />
-        {categoryListLength > 0 && (
-          <Chip radius="md" color="secondary">
-            {categoryListLength}
-          </Chip>
-        )}
-      </div>
+      <Input
+        isClearable
+        autoFocus
+        placeholder="Search"
+        className="max-w-[250px]"
+        startContent={<SearchIcon />}
+        value={filterValue}
+        onClear={() => onClear()}
+        onValueChange={onSearchChange}
+      />
       <Select
         label="Select rows per page"
         labelPlacement="outside-left"
-        className="w-full sm:max-w-[200px] self-end"
+        className="max-w-[400px] sm:max-w-[200px] self-end"
         selectedKeys={[rowsPerPage]}
         onChange={onRowsPerPageChange}
       >

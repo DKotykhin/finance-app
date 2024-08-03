@@ -17,8 +17,7 @@ import {
   getKeyValue,
 } from '@nextui-org/react';
 
-import { deleteAccount } from '@/actions/Account/_index';
-import { Account } from '@prisma/client';
+import { deleteAccount, ExtendedAccount } from '@/actions/Account/_index';
 import { useConfirm } from '@/hooks/use-confirm';
 import { AccountFormTypes } from '@/validation/accountValidation';
 import { cn, currencyMap, numberWithSpaces } from '@/utils/_index';
@@ -27,7 +26,7 @@ import { AccountModal } from './AccountModal';
 import { columns, rowsPerPageArray } from './const';
 
 interface AccountListProps {
-  accountData?: Account[];
+  accountData?: ExtendedAccount[];
   isLoading: boolean;
   // eslint-disable-next-line no-unused-vars
   selectedKeysFn: (keys: any) => void;
@@ -149,8 +148,10 @@ export const AccountList: React.FC<AccountListProps> = ({
         accountNameValue: account.accountName,
         currencyValue: account.currency,
         accountName: (
-          <div className="flex gap-2 items-center font-semibold">
-            <span>{account.accountName}</span>
+          <div className="flex flex-wrap gap-2 items-center font-semibold">
+            <Chip color="primary" variant="faded">
+              {account.accountName}
+            </Chip>
             {account.isDefault && (
               <Chip size="sm" variant="flat">
                 default
@@ -161,9 +162,16 @@ export const AccountList: React.FC<AccountListProps> = ({
         balance: (
           <div className="flex gap-2 items-center">
             <div>{currencyMap.get(account.currency)?.sign}</div>
-            <div className={cn('font-semibold', account.balance < 0 ? 'text-red-500' : '')}>
+            <div
+              className={cn(
+                'font-semibold',
+                account.transactions.reduce((acc, item) => item.amount + acc, 0) < 0 ? 'text-red-500' : ''
+              )}
+            >
               {numberWithSpaces(
-                account.hideDecimal ? Math.round(account.balance) : Math.round(account.balance * 100) / 100
+                account.hideDecimal
+                  ? Math.round(account.transactions.reduce((acc, item) => item.amount + acc, 0))
+                  : Math.round(account.transactions.reduce((acc, item) => item.amount + acc, 0) * 100) / 100
               )}
             </div>
           </div>

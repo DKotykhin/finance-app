@@ -21,7 +21,6 @@ model Account {
 
   userId      String   @map("user_id")
   accountName String   @map("account_name")
-  balance     Float    @default(value: 0)
   currency    Currency @default(value: USD)
   hideDecimal Boolean  @default(value: false)
   isDefault   Boolean  @default(value: false)

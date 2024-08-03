@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Card, CardBody, CardHeader, Skeleton, useDisclosure } from '@nextui-org/react';
+import { Button, Card, CardBody, CardHeader, Chip, Skeleton, useDisclosure } from '@nextui-org/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -16,6 +16,7 @@ const CategoryList = dynamic(async () => (await import('./CategoryList')).Catego
 export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const [idList, setIdList] = useState<string[]>([]);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [categoryListLength, setCategoryListLength] = useState(0);
 
   const queryClient = useQueryClient();
 
@@ -63,7 +64,14 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
             </>
           ) : (
             <>
-              <p className="font-bold text-xl">Category page</p>
+              <div className="flex items-center gap-4">
+                <p className="font-bold text-xl">Category page</p>
+                {categoryListLength > 0 && (
+                  <Chip radius="md" color="secondary">
+                    {categoryListLength}
+                  </Chip>
+                )}
+              </div>
               <div className="flex gap-4 w-full sm:w-auto">
                 {idList.length > 0 && (
                   <Button
@@ -86,7 +94,12 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
           )}
         </CardHeader>
         <CardBody>
-          <CategoryList categoryData={categoryData} isLoading={isLoading} selectedKeysFn={setIdList} />
+          <CategoryList
+            categoryData={categoryData}
+            isLoading={isLoading}
+            selectedKeysFn={setIdList}
+            categoryListLengthFn={setCategoryListLength}
+          />
         </CardBody>
       </Card>
       <CategoryModal isOpen={isOpen} onOpenChange={onOpenChange} />
