@@ -12,11 +12,13 @@ import {
   ModalHeader,
   Select,
   SelectItem,
+  Tooltip,
 } from '@nextui-org/react';
 import { Controller, Mode, Resolver, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Info } from 'lucide-react';
 
 import { AccountFormTypes, accountFormValidationSchema } from '@/validation/accountValidation';
 import { createAccount, updateAccount } from '@/actions/Account/_index';
@@ -55,9 +57,10 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
       accountName: account?.accountName || '',
       currency: account?.currency || Currency.USD,
       hideDecimal: account?.hideDecimal || false,
+      isDefault: account?.isDefault || false,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account?.accountName, account?.currency, account?.hideDecimal]);
+  }, [isOpen]);
 
   const createMutation = useMutation({
     mutationFn: ({ accountData }: { accountData: AccountFormTypes }) => createAccount({ accountData }),
@@ -159,37 +162,53 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
                     </Select>
                   )}
                 />
-                <div className="flex flex-col sm:flex-row gap-2 justify-around">
-                  <Controller
-                    name="hideDecimal"
-                    control={control}
-                    defaultValue={false}
-                    render={({ field }) => (
-                      <Checkbox
-                        {...field}
-                        value={field.value.toString()}
-                        className="mt-2"
-                        defaultSelected={account?.hideDecimal || false}
-                      >
-                        Hide decimal
-                      </Checkbox>
-                    )}
-                  />
-                  <Controller
-                    name="isDefault"
-                    control={control}
-                    defaultValue={false}
-                    render={({ field }) => (
-                      <Checkbox
-                        {...field}
-                        value={field.value.toString()}
-                        className="mt-2"
-                        defaultSelected={account?.isDefault || false}
-                      >
-                        {account?.isDefault ? 'Default account' : 'Set as default'}
-                      </Checkbox>
-                    )}
-                  />
+                <div className="flex flex-col sm:flex-row gap-2 justify-around mt-4">
+                  <div className="flex gap-2 items-center">
+                    <Controller
+                      name="hideDecimal"
+                      control={control}
+                      defaultValue={false}
+                      render={({ field }) => (
+                        <Checkbox
+                          {...field}
+                          value={field.value.toString()}
+                          defaultSelected={account?.hideDecimal || false}
+                        >
+                          Hide decimal
+                        </Checkbox>
+                      )}
+                    />
+                    <Tooltip
+                      content="Hide decimal sign to account balance and transactions"
+                      color="primary"
+                      className="max-w-[200px]"
+                    >
+                      <Info size={16} color="#2563eb" />
+                    </Tooltip>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <Controller
+                      name="isDefault"
+                      control={control}
+                      defaultValue={false}
+                      render={({ field }) => (
+                        <Checkbox
+                          {...field}
+                          value={field.value.toString()}
+                          defaultSelected={account?.isDefault || false}
+                        >
+                          {account?.isDefault ? 'Default account' : 'Set as default'}
+                        </Checkbox>
+                      )}
+                    />
+                    <Tooltip
+                      content="Set as default account for all transactions"
+                      color="primary"
+                      className="max-w-[200px]"
+                    >
+                      <Info size={16} color="#2563eb" />
+                    </Tooltip>
+                  </div>
                 </div>
               </ModalBody>
               <ModalFooter>

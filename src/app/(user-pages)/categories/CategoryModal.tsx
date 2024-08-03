@@ -1,11 +1,22 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Button, Checkbox, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
+import {
+  Button,
+  Checkbox,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Tooltip,
+} from '@nextui-org/react';
 import { Controller, Mode, Resolver, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Info } from 'lucide-react';
 
 import { CategoryFormTypes, categoryFormValidationSchema } from '@/validation/categoryValidation';
 import { createCategory, updateCategory } from '@/actions/Category/_index';
@@ -45,8 +56,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
   }, [category?.name, category?.hidden]);
 
   const createMutation = useMutation({
-    mutationFn: ({ categoryData }: { categoryData: CategoryFormTypes }) =>
-      createCategory({ categoryData }),
+    mutationFn: ({ categoryData }: { categoryData: CategoryFormTypes }) => createCategory({ categoryData }),
     onSuccess: (data) => {
       reset();
       onOpenChange();
@@ -124,16 +134,29 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
                   )}
                 />
                 {category?.id && (
-                  <Controller
-                    name="hidden"
-                    control={control}
-                    defaultValue={false}
-                    render={({ field }) => (
-                      <Checkbox {...field} value={field?.value?.toString()} defaultSelected={category?.hidden || false}>
-                        Hidden
-                      </Checkbox>
-                    )}
-                  />
+                  <div className="flex gap-2 items-center">
+                    <Controller
+                      name="hidden"
+                      control={control}
+                      defaultValue={false}
+                      render={({ field }) => (
+                        <Checkbox
+                          {...field}
+                          value={field?.value?.toString()}
+                          defaultSelected={category?.hidden || false}
+                        >
+                          Hidden
+                        </Checkbox>
+                      )}
+                    />
+                    <Tooltip
+                      content="Hidden categories are not available for new transactions"
+                      color="primary"
+                      className="max-w-[200px]"
+                    >
+                      <Info size={16} color="#2563eb" />
+                    </Tooltip>
+                  </div>
                 )}
               </ModalBody>
               <ModalFooter>

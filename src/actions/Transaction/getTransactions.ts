@@ -1,10 +1,11 @@
 'use server';
 
-import { subDays } from 'date-fns';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 import { Currency, Transaction } from '@prisma/client';
+
 import { checkAuth } from '../checkAuth';
 
 export interface ExtendedTransaction extends Transaction {
@@ -23,8 +24,8 @@ export const getTransactions = async ({
 }): Promise<ExtendedTransaction[]> => {
   checkAuth();
 
-  const defaultTo = new Date();
-  const defaultFrom = subDays(defaultTo, 30);
+  const dateFrom = startOfDay(from || subDays(new Date(), 30));
+  const dateTo = endOfDay(to || new Date());
 
   try {
     const transactions = await db.transaction.findMany({
@@ -33,8 +34,8 @@ export const getTransactions = async ({
           in: accountIds,
         },
         date: {
-          gte: from || defaultFrom,
-          lte: to || defaultTo,
+          gte: dateFrom,
+          lte: dateTo,
         },
       },
       include: {
