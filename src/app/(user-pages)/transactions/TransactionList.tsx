@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Chip, DatePicker, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
-import { Pencil, Trash2, TriangleAlert } from 'lucide-react';
+import { Loader2, Pencil, Trash2, TriangleAlert } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format, subDays } from 'date-fns';
 import { useUser } from '@clerk/nextjs';
@@ -223,14 +223,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
                 }
               />
             </Button>
-            <Button isIconOnly size="sm" variant="light">
-              <Trash2
-                className={cn(
-                  'cursor-pointer text-red-500',
-                  deleteMutation.isPending && transaction.id === deleteMutation.variables ? 'opacity-50' : ''
-                )}
-                onClick={() => handleClick(transaction.id)}
-              />
+            <Button isIconOnly size="sm" variant="light" disabled={deleteMutation.isPending}>
+              {deleteMutation.isPending && transaction.id === deleteMutation.variables ? (
+                <Loader2 className="text-slate-400 animate-spin" size={24} />
+              ) : (
+                <Trash2 className="cursor-pointer text-red-500" onClick={() => handleClick(transaction.id)} />
+              )}
             </Button>
           </div>
         ),
@@ -247,14 +245,14 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
             granularity="day"
             value={dateValue.start}
             onChange={(value) => setDateValue((v) => ({ ...v, start: value }))}
-            className='w-full lg:w-[160px]'
+            className="w-full lg:w-[160px]"
           />
           <DatePicker
             label="Date to"
             granularity="day"
             value={dateValue.end}
             onChange={(value) => setDateValue((v) => ({ ...v, end: value }))}
-            className='w-full lg:w-[160px]'
+            className="w-full lg:w-[160px]"
           />
         </div>
         <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
@@ -337,7 +335,6 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
             <TableColumn
               key={column.key}
               align={column.key === 'date' || column.key === 'amount' ? 'start' : 'center'}
-              // align={column.key === 'actions' ? 'center' : 'start'}
               allowsSorting={column.sortable}
             >
               {column.label}

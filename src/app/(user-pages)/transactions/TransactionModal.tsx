@@ -294,7 +294,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                 <Button type="button" color="default" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit" color="primary">
+                <Button type="submit" color="primary" disabled={createMutation.isPending || updateMutation.isPending}>
                   {transaction?.id ? 'Update' : 'Create'}
                 </Button>
               </ModalFooter>

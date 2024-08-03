@@ -22,7 +22,7 @@ const Header: React.FC = () => {
             <Navigation />
           </div>
           <ClerkLoading>
-            <Loader2 className='text-slate-400 animate-spin' size={40} />
+            <Loader2 className="text-slate-400 animate-spin" size={40} />
           </ClerkLoading>
           <ClerkLoaded>
             <SignedOut>

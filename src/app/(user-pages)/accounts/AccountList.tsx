@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
-import { Pencil, SearchIcon, Trash2 } from 'lucide-react';
+import { Loader2, Pencil, SearchIcon, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import {
@@ -182,14 +182,12 @@ export const AccountList: React.FC<AccountListProps> = ({
             <Button isIconOnly size="sm" variant="light">
               <Pencil className="cursor-pointer text-orange-300" onClick={() => updateClick(account)} />
             </Button>
-            <Button isIconOnly size="sm" variant="light">
-              <Trash2
-                className={cn(
-                  'cursor-pointer text-red-500',
-                  deleteMutation.isPending && account.id === deleteMutation.variables ? 'opacity-50' : ''
-                )}
-                onClick={() => handleClick(account.id)}
-              />
+            <Button isIconOnly size="sm" variant="light" disabled={deleteMutation.isPending}>
+              {deleteMutation.isPending && account.id === deleteMutation.variables ? (
+                <Loader2 className="text-slate-400 animate-spin" size={24} />
+              ) : (
+                <Trash2 className="cursor-pointer text-red-500" onClick={() => handleClick(account.id)} />
+              )}
             </Button>
           </div>
         ),
