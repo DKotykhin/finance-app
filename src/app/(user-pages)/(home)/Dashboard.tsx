@@ -19,8 +19,10 @@ import { HandCoins, TrendingDown, TrendingUp } from 'lucide-react';
 import { Currency } from '@prisma/client';
 
 import { getAccounts } from '@/actions/Account/_index';
-import { getTransactions } from '@/actions/Transaction/_index';
+import { getTransactionsWithStats } from '@/actions/Transaction/_index';
 import { valueToDate, currencyMap, dateToValue, cn } from '@/utils/_index';
+
+import { CompareMessage } from './CompareMessage';
 
 export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const [accountValue, setAccountValue] = useState<any>();
@@ -47,10 +49,10 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
 
   const { data: transactionData, isLoading: isTransactionLoading } = useQuery({
     enabled: !!accountValue,
-    queryKey: ['transactions', dateValue, accountValue],
+    queryKey: ['transactionsWithStat', dateValue, accountValue],
     queryFn: () =>
-      getTransactions({
-        accountIds: [accountValue],
+      getTransactionsWithStats({
+        accountId: accountValue,
         from: valueToDate(dateValue.start),
         to: valueToDate(dateValue.end),
       }),
@@ -58,10 +60,10 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
 
   const { data: previousTransactionData, isLoading: isPreviousTransactionLoading } = useQuery({
     enabled: !!accountValue && period > 0,
-    queryKey: ['previousTransactions', dateValue, accountValue],
+    queryKey: ['previousTransactionsWithStat', dateValue, accountValue],
     queryFn: () =>
-      getTransactions({
-        accountIds: [accountValue],
+      getTransactionsWithStats({
+        accountId: accountValue,
         from: addDays(subDays(valueToDate(dateValue.start), period), -1),
         to: addDays(subDays(valueToDate(dateValue.end), period), -1),
       }),
@@ -71,87 +73,33 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
     return accountData?.find((account) => account.id === accountValue);
   }, [accountData, accountValue]);
 
-  const totalIncome = useMemo(() => {
-    return transactionData?.reduce((acc, transaction) => {
-      const totalIncome = transaction.amount > 0 ? acc + transaction.amount : acc;
-      return currentAccount?.hideDecimal ? Math.round(totalIncome) : Math.round(totalIncome * 100) / 100;
-    }, 0);
-  }, [transactionData, currentAccount]);
-
-  const totalPreviousIncome = useMemo(() => {
-    return previousTransactionData?.reduce((acc, transaction) => {
-      const totalIncome = transaction.amount > 0 ? acc + transaction.amount : acc;
-      return currentAccount?.hideDecimal ? Math.round(totalIncome) : Math.round(totalIncome * 100) / 100;
-    }, 0);
-  }, [previousTransactionData, currentAccount]);
-
-  const totalExpenses = useMemo(() => {
-    return transactionData?.reduce((acc, transaction) => {
-      const totalExpenses = transaction.amount < 0 ? acc + transaction.amount : acc;
-      return currentAccount?.hideDecimal ? Math.round(totalExpenses) : Math.round(totalExpenses * 100) / 100;
-    }, 0);
-  }, [transactionData, currentAccount]);
-
-  const totalPreviousExpenses = useMemo(() => {
-    return previousTransactionData?.reduce((acc, transaction) => {
-      const totalExpenses = transaction.amount < 0 ? acc + transaction.amount : acc;
-      return currentAccount?.hideDecimal ? Math.round(totalExpenses) : Math.round(totalExpenses * 100) / 100;
-    }, 0);
-  }, [previousTransactionData, currentAccount]);
-
-  const totalRemaining = useMemo(() => {
-    const totalRemaining = (totalIncome ? totalIncome : 0) + (totalExpenses ? totalExpenses : 0);
-    return Math.round(totalRemaining * 100) / 100;
-  }, [totalIncome, totalExpenses]);
-
-  const totalPreviousRemaining = useMemo(() => {
-    const totalRemaining =
-      (totalPreviousIncome ? totalPreviousIncome : 0) + (totalPreviousExpenses ? totalPreviousExpenses : 0);
-    return Math.round(totalRemaining * 100) / 100;
-  }, [totalPreviousIncome, totalPreviousExpenses]);
-
-  const userMessage = (current?: number, previous?: number): React.ReactElement => {
-    if (!current) return <p className="text-sm text-gray-400">No data in current period</p>;
-    if (!previous) return <p className="text-sm text-gray-400">No data in previous period</p>;
-    const percentage = Math.abs(Math.round((previous / current) * 100));
-    if (
-      (current > 0 && previous < 0) ||
-      (current > 0 && previous > 0 && previous > current) ||
-      (current < 0 && previous < 0 && previous < current)
-    ) {
-      return <p className="text-sm text-green-500">{`+ ${percentage}% from last period`}</p>;
-    }
-    if (
-      (current < 0 && previous > 0) ||
-      (current < 0 && previous < 0 && previous > current) ||
-      (current > 0 && previous > 0 && previous < current)
-    ) {
-      return <p className="text-sm text-red-500">{`- ${percentage}% from last period`}</p>;
-    }
-    return <></>;
-  };
-
   const cardArray = [
     {
       title: 'Remaining',
       icon: <HandCoins color="#2563eb" />,
       iconBackground: 'bg-blue-500/10',
-      value: totalRemaining,
-      previous: totalPreviousRemaining,
+      value: currentAccount?.hideDecimal
+        ? transactionData?.remaining && Math.round(transactionData.remaining)
+        : transactionData?.remaining,
+      previous: previousTransactionData?.remaining,
     },
     {
       title: 'Income',
       icon: <TrendingUp color="#22c55e" />,
       iconBackground: 'bg-green-500/10',
-      value: totalIncome,
-      previous: totalPreviousIncome,
+      value: currentAccount?.hideDecimal
+        ? transactionData?.income && Math.round(transactionData.income)
+        : transactionData?.income,
+      previous: previousTransactionData?.income,
     },
     {
       title: 'Expenses',
       icon: <TrendingDown color="#f15922" />,
       iconBackground: 'bg-red-500/10',
-      value: totalExpenses,
-      previous: totalPreviousExpenses,
+      value: currentAccount?.hideDecimal
+        ? transactionData?.expense && Math.round(transactionData.expense)
+        : transactionData?.expense,
+      previous: previousTransactionData?.expense,
     },
   ];
 
@@ -217,7 +165,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
                     {isPreviousTransactionLoading ? (
                       <Skeleton className="w-full h-4 rounded-lg bg-slate-100"></Skeleton>
                     ) : (
-                      userMessage(card.value, card.previous)
+                      <CompareMessage current={card.value} previous={card.previous} />
                     )}
                   </CardFooter>
                 </Card>

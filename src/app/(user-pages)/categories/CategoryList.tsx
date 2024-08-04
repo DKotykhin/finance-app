@@ -174,16 +174,11 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   }, [page, categoryData, filterValue, rowsPerPage, sortDescriptor]);
 
   const TopContent = () => (
-    <div
-      className={cn(
-        'gap-6 sm:items-center sm:justify-between mb-6 flex-col sm:flex-row',
-        tableContent?.length > 0 ? 'flex' : 'hidden'
-      )}
-    >
+    <div className="flex gap-6 sm:items-center sm:justify-between mb-6 flex-col sm:flex-row">
       <Input
         isClearable
         autoFocus
-        placeholder="Search"
+        placeholder="Search category"
         className="max-w-[250px]"
         startContent={<SearchIcon />}
         value={filterValue}
