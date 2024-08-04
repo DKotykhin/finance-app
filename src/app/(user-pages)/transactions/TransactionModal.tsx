@@ -16,7 +16,7 @@ import {
   SelectItem,
   Textarea,
 } from '@nextui-org/react';
-import { DateValue, getLocalTimeZone, parseAbsoluteToLocal } from '@internationalized/date';
+import { DateValue, parseAbsoluteToLocal } from '@internationalized/date';
 import { Controller, Mode, Resolver, SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
@@ -27,7 +27,7 @@ import { getCategories } from '@/actions/Category/_index';
 import { getAccounts } from '@/actions/Account/_index';
 import { createTransaction, updateTransaction } from '@/actions/Transaction/_index';
 import { TransactionFormTypes, transactionFormValidationSchema } from '@/validation/transactionValidation';
-import { currencyMap } from '@/utils/_index';
+import { currencyMap, valueToDate } from '@/utils/_index';
 
 import { TransactionUpdate } from './TransactionList';
 
@@ -154,7 +154,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       transaction?.amount === parseFloat(transactionData.amount) &&
       transaction?.categoryId === transactionData.categoryId &&
       transaction?.accountId === transactionData.accountId &&
-      transaction?.date.toISOString() === dateValue?.toDate(getLocalTimeZone()).toISOString()
+      transaction?.date.toISOString() === valueToDate(dateValue).toISOString()
     ) {
       toast.info('No changes detected');
       return;
@@ -164,7 +164,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
           transactionId: transaction.id,
           transactionData: {
             ...transactionData,
-            date: dateValue?.toDate(getLocalTimeZone()),
+            date: valueToDate(dateValue),
             amount: Math.round(parseFloat(transactionData.amount) * 100) / 100,
             notes: transactionData.notes || null,
           },
@@ -172,7 +172,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       : createMutation.mutate({
           transactionData: {
             ...transactionData,
-            date: dateValue?.toDate(getLocalTimeZone()),
+            date: valueToDate(dateValue),
             amount: Math.round(parseFloat(transactionData.amount) * 100) / 100,
             notes: transactionData.notes || null,
           },

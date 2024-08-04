@@ -17,13 +17,13 @@ import {
   TableCell,
   getKeyValue,
 } from '@nextui-org/react';
-import { DateValue, getLocalTimeZone, parseAbsoluteToLocal } from '@internationalized/date';
+import { DateValue, parseAbsoluteToLocal } from '@internationalized/date';
 
 import { deleteTransaction, getTransactions } from '@/actions/Transaction/_index';
 import { getAccounts } from '@/actions/Account/_index';
 import { getCategories } from '@/actions/Category/_index';
 import { useConfirm } from '@/hooks/use-confirm';
-import { cn, currencyMap, numberWithSpaces } from '@/utils/_index';
+import { cn, currencyMap, numberWithSpaces, valueToDate } from '@/utils/_index';
 
 import { TransactionModal } from './TransactionModal';
 import { columns, rowsPerPageArray } from './const';
@@ -100,8 +100,8 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
     queryFn: () =>
       getTransactions({
         accountIds: accountData?.map((account) => account.id) ?? [],
-        from: dateValue.start.toDate(getLocalTimeZone()),
-        to: dateValue.end.toDate(getLocalTimeZone()),
+        from: valueToDate(dateValue.start),
+        to: valueToDate(dateValue.end),
       }),
   });
 
