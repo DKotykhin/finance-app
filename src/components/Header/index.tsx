@@ -5,11 +5,10 @@ import { SignInButton, SignedIn, SignedOut, UserButton, ClerkLoaded, ClerkLoadin
 import { Loader2 } from 'lucide-react';
 
 import Navigation from './Navigation';
-import WelcomeMessage from './WelcomeMessage';
 
 const Header: React.FC = () => {
   return (
-    <header className="bg-gradient-to-b from-blue-700 to-blue-500 px-4 py-8 lg:px-8 pb-36">
+    <header className="bg-gradient-to-b from-blue-700 to-blue-500 px-4 py-8 lg:px-8 pb-48">
       <div className="max-w-screen-2xl mx-auto">
         <div className="w-full flex items-center justify-between mb-14">
           <div className="flex items-center lg:gap-x-16">
@@ -33,7 +32,10 @@ const Header: React.FC = () => {
             </SignedIn>
           </ClerkLoaded>
         </div>
-        <WelcomeMessage />
+        <div className="space-y-2">
+          <h2 className="text-2xl lg:text-3xl font-semibold text-white">Welcome to Finance</h2>
+          <p className="text-blue-200">Manage your finances easily with Finance</p>
+        </div>
       </div>
     </header>
   );

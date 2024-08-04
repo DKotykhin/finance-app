@@ -3,7 +3,7 @@
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 import { Account } from '@prisma/client';
-import { AccountFormTypes } from '@/validation/accountValidation';
+import { AccountFormTypes, accountValidate } from '@/validation/accountValidation';
 import { checkAuth } from '../checkAuth';
 
 export const updateAccount = async ({
@@ -14,6 +14,7 @@ export const updateAccount = async ({
   accountData: AccountFormTypes;
 }): Promise<Account> => {
   checkAuth();
+  await accountValidate(accountData);
 
   if (!accountId) {
     throw ApiError.badRequest('Account ID is required');
