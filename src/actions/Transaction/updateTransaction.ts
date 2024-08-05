@@ -3,15 +3,16 @@
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 import { Transaction } from '@prisma/client';
+
 import { checkAuth } from '../checkAuth';
-import { TransactionUpdate } from '@/app/(user-pages)/transactions/TransactionList';
+import { TransactionCreate } from './createTransaction';
 
 export const updateTransaction = async ({
   transactionId,
   transactionData,
 }: {
   transactionId: string;
-  transactionData: Omit<TransactionUpdate, 'id'>;
+  transactionData: TransactionCreate;
 }): Promise<Transaction> => {
   checkAuth();
 

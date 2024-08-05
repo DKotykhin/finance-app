@@ -5,7 +5,15 @@ import { ApiError } from '@/handlers/apiError';
 import { Transaction } from '@prisma/client';
 import { checkAuth } from '../checkAuth';
 
-export const createTransaction = async (data: Partial<Transaction>): Promise<Transaction> => {
+export interface TransactionCreate {
+  date: Date;
+  amount: number;
+  categoryId: string | null;
+  accountId: string;
+  notes: string | null;
+}
+
+export const createTransaction = async (data: TransactionCreate): Promise<Transaction> => {
   checkAuth();
 
   try {

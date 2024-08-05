@@ -19,7 +19,7 @@ import {
 } from '@nextui-org/react';
 import { DateValue, parseAbsoluteToLocal } from '@internationalized/date';
 
-import { deleteTransaction, getTransactions } from '@/actions/Transaction/_index';
+import { deleteTransaction, getTransactions, TransactionCreate } from '@/actions/Transaction/_index';
 import { getAccounts } from '@/actions/Account/_index';
 import { getCategories } from '@/actions/Category/_index';
 import { useConfirm } from '@/hooks/use-confirm';
@@ -40,13 +40,8 @@ interface SortDescriptor {
   direction: 'ascending' | 'descending';
 }
 
-export interface TransactionUpdate {
+export interface TransactionUpdate extends TransactionCreate {
   id: string;
-  date: Date;
-  amount: number;
-  categoryId: string | null;
-  accountId: string;
-  notes: string | null;
 }
 
 export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn, transactionListLengthFn }) => {

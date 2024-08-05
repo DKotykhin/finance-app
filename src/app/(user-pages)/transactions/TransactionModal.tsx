@@ -25,7 +25,7 @@ import { useUser } from '@clerk/nextjs';
 
 import { getCategories } from '@/actions/Category/_index';
 import { getAccounts } from '@/actions/Account/_index';
-import { createTransaction, updateTransaction } from '@/actions/Transaction/_index';
+import { createTransaction, TransactionCreate, updateTransaction } from '@/actions/Transaction/_index';
 import { TransactionFormTypes, transactionFormValidationSchema } from '@/validation/transactionValidation';
 import { currencyMap, valueToDate } from '@/utils/_index';
 
@@ -106,8 +106,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   }, [accountData, accountValue]);
 
   const createMutation = useMutation({
-    mutationFn: ({ transactionData }: { transactionData: Omit<TransactionUpdate, 'id'> }) =>
-      createTransaction(transactionData),
+    mutationFn: ({ transactionData }: { transactionData: TransactionCreate }) => createTransaction(transactionData),
     onSuccess: () => {
       reset();
       onOpenChange();
@@ -120,13 +119,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({
-      transactionId,
-      transactionData,
-    }: {
-      transactionId: string;
-      transactionData: Omit<TransactionUpdate, 'id'>;
-    }) => updateTransaction({ transactionId, transactionData }),
+    mutationFn: ({ transactionId, transactionData }: { transactionId: string; transactionData: TransactionCreate }) =>
+      updateTransaction({ transactionId, transactionData }),
     onSuccess: () => {
       reset();
       onOpenChange();
