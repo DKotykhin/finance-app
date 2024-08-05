@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
+import { Badge, Button, Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
 import { Loader2, Pencil, SearchIcon, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
@@ -148,16 +148,11 @@ export const AccountList: React.FC<AccountListProps> = ({
         accountNameValue: account.accountName,
         currencyValue: account.currency,
         accountName: (
-          <div className="flex flex-wrap gap-2 items-center font-semibold">
+          <Badge content="" isInvisible={!account.isDefault} color="primary">
             <Chip color="primary" variant="faded">
               {account.accountName}
             </Chip>
-            {account.isDefault && (
-              <Chip size="sm" variant="flat">
-                default
-              </Chip>
-            )}
-          </div>
+          </Badge>
         ),
         balance: (
           <div className="flex gap-2 items-center">

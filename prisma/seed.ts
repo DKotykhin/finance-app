@@ -183,7 +183,7 @@ async function createTransactions() {
         amount: randomAmount,
         categoryId: randomCategory,
         accountId: randomAccount,
-        notes: 'Test',
+        notes: 'Test ' + i,
       };
 
       await prisma.transaction.create({

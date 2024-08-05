@@ -39,7 +39,7 @@ export const getTransactionsWithStats = async ({
         },
       },
       orderBy: {
-        date: 'desc',
+        date: 'asc',
       },
     });
 
