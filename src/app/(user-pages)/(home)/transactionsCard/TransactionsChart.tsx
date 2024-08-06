@@ -16,7 +16,7 @@ import {
 import { Transaction } from '@prisma/client';
 import { format } from 'date-fns';
 
-import { ChartView, Period } from './const';
+import { ChartView, Period } from '../const';
 
 interface TransactionChartProps {
   currentTransactions?: Transaction[];
