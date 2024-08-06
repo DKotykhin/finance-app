@@ -79,7 +79,9 @@ export const CategoryList: React.FC<CategoryListProps> = ({
     mutationFn: (id: string) => deleteCategory(id),
     onSuccess: () => {
       toast.success('Category deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({
+        queryKey: ['categories', 'transactionsByCategory', 'previousTransactionsByCategory'],
+      });
     },
     onError: (error) => {
       toast.error(error.message);

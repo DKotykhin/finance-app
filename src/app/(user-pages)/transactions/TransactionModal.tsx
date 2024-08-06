@@ -111,7 +111,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       reset();
       onOpenChange();
       toast.success(`Transaction created successfully`);
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({
+        queryKey: [
+          'transactions',
+          'transactionsWithStat',
+          'previousTransactionsWithStat',
+          'transactionsByCategory',
+          'previousTransactionsByCategory',
+        ],
+      });
     },
     onError: (error) => {
       toast.error(error.message);
@@ -125,7 +133,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       reset();
       onOpenChange();
       toast.success(`Transaction updated successfully`);
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({
+        queryKey: [
+          'transactions',
+          'transactionsWithStat',
+          'previousTransactionsWithStat',
+          'transactionsByCategory',
+          'previousTransactionsByCategory',
+        ],
+      });
     },
     onError: (error) => {
       toast.error(error.message);

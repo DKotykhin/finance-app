@@ -14,6 +14,7 @@ import { valueToDate, dateToValue } from '@/utils/_index';
 import { MainCards } from './mainCards/MainCards';
 import { TransactionsCard } from './transactionsCard/TransactionsCard';
 import { CategoriesCard } from './categoriesCard/CategoriesCard';
+import { StatsCards } from './statsCards/StatsCards';
 
 export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const [accountValue, setAccountValue] = useState<any>();
@@ -127,6 +128,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
                 dateValue={dateValue}
                 currentAccount={currentAccount}
               />
+              <StatsCards transactionData={transactionData} period={period} />
               <div className="flex flex-wrap lg:flex-nowrap gap-4 justify-between my-8">
                 <TransactionsCard transactionData={transactionData} previousTransactionData={previousTransactionData} />
                 <CategoriesCard

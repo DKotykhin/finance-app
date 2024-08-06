@@ -4,14 +4,24 @@ import { endOfDay, startOfDay, subDays } from 'date-fns';
 
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { Transaction } from '@prisma/client';
+import { Currency, Transaction } from '@prisma/client';
 
 import { checkAuth } from '../checkAuth';
 
 export interface TransactionsWithStats {
-  transactions: Transaction[];
-  income: number;
-  expense: number;
+  transactions: (Transaction & { category: { name: string } | null } & {
+    account: { currency: Currency; hideDecimal: boolean };
+  })[];
+  income: {
+    count: number;
+    amount: number;
+    uniqueCategoriesCount: number;
+  };
+  expense: {
+    count: number;
+    amount: number;
+    uniqueCategoriesCount: number;
+  };
   remaining: number;
 }
 
@@ -38,28 +48,56 @@ export const getTransactionsWithStats = async ({
           lte: dateTo,
         },
       },
+      include: {
+        category: {
+          select: {
+            name: true,
+          },
+        },
+        account: {
+          select: {
+            currency: true,
+            hideDecimal: true,
+          },
+        },
+      },
       orderBy: {
         date: 'asc',
       },
     });
 
-    const income =
+    const incomeCount = transactions.filter((transaction) => transaction.amount > 0)?.length;
+    const expenseCount = transactions.filter((transaction) => transaction.amount < 0)?.length;
+
+    const incomeUniqueCategoriesCount = new Set(
+      transactions.filter((transaction) => transaction.amount > 0).map((transaction) => transaction.category?.name)
+    ).size;
+    const expenseUniqueCategoriesCount = new Set(
+      transactions.filter((transaction) => transaction.amount < 0).map((transaction) => transaction.category?.name)
+    ).size;
+
+    const incomeAmount =
       Math.round(
         transactions
           .filter((transaction) => transaction.amount > 0)
           .reduce((acc, transaction) => acc + transaction.amount, 0) * 100
       ) / 100;
 
-    const expense =
+    const expenseAmount =
       Math.round(
         transactions
           .filter((transaction) => transaction.amount < 0)
           .reduce((acc, transaction) => acc + transaction.amount, 0) * 100
       ) / 100;
 
-    const remaining = Math.round((income + expense) * 100) / 100;
+    const remaining = Math.round((incomeAmount + expenseAmount) * 100) / 100;
 
-    return { transactions, income, expense, remaining };
+    return {
+      transactions,
+      income: { count: incomeCount, amount: incomeAmount, uniqueCategoriesCount: incomeUniqueCategoriesCount },
+      expense: { count: expenseCount, amount: expenseAmount, uniqueCategoriesCount: expenseUniqueCategoriesCount },
+      remaining,
+    };
   } catch (error) {
     throw ApiError.internalError('Failed to get transactions');
   }

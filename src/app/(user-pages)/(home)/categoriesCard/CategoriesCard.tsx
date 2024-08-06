@@ -36,7 +36,7 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
       <CardHeader>
         <div className="w-full flex flex-col gap-6 sm:flex-row sm:justify-between sm:items-end">
           <div>
-            <p className="text-2xl font-semibold mb-4">Categories</p>
+            <p className="card-title mb-4">Categories</p>
             <RadioGroup
               label="Select period"
               orientation="horizontal"

@@ -22,7 +22,7 @@ export const TransactionsCard: React.FC<TransactionsCardProps> = ({ transactionD
       <CardHeader>
         <div className="w-full flex flex-col gap-6 sm:flex-row sm:justify-between sm:items-end">
           <div>
-            <p className="text-2xl font-semibold mb-4">Transactions</p>
+            <p className="card-title mb-4">Transactions</p>
             <RadioGroup
               label="Select period"
               orientation="horizontal"

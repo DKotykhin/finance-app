@@ -38,7 +38,9 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
     mutationFn: (idList: string[]) => bulkDeleteCategories(idList),
     onSuccess: () => {
       toast.success('Categories deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({
+        queryKey: ['categories', 'transactionsByCategory', 'previousTransactionsByCategory'],
+      });
       setIdList([]);
     },
     onError: (error) => {

@@ -34,7 +34,15 @@ export const TransactionCard: React.FC = () => {
     mutationFn: (idList: string[]) => bulkDeleteTransactions(idList),
     onSuccess: () => {
       toast.success('Transactions deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({
+        queryKey: [
+          'transactions',
+          'transactionsWithStat',
+          'previousTransactionsWithStat',
+          'transactionsByCategory',
+          'previousTransactionsByCategory',
+        ],
+      });
       setIdList([]);
     },
     onError: (error) => {

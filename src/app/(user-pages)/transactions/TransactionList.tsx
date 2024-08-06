@@ -104,7 +104,15 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
     mutationFn: (id: string) => deleteTransaction(id),
     onSuccess: () => {
       toast.success('Transaction deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({
+        queryKey: [
+          'transactions',
+          'transactionsWithStat',
+          'previousTransactionsWithStat',
+          'transactionsByCategory',
+          'previousTransactionsByCategory',
+        ],
+      });
     },
     onError: (error) => {
       toast.error(error.message);

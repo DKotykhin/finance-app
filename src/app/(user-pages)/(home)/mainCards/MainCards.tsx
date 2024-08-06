@@ -38,15 +38,15 @@ export const MainCards: React.FC<MainCardsProps> = ({
       title: 'Income',
       icon: <TrendingUp color="#22c55e" />,
       iconBackground: 'bg-green-500/10',
-      value: transactionData?.income,
-      previous: previousTransactionData?.income,
+      value: transactionData?.income.amount,
+      previous: previousTransactionData?.income.amount,
     },
     {
       title: 'Expenses',
       icon: <TrendingDown color="#f15922" />,
       iconBackground: 'bg-red-500/10',
-      value: transactionData?.expense,
-      previous: previousTransactionData?.expense,
+      value: transactionData?.expense.amount,
+      previous: previousTransactionData?.expense.amount,
     },
   ];
 
@@ -57,7 +57,7 @@ export const MainCards: React.FC<MainCardsProps> = ({
           <CardHeader>
             <div className="w-full flex items-center justify-between">
               <div>
-                <p className="text-2xl font-semibold">{card.title}</p>
+                <p className="card-title">{card.title}</p>
                 <p className="text-gray-400 text-sm mt-2">
                   {format(valueToDate(dateValue.start), 'dd MMM')}
                   {valueToDate(dateValue.start).getFullYear() !== valueToDate(dateValue.end).getFullYear() && (
