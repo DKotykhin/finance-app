@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
+import { Badge, Button, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
 import { Loader2, Pencil, SearchIcon, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
@@ -149,9 +149,11 @@ export const AccountList: React.FC<AccountListProps> = ({
         currencyValue: account.currency,
         accountName: (
           <Badge content="" isInvisible={!account.isDefault} color="primary">
-            <Chip color="primary" variant="faded">
+            {/* <Chip color="primary" variant="faded"> */}
+            <p className="py-0.5 px-3 border-2 border-slate-300 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-blue-700">
               {account.accountName}
-            </Chip>
+            </p>
+            {/* </Chip> */}
           </Badge>
         ),
         balance: (
@@ -279,9 +281,9 @@ export const AccountList: React.FC<AccountListProps> = ({
           <TopContent />
           {tableContent?.length > 0 ? (
             tableContent?.map((account) => (
-              <div key={account.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
-                <div className="flex justify-between items-center">
-                  <div className="text-lg font-semibold">{account.accountName}</div>
+              <div key={account.id} className="bg-white shadow-md rounded-lg py-4 px-2 mb-4">
+                <div className="flex gap-2 justify-between items-center">
+                  <div>{account.accountName}</div>
                   <div className="flex gap-4">
                     <Pencil
                       size={24}

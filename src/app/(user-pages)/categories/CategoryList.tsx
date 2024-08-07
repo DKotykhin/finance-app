@@ -156,9 +156,9 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         nameValue: category.name,
         hiddenValue: category.hidden,
         name: (
-          <Chip color="secondary" variant="faded">
+          <p className="py-0.5 px-3 border-2 border-slate-300 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-orange-500">
             {category.name}
-          </Chip>
+          </p>
         ),
         hidden: (
           <Chip color={category.hidden ? 'danger' : 'success'} variant="bordered">
@@ -274,7 +274,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
             tableContent?.map((category) => (
               <div key={category.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">{category.name}</h3>
+                  <div className="text-lg font-semibold">{category.name}</div>
                   <div className="flex gap-4">
                     <Pencil
                       size={24}

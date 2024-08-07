@@ -82,7 +82,18 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
       reset();
       onOpenChange();
       toast.success(`Account ${data.accountName} updated successfully`);
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['accounts'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['transactions'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['transactionsWithStat'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['previousTransactionsWithStat'],
+        }),
+      ]);
     },
     onError: (error) => {
       toast.error(error.message);

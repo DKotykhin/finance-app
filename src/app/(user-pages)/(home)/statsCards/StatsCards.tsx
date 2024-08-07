@@ -64,7 +64,13 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
                           transaction.amount > 0 ? 'text-green-500/90' : 'text-red-500/90'
                         )}
                       >
-                        {transaction.amount > 0 ? '+' + transaction.amount : transaction.amount}
+                        {transaction.account.hideDecimal
+                          ? transaction.amount > 0
+                            ? '+' + Math.round(transaction.amount)
+                            : Math.round(transaction.amount)
+                          : transaction.amount > 0
+                            ? '+' + transaction.amount
+                            : transaction.amount}
                       </p>
                     </div>
                     <Chip color="primary" variant="faded">
@@ -130,7 +136,9 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
                     <p className="text-gray-400">{format(minMaxTransaction.max.date, 'dd MMM')}</p>
                     <Chip radius="md" color="primary">
                       {currencyMap.get(minMaxTransaction.max.account.currency || Currency.USD)?.sign}{' '}
-                      {minMaxTransaction.max.amount}
+                      {minMaxTransaction.max.account.hideDecimal
+                        ? Math.round(minMaxTransaction.max.amount)
+                        : minMaxTransaction.max.amount}
                     </Chip>
                   </div>
                 </div>
@@ -142,7 +150,9 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
                     <p className="text-gray-400">{format(minMaxTransaction.min.date, 'dd MMM')}</p>
                     <Chip radius="md" color="danger">
                       {currencyMap.get(minMaxTransaction.min.account.currency || Currency.USD)?.sign}{' '}
-                      {minMaxTransaction.min.amount}
+                      {minMaxTransaction.min.account.hideDecimal
+                        ? Math.round(minMaxTransaction.min.amount)
+                        : minMaxTransaction.min.amount}
                     </Chip>
                   </div>
                 </div>

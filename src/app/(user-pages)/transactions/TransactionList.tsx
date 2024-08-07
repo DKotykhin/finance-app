@@ -403,7 +403,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
                     />
                   </div>
                 </div>
-                <div className="flex justify-between items-center mt-3">
+                <div className="flex gap-2 flex-wrap justify-between items-center mt-3">
                   <div className="text-sm text-gray-500">{transaction.categoryName}</div>
                   <div className="text-sm text-gray-500">{transaction.accountName}</div>
                 </div>

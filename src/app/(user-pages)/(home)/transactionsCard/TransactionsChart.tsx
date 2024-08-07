@@ -13,14 +13,18 @@ import {
   AreaChart,
   Area,
 } from 'recharts';
-import { Transaction } from '@prisma/client';
+import { Currency, Transaction } from '@prisma/client';
 import { format } from 'date-fns';
 
 import { ChartView, Period } from '../const';
 
 interface TransactionChartProps {
-  currentTransactions?: Transaction[];
-  previousTransactions?: Transaction[];
+  currentTransactions?: (Transaction & { category: { name: string } | null } & {
+    account: { currency: Currency; hideDecimal: boolean };
+  })[];
+  previousTransactions?: (Transaction & { category: { name: string } | null } & {
+    account: { currency: Currency; hideDecimal: boolean };
+  })[];
   selectedPeriod: Period;
   selectedView: ChartView;
 }
@@ -33,14 +37,18 @@ export const TransactionChart: React.FC<TransactionChartProps> = ({
 }) => {
   const currentData = currentTransactions?.map((transaction) => ({
     date: format(transaction.date, 'dd MMM'),
-    amount: transaction.amount,
-    ...(transaction.amount > 0 ? { income: transaction.amount } : { expenses: -transaction.amount }),
+    // amount: transaction.amount,
+    ...(transaction.amount > 0
+      ? { income: transaction.account.hideDecimal ? Math.round(transaction.amount) : transaction.amount }
+      : { expenses: transaction.account.hideDecimal ? -Math.round(transaction.amount) : -transaction.amount }),
   }));
 
   const previousData = previousTransactions?.map((transaction) => ({
     date: format(transaction.date, 'dd MMM'),
-    amount: transaction.amount,
-    ...(transaction.amount > 0 ? { income: transaction.amount } : { expenses: -transaction.amount }),
+    // amount: transaction.amount,
+    ...(transaction.amount > 0
+      ? { income: transaction.account.hideDecimal ? Math.round(transaction.amount) : transaction.amount }
+      : { expenses: transaction.account.hideDecimal ? -Math.round(transaction.amount) : -transaction.amount }),
   }));
 
   return (
@@ -102,7 +110,6 @@ export const TransactionChart: React.FC<TransactionChartProps> = ({
             stroke="#ef4444"
             fill="url(#expenses)"
             label={{ position: 'top', fontSize: 12, formatter: (value: number) => `${-value}` }}
-            
           />
           <Legend />
         </AreaChart>
