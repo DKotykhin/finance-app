@@ -75,9 +75,17 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
       reset();
       onOpenChange();
       toast.success(`Category ${data.name} updated successfully`);
-      queryClient.invalidateQueries({
-        queryKey: ['categories', 'transactionsByCategory', 'previousTransactionsByCategory'],
-      });
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['categories'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['transactionsByCategory'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['previousTransactionsByCategory'],
+        }),
+      ]);
     },
     onError: (error) => {
       toast.error(error.message);

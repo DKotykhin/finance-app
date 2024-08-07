@@ -37,9 +37,9 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
   const bulkDeleteMutation = useMutation({
     mutationFn: (idList: string[]) => bulkDeleteAccounts(idList),
     onSuccess: () => {
+      setIdList([]);
       toast.success('Accounts deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      setIdList([]);
     },
     onError: (error) => {
       toast.error(error.message);

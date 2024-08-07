@@ -33,17 +33,25 @@ export const TransactionCard: React.FC = () => {
   const bulkDeleteMutation = useMutation({
     mutationFn: (idList: string[]) => bulkDeleteTransactions(idList),
     onSuccess: () => {
-      toast.success('Transactions deleted successfully');
-      queryClient.invalidateQueries({
-        queryKey: [
-          'transactions',
-          'transactionsWithStat',
-          'previousTransactionsWithStat',
-          'transactionsByCategory',
-          'previousTransactionsByCategory',
-        ],
-      });
       setIdList([]);
+      toast.success('Transactions deleted successfully');
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['transactions'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['transactionsWithStat'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['previousTransactionsWithStat'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['transactionsByCategory'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['previousTransactionsByCategory'],
+        }),
+      ]);
     },
     onError: (error) => {
       toast.error(error.message);

@@ -108,18 +108,26 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   const createMutation = useMutation({
     mutationFn: ({ transactionData }: { transactionData: TransactionCreate }) => createTransaction(transactionData),
     onSuccess: () => {
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['transactions'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['transactionsWithStat'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['previousTransactionsWithStat'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['transactionsByCategory'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['previousTransactionsByCategory'],
+        }),
+      ]);
       reset();
       onOpenChange();
       toast.success(`Transaction created successfully`);
-      queryClient.invalidateQueries({
-        queryKey: [
-          'transactions',
-          'transactionsWithStat',
-          'previousTransactionsWithStat',
-          'transactionsByCategory',
-          'previousTransactionsByCategory',
-        ],
-      });
     },
     onError: (error) => {
       toast.error(error.message);
@@ -133,15 +141,23 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       reset();
       onOpenChange();
       toast.success(`Transaction updated successfully`);
-      queryClient.invalidateQueries({
-        queryKey: [
-          'transactions',
-          'transactionsWithStat',
-          'previousTransactionsWithStat',
-          'transactionsByCategory',
-          'previousTransactionsByCategory',
-        ],
-      });
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['transactions'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['transactionsWithStat'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['previousTransactionsWithStat'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['transactionsByCategory'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['previousTransactionsByCategory'],
+        }),
+      ]);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -231,7 +247,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                             size="sm"
                             variant="flat"
                             color={+field?.value ? (+field.value > 0 ? 'success' : 'danger') : 'default'}
-                            onClick={() => field.value && field.onChange(+field.value * -1)}
+                            onClick={() => field.value && field.onChange((+field.value * -1).toString())}
                             className="cursor-pointer"
                           >
                             {currencySign}
