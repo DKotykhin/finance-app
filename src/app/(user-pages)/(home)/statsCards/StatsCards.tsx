@@ -25,8 +25,8 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
     if (!transactionData) return {};
     const sortedData = [...transactionData?.transactions].sort((a, b) => a.amount - b.amount);
     return {
-      min: sortedData[0],
-      max: sortedData[sortedData.length - 1],
+      min: sortedData[0].amount < 0 ? sortedData[0] : null,
+      max: sortedData[sortedData.length - 1].amount > 0 ? sortedData[sortedData.length - 1] : null,
     };
   }, [transactionData]);
 
@@ -85,7 +85,9 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
           <p className="card-title">Statistic</p>
         </CardHeader>
         <CardBody>
-          {transactionData && (
+          {!transactionData || !transactionData?.transactions.length ? (
+            <p className="text-gray-400 italic">No statistic in this period</p>
+          ) : (
             <div className="flex flex-col gap-x-4 gap-y-6 w-full">
               {transactionData.income.count > 0 ? (
                 <div className="flex gap-2 justify-between items-center w-full">
@@ -124,19 +126,25 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
               {minMaxTransaction?.max && (
                 <div className="flex gap-2 justify-between items-center">
                   <span>Max income: </span>
-                  <Chip radius="md" color="primary">
-                    {currencyMap.get(minMaxTransaction.max.account.currency || Currency.USD)?.sign}{' '}
-                    {minMaxTransaction.max.amount}
-                  </Chip>
+                  <div className="flex gap-2 sm:gap-4 items-center">
+                    <p className="text-gray-400">{format(minMaxTransaction.max.date, 'dd MMM')}</p>
+                    <Chip radius="md" color="primary">
+                      {currencyMap.get(minMaxTransaction.max.account.currency || Currency.USD)?.sign}{' '}
+                      {minMaxTransaction.max.amount}
+                    </Chip>
+                  </div>
                 </div>
               )}
               {minMaxTransaction?.min && (
                 <div className="flex gap-2 justify-between items-center">
                   <span>Max expense: </span>
-                  <Chip radius="md" color="danger">
-                    {currencyMap.get(minMaxTransaction.min.account.currency || Currency.USD)?.sign}{' '}
-                    {minMaxTransaction.min.amount}
-                  </Chip>
+                  <div className="flex gap-2 sm:gap-4 items-center">
+                    <p className="text-gray-400">{format(minMaxTransaction.min.date, 'dd MMM')}</p>
+                    <Chip radius="md" color="danger">
+                      {currencyMap.get(minMaxTransaction.min.account.currency || Currency.USD)?.sign}{' '}
+                      {minMaxTransaction.min.amount}
+                    </Chip>
+                  </div>
                 </div>
               )}
               {period && (

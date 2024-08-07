@@ -56,12 +56,24 @@ export const TransactionsCard: React.FC<TransactionsCardProps> = ({ transactionD
         </div>
       </CardHeader>
       <CardBody className="pl-0 pb-6">
-        <TransactionChart
-          currentTransactions={transactionData?.transactions || []}
-          previousTransactions={previousTransactionData?.transactions || []}
-          selectedPeriod={selectedPeriod}
-          selectedView={Array.from(chartView)[0] as ChartView}
-        />
+        {transactionData ? (
+          selectedPeriod === Period.Current && transactionData.transactions.length === 0 ? (
+            <div className="text-gray-400 italic pl-3 pt-6 h-[500px]">No transactions in current period to display</div>
+          ) : previousTransactionData &&
+            selectedPeriod === Period.Previous &&
+            previousTransactionData.transactions.length === 0 ? (
+            <div className="text-gray-400 italic pl-3 pt-6 h-[500px]">No transactions in previous period to display</div>
+          ) : (
+            <TransactionChart
+              currentTransactions={transactionData.transactions}
+              previousTransactions={previousTransactionData?.transactions || []}
+              selectedPeriod={selectedPeriod}
+              selectedView={Array.from(chartView)[0] as ChartView}
+            />
+          )
+        ) : (
+          <div className="text-gray-400 italic pl-3 pt-6 h-[500px]">No data available</div>
+        )}
       </CardBody>
     </Card>
   );

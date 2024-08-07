@@ -69,15 +69,35 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
           </Select>
         </div>
       </CardHeader>
-      <CardBody>
-        <CategoriesChart
-          currentTransactionByCategory={transactionByCategoryData}
-          previousTransactionByCategory={previousTransactionByCategoryData}
-          selectedPeriod={selectedPeriod}
-          selectedView={Array.from(chartView)[0] as CategoriesChartView}
-          selectedFlow={selectedFlowType}
-        />
-      </CardBody>
+      {!transactionByCategoryData || !previousTransactionByCategoryData ? (
+        <div className="text-gray-400 italic pl-3 pt-6 h-[424px]">No data available</div>
+      ) : selectedPeriod === Period.Current &&
+        !transactionByCategoryData.income.length &&
+        selectedFlowType === FlowType.Income ? (
+        <div className="text-gray-400 italic pl-3 pt-6 h-[424px]">No income in current period</div>
+      ) : selectedPeriod === Period.Current &&
+        !transactionByCategoryData.expenses.length &&
+        selectedFlowType === FlowType.Expenses ? (
+        <div className="text-gray-400 italic pl-3 pt-6 h-[424px]">No expenses in current period</div>
+      ) : selectedPeriod === Period.Previous &&
+        !previousTransactionByCategoryData.income.length &&
+        selectedFlowType === FlowType.Income ? (
+        <div className="text-gray-400 italic pl-3 pt-6 h-[424px]">No income in previous period</div>
+      ) : selectedPeriod === Period.Previous &&
+        !previousTransactionByCategoryData.expenses.length &&
+        selectedFlowType === FlowType.Expenses ? (
+        <div className="text-gray-400 italic pl-3 pt-6 h-[424px]">No expenses in previous period</div>
+      ) : (
+        <CardBody>
+          <CategoriesChart
+            currentTransactionByCategory={transactionByCategoryData}
+            previousTransactionByCategory={previousTransactionByCategoryData}
+            selectedPeriod={selectedPeriod}
+            selectedView={Array.from(chartView)[0] as CategoriesChartView}
+            selectedFlow={selectedFlowType}
+          />
+        </CardBody>
+      )}
       <CardFooter className="mb-4">
         <RadioGroup
           label="Select finance flow"

@@ -120,7 +120,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
               <Skeleton className="w-full h-36 rounded-lg bg-slate-100"></Skeleton>
               <Skeleton className="w-full h-36 rounded-lg bg-slate-100"></Skeleton>
             </div>
-          ) : (
+          ) : accountValue ? (
             <>
               <MainCards
                 transactionData={transactionData}
@@ -137,6 +137,8 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
                 />
               </div>
             </>
+          ) : (
+            <div className="text-white mt-6">Please select an account!</div>
           )}
         </>
       ) : (
