@@ -1,99 +1,9 @@
-import { Currency, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
-import { CategoryFormTypes } from '../src/validation/categoryValidation';
-import { AccountFormTypes } from '../src/validation/accountValidation';
 import { TransactionCreate } from '../src/actions/Transaction/createTransaction';
 import { ApiError } from '../src/handlers/apiError';
 
-const userId = 'user_2jVYHAZKO3OanLZ3NfsGwvuzXLg';
-
-const categoryData: CategoryFormTypes[] = [
-  {
-    name: 'Food',
-    hidden: false,
-  },
-  {
-    name: 'Travel',
-    hidden: false,
-  },
-  {
-    name: 'Health',
-    hidden: false,
-  },
-  {
-    name: 'Entertainment',
-    hidden: false,
-  },
-  {
-    name: 'Shopping',
-    hidden: false,
-  },
-  {
-    name: 'Gifts',
-    hidden: false,
-  },
-  {
-    name: 'Transportation',
-    hidden: false,
-  },
-  {
-    name: 'Education',
-    hidden: false,
-  },
-  {
-    name: 'Utilities',
-    hidden: false,
-  },
-  {
-    name: 'Housing',
-    hidden: false,
-  },
-  {
-    name: 'Insurance',
-    hidden: false,
-  },
-  {
-    name: 'Personal Care',
-    hidden: false,
-  },
-  {
-    name: 'Other',
-    hidden: false,
-  },
-];
-
-const accountData: AccountFormTypes[] = [
-  {
-    accountName: 'Cash',
-    isDefault: true,
-    hideDecimal: false,
-    currency: Currency.USD,
-  },
-  {
-    accountName: 'Bank',
-    isDefault: false,
-    hideDecimal: false,
-    currency: Currency.EUR,
-  },
-  {
-    accountName: 'Credit Card',
-    isDefault: false,
-    hideDecimal: false,
-    currency: Currency.GBP,
-  },
-  {
-    accountName: 'Investment',
-    isDefault: false,
-    hideDecimal: false,
-    currency: Currency.UAH,
-  },
-  {
-    accountName: 'Loan',
-    isDefault: false,
-    hideDecimal: false,
-    currency: Currency.USD,
-  },
-];
+import { accountData, categoryData, loremWords, transactionAmount, userId } from './seedConst';
 
 const prisma = new PrismaClient();
 
@@ -166,10 +76,19 @@ function generateRandomDate() {
   return randomDate;
 }
 
+function generateLoremIpsumText(wordCount: number) {
+  let loremIpsumText = '';
+
+  for (let i = 0; i < wordCount; i++) {
+    const randomIndex = Math.floor(Math.random() * loremWords.length);
+    loremIpsumText += loremWords[randomIndex] + ' ';
+  }
+
+  return loremIpsumText.trim();
+}
+
 async function createTransactions() {
   try {
-    const transactionAmount = 100;
-
     for (let i = 0; i < transactionAmount; i++) {
       const categoryIds = await getCategoryIds();
       const randomCategory = categoryIds[Math.floor(Math.random() * categoryIds.length)];
@@ -183,7 +102,7 @@ async function createTransactions() {
         amount: randomAmount,
         categoryId: randomCategory,
         accountId: randomAccount,
-        notes: 'Test ' + i,
+        notes: generateLoremIpsumText(3),
       };
 
       await prisma.transaction.create({

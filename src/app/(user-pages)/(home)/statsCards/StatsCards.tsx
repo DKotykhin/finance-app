@@ -95,6 +95,42 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
             <p className="text-gray-400 italic">No statistic in this period</p>
           ) : (
             <div className="flex flex-col gap-x-4 gap-y-6 w-full">
+              {period && (
+                <div className="flex gap-2 justify-between items-center">
+                  <span>Period: </span>
+                  <Chip radius="md" color="secondary">
+                    {period} days
+                  </Chip>
+                </div>
+              )}
+              {minMaxTransaction?.max && (
+                <div className="flex gap-2 justify-between items-center">
+                  <span>Max income: </span>
+                  <div className="flex gap-2 sm:gap-4 items-center">
+                    <p className="text-gray-400">{format(minMaxTransaction.max.date, 'dd MMM')}</p>
+                    <Chip radius="md" color="primary">
+                      {currencyMap.get(minMaxTransaction.max.account.currency || Currency.USD)?.sign}{' '}
+                      {minMaxTransaction.max.account.hideDecimal
+                        ? Math.round(minMaxTransaction.max.amount)
+                        : minMaxTransaction.max.amount}
+                    </Chip>
+                  </div>
+                </div>
+              )}
+              {minMaxTransaction?.min && (
+                <div className="flex gap-2 justify-between items-center">
+                  <span>Max expense: </span>
+                  <div className="flex gap-2 sm:gap-4 items-center">
+                    <p className="text-gray-400">{format(minMaxTransaction.min.date, 'dd MMM')}</p>
+                    <Chip radius="md" color="danger">
+                      {currencyMap.get(minMaxTransaction.min.account.currency || Currency.USD)?.sign}{' '}
+                      {minMaxTransaction.min.account.hideDecimal
+                        ? Math.round(minMaxTransaction.min.amount)
+                        : minMaxTransaction.min.amount}
+                    </Chip>
+                  </div>
+                </div>
+              )}
               {transactionData.income.count > 0 ? (
                 <div className="flex gap-2 justify-between items-center w-full">
                   <p>Total incomes</p>
@@ -128,42 +164,6 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
                 </div>
               ) : (
                 <p className="text-gray-400 italic">No expenses in this period</p>
-              )}
-              {minMaxTransaction?.max && (
-                <div className="flex gap-2 justify-between items-center">
-                  <span>Max income: </span>
-                  <div className="flex gap-2 sm:gap-4 items-center">
-                    <p className="text-gray-400">{format(minMaxTransaction.max.date, 'dd MMM')}</p>
-                    <Chip radius="md" color="primary">
-                      {currencyMap.get(minMaxTransaction.max.account.currency || Currency.USD)?.sign}{' '}
-                      {minMaxTransaction.max.account.hideDecimal
-                        ? Math.round(minMaxTransaction.max.amount)
-                        : minMaxTransaction.max.amount}
-                    </Chip>
-                  </div>
-                </div>
-              )}
-              {minMaxTransaction?.min && (
-                <div className="flex gap-2 justify-between items-center">
-                  <span>Max expense: </span>
-                  <div className="flex gap-2 sm:gap-4 items-center">
-                    <p className="text-gray-400">{format(minMaxTransaction.min.date, 'dd MMM')}</p>
-                    <Chip radius="md" color="danger">
-                      {currencyMap.get(minMaxTransaction.min.account.currency || Currency.USD)?.sign}{' '}
-                      {minMaxTransaction.min.account.hideDecimal
-                        ? Math.round(minMaxTransaction.min.amount)
-                        : minMaxTransaction.min.amount}
-                    </Chip>
-                  </div>
-                </div>
-              )}
-              {period && (
-                <div className="flex gap-2 justify-between items-center">
-                  <span>Period: </span>
-                  <Chip radius="md" color="secondary">
-                    {period} days
-                  </Chip>
-                </div>
               )}
             </div>
           )}
