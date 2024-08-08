@@ -10,6 +10,11 @@ export const columns = [
     sortable: true,
   },
   {
+    key: 'notes',
+    label: 'Notes',
+    sortable: true,
+  },
+  {
     key: 'categoryName',
     label: 'Category',
     sortable: true,

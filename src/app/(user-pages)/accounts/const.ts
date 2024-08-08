@@ -10,6 +10,11 @@ export const columns = [
     sortable: true,
   },
   {
+    key: 'hideDecimal',
+    label: 'Decimals',
+    sortable: true,
+  },
+  {
     key: 'createdAt',
     label: 'Created',
     sortable: true,

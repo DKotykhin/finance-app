@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
-import { Loader2, Pencil, SearchIcon, Trash2 } from 'lucide-react';
+import { EyeOff, Loader2, Pencil, SearchIcon, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import {
@@ -134,7 +134,12 @@ export const AccountList: React.FC<AccountListProps> = ({
     setPages(Math.ceil(dataToUse.length / +rowsPerPage));
     setAccountListLength(dataToUse.length);
 
-    return dataToUse
+    const dataToUseWithBallance = dataToUse.map((account) => ({
+      ...account,
+      balance: account.transactions.reduce((acc, item) => item.amount + acc, 0),
+    }));
+
+    return dataToUseWithBallance
       .sort((a, b) => {
         const first = a[sortDescriptor.column as keyof typeof a];
         const second = b[sortDescriptor.column as keyof typeof b];
@@ -147,32 +152,25 @@ export const AccountList: React.FC<AccountListProps> = ({
         ...account,
         accountNameValue: account.accountName,
         currencyValue: account.currency,
+        hideDecimalValue: account.hideDecimal,
         accountName: (
           <Badge content="" isInvisible={!account.isDefault} color="primary">
-            {/* <Chip color="primary" variant="faded"> */}
-            <p className="py-0.5 px-3 border-2 border-slate-300 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-blue-700">
+            <p className="py-0.5 px-3 border-2 bg-slate-100 border-slate-300 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-blue-700">
               {account.accountName}
             </p>
-            {/* </Chip> */}
           </Badge>
         ),
         balance: (
           <div className="flex gap-2 items-center">
             <div>{currencyMap.get(account.currency)?.sign}</div>
-            <div
-              className={cn(
-                'font-semibold',
-                account.transactions.reduce((acc, item) => item.amount + acc, 0) < 0 ? 'text-red-500' : ''
-              )}
-            >
+            <div className={cn('font-semibold', account.balance < 0 ? 'text-red-500' : '')}>
               {numberWithSpaces(
-                account.hideDecimal
-                  ? Math.round(account.transactions.reduce((acc, item) => item.amount + acc, 0))
-                  : Math.round(account.transactions.reduce((acc, item) => item.amount + acc, 0) * 100) / 100
+                account.hideDecimal ? Math.round(account.balance) : Math.round(account.balance * 100) / 100
               )}
             </div>
           </div>
         ),
+        hideDecimal: <p className="flex justify-center">{account.hideDecimal ? <EyeOff size={20} /> : ''}</p>,
         createdAt: <p className="font-semibold">{format(new Date(account.createdAt), 'dd MMM, yyyy')}</p>,
         actions: (
           <div className="flex justify-center gap-4">
@@ -293,7 +291,7 @@ export const AccountList: React.FC<AccountListProps> = ({
                           accountName: account.accountNameValue,
                           id: account.id,
                           currency: account.currencyValue,
-                          hideDecimal: account.hideDecimal,
+                          hideDecimal: account.hideDecimalValue,
                           isDefault: account.isDefault,
                         })
                       }
@@ -310,6 +308,7 @@ export const AccountList: React.FC<AccountListProps> = ({
                 </div>
                 <div className="flex justify-between items-center mt-2">
                   <div className="text-sm text-gray-500">{account.balance}</div>
+                  <div className="text-sm text-gray-500">{account.hideDecimal}</div>
                   <div className="text-sm text-gray-500">{account.createdAt}</div>
                 </div>
               </div>

@@ -2,11 +2,11 @@
 
 import React, { useMemo } from 'react';
 import { Card, CardBody, CardHeader, Chip } from '@nextui-org/react';
-import { TransactionsWithStats } from '@/actions/Transaction/_index';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { Currency } from '@prisma/client';
 
+import { TransactionsWithStats } from '@/actions/Transaction/_index';
 import { cn, currencyMap } from '@/utils/_index';
 
 interface StatsCardsProps {
@@ -25,8 +25,8 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
     if (!transactionData) return {};
     const sortedData = [...transactionData?.transactions].sort((a, b) => a.amount - b.amount);
     return {
-      min: sortedData[0].amount < 0 ? sortedData[0] : null,
-      max: sortedData[sortedData.length - 1].amount > 0 ? sortedData[sortedData.length - 1] : null,
+      min: sortedData[0]?.amount < 0 ? sortedData[0] : null,
+      max: sortedData[sortedData.length - 1]?.amount > 0 ? sortedData[sortedData.length - 1] : null,
     };
   }, [transactionData]);
 

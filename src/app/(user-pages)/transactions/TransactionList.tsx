@@ -2,7 +2,17 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Chip, DatePicker, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
+import {
+  Badge,
+  Button,
+  Chip,
+  DatePicker,
+  Pagination,
+  Select,
+  SelectItem,
+  Spinner,
+  useDisclosure,
+} from '@nextui-org/react';
 import { Loader2, Pencil, Trash2, TriangleAlert } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { format, subDays } from 'date-fns';
@@ -190,6 +200,22 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
       .map((transaction) => ({
         ...transaction,
         date: <p className="font-semibold">{format(new Date(transaction.date), 'dd MMM, yyyy')}</p>,
+        notesValue: transaction.notes,
+        amount: (
+          <div className="flex gap-2 items-center">
+            <div className={transaction.amount < 0 ? 'text-red-500' : ''}>
+              {currencyMap.get(transaction.account.currency)?.sign}
+            </div>
+            <div className={cn('font-semibold', transaction.amount < 0 ? 'text-red-500' : '')}>
+              {numberWithSpaces(transaction.account.hideDecimal ? Math.round(transaction.amount) : transaction.amount)}
+            </div>
+          </div>
+        ),
+        notes: (
+          <div className="text-sm text-gray-500 italic truncate text-ellipsis max-w-[80px] lg:max-w-[160px] xl:max-w-[250px]">
+            <span>{transaction.notes}</span>
+          </div>
+        ),
         categoryName: (
           <Chip
             color={transaction.categoryName ? 'secondary' : 'danger'}
@@ -202,20 +228,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
             )}
           </Chip>
         ),
-        amount: (
-          <div className="flex gap-2 items-center">
-            <div className={transaction.amount < 0 ? 'text-red-500' : ''}>
-              {currencyMap.get(transaction.account.currency)?.sign}
-            </div>
-            <div className={cn('font-semibold', transaction.amount < 0 ? 'text-red-500' : '')}>
-              {numberWithSpaces(transaction.account.hideDecimal ? Math.round(transaction.amount) : transaction.amount)}
-            </div>
-          </div>
-        ),
         accountName: (
-          <Chip color="primary" variant={transaction.account.isDefault ? 'solid' : 'faded'}>
-            {transaction.accountName}
-          </Chip>
+          <Badge content="" isInvisible={!transaction.account.isDefault} color="primary">
+            <p className="py-0.5 px-3 border-2 bg-slate-100 border-slate-300 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-blue-700">
+              {transaction.accountName}
+            </p>
+          </Badge>
         ),
         actions: (
           <div className="flex justify-center gap-4">
@@ -345,7 +363,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
           {(column) => (
             <TableColumn
               key={column.key}
-              align={column.key === 'date' || column.key === 'amount' ? 'start' : 'center'}
+              align={
+                column.key === 'date' || column.key === 'amount' || column.key === 'notes' ? 'start' : 'center'
+              }
               allowsSorting={column.sortable}
             >
               {column.label}
@@ -389,7 +409,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
                           accountId: transaction.accountId,
                           categoryId: transaction.categoryId,
                           date: transaction.dateValue,
-                          notes: transaction.notes,
+                          notes: transaction.notesValue,
                         })
                       }
                     />
@@ -407,6 +427,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
                   <div className="text-sm text-gray-500">{transaction.categoryName}</div>
                   <div className="text-sm text-gray-500">{transaction.accountName}</div>
                 </div>
+                <div className="text-xs text-gray-500 italic mt-2">{transaction.notes}</div>
               </div>
             ))
           ) : (
