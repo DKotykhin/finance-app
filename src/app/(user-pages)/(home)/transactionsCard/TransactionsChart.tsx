@@ -19,10 +19,10 @@ import { format } from 'date-fns';
 import { ChartView, Period } from '../const';
 
 interface TransactionChartProps {
-  currentTransactions?: (Transaction & { category: { name: string } | null } & {
+  currentTransactions?: (Transaction & { category: { categoryName: string } | null } & {
     account: { currency: Currency; hideDecimal: boolean };
   })[];
-  previousTransactions?: (Transaction & { category: { name: string } | null } & {
+  previousTransactions?: (Transaction & { category: { categoryName: string } | null } & {
     account: { currency: Currency; hideDecimal: boolean };
   })[];
   selectedPeriod: Period;

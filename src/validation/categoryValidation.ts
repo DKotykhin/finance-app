@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { textFieldRequired } from '@/validation/_fields';
 
 export const categoryFormValidationSchema = z.object({
-  name: textFieldRequired,
+  categoryName: textFieldRequired,
   hidden: z.boolean().optional(),
 });
 

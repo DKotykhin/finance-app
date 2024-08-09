@@ -296,7 +296,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                         selectedKeys={categoryValue}
                         onSelectionChange={setCategoryValue}
                       >
-                        {(category) => <SelectItem key={category.id}>{category.name}</SelectItem>}
+                        {(category) => <SelectItem key={category.id}>{category.categoryName}</SelectItem>}
                       </Select>
                     )}
                   />

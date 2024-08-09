@@ -8,55 +8,55 @@ export const transactionAmount = 200;
 
 export const categoryData: CategoryFormTypes[] = [
   {
-    name: 'Food',
+    categoryName: 'Food',
     hidden: false,
   },
   {
-    name: 'Travel',
+    categoryName: 'Travel',
     hidden: false,
   },
   {
-    name: 'Health',
+    categoryName: 'Health',
     hidden: false,
   },
   {
-    name: 'Entertainment',
+    categoryName: 'Entertainment',
     hidden: false,
   },
   {
-    name: 'Shopping',
+    categoryName: 'Shopping',
     hidden: false,
   },
   {
-    name: 'Gifts',
+    categoryName: 'Gifts',
     hidden: false,
   },
   {
-    name: 'Transportation',
+    categoryName: 'Transportation',
     hidden: false,
   },
   {
-    name: 'Education',
+    categoryName: 'Education',
     hidden: false,
   },
   {
-    name: 'Utilities',
+    categoryName: 'Utilities',
     hidden: false,
   },
   {
-    name: 'Housing',
+    categoryName: 'Housing',
     hidden: false,
   },
   {
-    name: 'Insurance',
+    categoryName: 'Insurance',
     hidden: false,
   },
   {
-    name: 'Personal Care',
+    categoryName: 'Personal Care',
     hidden: false,
   },
   {
-    name: 'Other',
+    categoryName: 'Other',
     hidden: false,
   },
 ];

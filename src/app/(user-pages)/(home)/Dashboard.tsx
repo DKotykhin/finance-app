@@ -11,10 +11,10 @@ import { getAccounts } from '@/actions/Account/_index';
 import { getTransactionsByCategory, getTransactionsWithStats } from '@/actions/Transaction/_index';
 import { valueToDate, dateToValue } from '@/utils/_index';
 
-import { MainCards } from './mainCards/MainCards';
-import { TransactionsCard } from './transactionsCard/TransactionsCard';
-import { CategoriesCard } from './categoriesCard/CategoriesCard';
-import { StatsCards } from './statsCards/StatsCards';
+import { MainCards } from './mainCards';
+import { TransactionsCard } from './transactionsCard';
+import { CategoriesCard } from './categoriesCard';
+import { StatsCards } from './statsCards';
 
 export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const [accountValue, setAccountValue] = useState<any>();

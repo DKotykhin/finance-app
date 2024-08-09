@@ -9,7 +9,7 @@ import { Currency, Transaction } from '@prisma/client';
 import { checkAuth } from '../checkAuth';
 
 export interface TransactionsWithStats {
-  transactions: (Transaction & { category: { name: string } | null } & {
+  transactions: (Transaction & { category: { categoryName: string } | null } & {
     account: { currency: Currency; hideDecimal: boolean };
   })[];
   income: {
@@ -51,7 +51,7 @@ export const getTransactionsWithStats = async ({
       include: {
         category: {
           select: {
-            name: true,
+            categoryName: true,
           },
         },
         account: {
@@ -70,10 +70,10 @@ export const getTransactionsWithStats = async ({
     const expenseCount = transactions.filter((transaction) => transaction.amount < 0)?.length;
 
     const incomeUniqueCategoriesCount = new Set(
-      transactions.filter((transaction) => transaction.amount > 0).map((transaction) => transaction.category?.name)
+      transactions.filter((transaction) => transaction.amount > 0).map((transaction) => transaction.category?.categoryName)
     ).size;
     const expenseUniqueCategoriesCount = new Set(
-      transactions.filter((transaction) => transaction.amount < 0).map((transaction) => transaction.category?.name)
+      transactions.filter((transaction) => transaction.amount < 0).map((transaction) => transaction.category?.categoryName)
     ).size;
 
     const incomeAmount =

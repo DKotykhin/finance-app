@@ -179,7 +179,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
     const coercedTransactionData = filteredData?.map((transaction) => ({
       ...transaction,
       accountName: transaction.account.accountName,
-      categoryName: transaction.category?.name,
+      categoryName: transaction.category?.categoryName,
       amountValue: transaction.amount,
       dateValue: transaction.date,
     }));
@@ -287,7 +287,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
         <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
           {categoryData && categoryData.length > 0 && (
             <Select
-              items={[{ id: 'all', name: 'All categories' }, ...categoryData]}
+              items={[{ id: 'all', categoryName: 'All categories' }, ...categoryData]}
               label="Select category"
               isLoading={isCategoryLoading}
               isDisabled={isCategoryLoading}
@@ -295,7 +295,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
               onSelectionChange={setCategoryValue}
               className="w-full lg:w-[160px]"
             >
-              {(category) => <SelectItem key={category.id}>{category.name}</SelectItem>}
+              {(category) => <SelectItem key={category.id}>{category.categoryName}</SelectItem>}
             </Select>
           )}
           {accountData && accountData.length > 0 && (

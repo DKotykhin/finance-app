@@ -37,7 +37,7 @@ interface CategoryFormValidationTypes {
 
 const CategoryFormValidation: CategoryFormValidationTypes = {
   defaultValues: {
-    name: '',
+    categoryName: '',
     hidden: false,
   },
   resolver: zodResolver(categoryFormValidationSchema),
@@ -49,18 +49,18 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
 
   useEffect(() => {
     reset({
-      name: category?.name || '',
+      categoryName: category?.categoryName || '',
       hidden: category?.hidden || false,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category?.name, category?.hidden]);
+  }, [category?.categoryName, category?.hidden]);
 
   const createMutation = useMutation({
     mutationFn: ({ categoryData }: { categoryData: CategoryFormTypes }) => createCategory({ categoryData }),
     onSuccess: (data) => {
       reset();
       onOpenChange();
-      toast.success(`Category ${data.name} created successfully`);
+      toast.success(`Category ${data.categoryName} created successfully`);
       queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
     onError: (error) => {
@@ -74,7 +74,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
     onSuccess: (data) => {
       reset();
       onOpenChange();
-      toast.success(`Category ${data.name} updated successfully`);
+      toast.success(`Category ${data.categoryName} updated successfully`);
       Promise.all([
         queryClient.invalidateQueries({
           queryKey: ['categories'],
@@ -100,7 +100,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
   } = useForm<CategoryFormTypes>(CategoryFormValidation);
 
   const onSubmit: SubmitHandler<CategoryFormTypes> = async (categoryData) => {
-    if (category?.name === categoryData.name && category?.hidden === categoryData.hidden) {
+    if (category?.categoryName === categoryData.categoryName && category?.hidden === categoryData.hidden) {
       toast.info('No changes detected');
       return;
     }
@@ -126,7 +126,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
             <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
               <ModalBody>
                 <Controller
-                  name="name"
+                  name="categoryName"
                   control={control}
                   render={({ field }) => (
                     <Input
@@ -138,8 +138,8 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
                       labelPlacement="outside"
                       placeholder="Enter category name"
                       description="e.g. Food, Travel, Clothing"
-                      isInvalid={!!errors.name}
-                      errorMessage={errors.name?.message}
+                      isInvalid={!!errors.categoryName}
+                      errorMessage={errors.categoryName?.message}
                     />
                   )}
                 />

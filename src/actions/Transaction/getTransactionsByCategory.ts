@@ -88,7 +88,7 @@ export const getTransactionsByCategory = async ({
       include: {
         category: {
           select: {
-            name: true,
+            categoryName: true,
           },
         },
       },
@@ -96,7 +96,7 @@ export const getTransactionsByCategory = async ({
 
     const categoryList = transactionWithCategoryName.map((transaction) => ({
       categoryId: transaction.categoryId,
-      categoryName: transaction.category?.name,
+      categoryName: transaction.category?.categoryName,
     }));
 
     const incomeCategories = incomeTransactions.map((transaction) => ({

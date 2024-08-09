@@ -14,6 +14,11 @@ enum Currency {
   UAH
 }
 
+enum SortOrder {
+  ascending
+  descending
+}
+
 model Account {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now()) @map("created_at")
@@ -33,10 +38,9 @@ model Category {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  name        String
-  description String?
-  userId      String  @map("user_id")
-  hidden      Boolean @default(value: false)
+  categoryName String  @map("category_name")
+  userId       String  @map("user_id")
+  hidden       Boolean @default(value: false)
 
   transactions Transaction[]
 }
@@ -55,4 +59,25 @@ model Transaction {
 
   categoryId String?   @map("category_id")
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+}
+
+model UserSettings {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId String @unique @map("user_id")
+
+  accountRowsPerPage String    @default(value: "5") @map("account_rows_per_page")
+  accountSortField   String    @default(value: "createdAt") @map("account_sort_field")
+  accountSortOrder   SortOrder @default(value: descending) @map("account_sort_order")
+
+  categoryRowsPerPage String    @default(value: "5") @map("category_rows_per_page")
+  categorySortField   String    @default(value: "createdAt") @map("category_sort_field")
+  categorySortOrder   SortOrder @default(value: descending) @map("category_sort_order")
+
+  transactionRowsPerPage String    @default(value: "5") @map("transaction_rows_per_page")
+  transactionSortField   String    @default(value: "date") @map("transaction_sort_field")
+  transactionSortOrder   SortOrder @default(value: descending) @map("transaction_sort_order")
+  transactionPeriod      Int       @default(value: 30) @map("transaction_period")
 }

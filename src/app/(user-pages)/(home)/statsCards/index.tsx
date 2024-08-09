@@ -74,7 +74,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
                       </p>
                     </div>
                     <Chip color="primary" variant="faded">
-                      {transaction.category?.name}
+                      {transaction.category?.categoryName || 'Uncategorized'}
                     </Chip>
                   </div>
                   <p className="text-gray-400">{format(transaction.date, 'dd MMM, yyyy')}</p>

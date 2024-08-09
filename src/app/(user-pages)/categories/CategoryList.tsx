@@ -136,7 +136,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
     const start = (page - 1) * +rowsPerPage;
     const end = start + +rowsPerPage;
 
-    const filteredData = categoryData?.filter((category) => category.name.toLowerCase().includes(filterValue)) || [];
+    const filteredData = categoryData?.filter((category) => category.categoryName.toLowerCase().includes(filterValue)) || [];
 
     const dataToUse = filterValue ? filteredData : categoryData || [];
     setPages(Math.ceil(dataToUse.length / +rowsPerPage));
@@ -153,11 +153,11 @@ export const CategoryList: React.FC<CategoryListProps> = ({
       .slice(start, end)
       .map((category) => ({
         id: category.id,
-        nameValue: category.name,
+        nameValue: category.categoryName,
         hiddenValue: category.hidden,
         name: (
           <p className="py-0.5 px-3 border-2 border-slate-300 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-orange-500">
-            {category.name}
+            {category.categoryName}
           </p>
         ),
         hidden: (
@@ -281,7 +281,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                       className="cursor-pointer text-orange-300"
                       onClick={() =>
                         updateClick({
-                          name: category.nameValue,
+                          categoryName: category.nameValue,
                           id: category.id,
                           hidden: category.hiddenValue,
                         })

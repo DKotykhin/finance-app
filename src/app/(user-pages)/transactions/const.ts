@@ -1,4 +1,4 @@
-export const columns = [
+export const columns: { key: string; label: string; sortable?: boolean }[] = [
   {
     key: 'date',
     label: 'Date',
@@ -30,7 +30,7 @@ export const columns = [
   },
 ];
 
-export const rowsPerPageArray = [
+export const rowsPerPageArray: { key: string; label: string }[] = [
   {
     key: '5',
     label: '5',
