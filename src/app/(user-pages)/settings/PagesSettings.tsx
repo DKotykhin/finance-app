@@ -11,7 +11,7 @@ import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { upsertUserSettings } from '@/actions/UserSettings/upsertUserSettings';
 import { rowsPerPageArray } from '@/utils/_index';
 
-import { accountFieldArray, categoryFieldArray, periodArray, sortOrderArray } from './const';
+import { accountFieldArray, categoryFieldArray, periodArray, sortOrderArray, transactionFieldArray } from './const';
 
 export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) => {
   const [categorySettings, setCategorySettings] = useState({
@@ -68,7 +68,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
       ...prevState,
       rowsPerPage: userSettingsData?.transactionRowsPerPage || '5',
       period: userSettingsData?.transactionPeriod || 30,
-      sortField: userSettingsData?.transactionSortField || categoryFieldArray[0].key,
+      sortField: userSettingsData?.transactionSortField || transactionFieldArray[0].key,
       sortOrder: userSettingsData?.transactionSortOrder || sortOrderArray[0].key,
     }));
   }, [userSettingsData]);
@@ -120,10 +120,6 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
         transactionSortOrder: transactionSettings.sortOrder as SortOrder,
       },
     });
-  };
-
-  const onReset = () => {
-    initialSettings();
   };
 
   return (
@@ -293,7 +289,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               }
               isLoading={isGetLoading}
             >
-              {accountFieldArray.map((row) => (
+              {transactionFieldArray.map((row) => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
               ))}
             </Select>
@@ -319,7 +315,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
           <Button
             color="default"
             className="w-full sm:w-auto self-end"
-            onPress={onReset}
+            onPress={initialSettings}
             isDisabled={upsertMutation.isPending || isSaveButtonDisabled}
           >
             <RotateCcw size={16} />
