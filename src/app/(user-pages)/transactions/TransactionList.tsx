@@ -15,7 +15,7 @@ import {
 } from '@nextui-org/react';
 import { Loader2, Pencil, Trash2, TriangleAlert } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { format, subDays } from 'date-fns';
+import { differenceInDays, format, subDays } from 'date-fns';
 import { useUser } from '@clerk/nextjs';
 import {
   Selection,
@@ -28,17 +28,20 @@ import {
   getKeyValue,
 } from '@nextui-org/react';
 import { DateValue, parseAbsoluteToLocal } from '@internationalized/date';
+import { UserSettings } from '@prisma/client';
 
 import { deleteTransaction, getTransactions, TransactionCreate } from '@/actions/Transaction/_index';
 import { getAccounts } from '@/actions/Account/_index';
 import { getCategories } from '@/actions/Category/_index';
 import { useConfirm } from '@/hooks/use-confirm';
-import { cn, currencyMap, numberWithSpaces, valueToDate } from '@/utils/_index';
+import { cn, currencyMap, numberWithSpaces, rowsPerPageArray, valueToDate } from '@/utils/_index';
 
 import { TransactionModal } from './TransactionModal';
-import { columns, rowsPerPageArray } from './const';
+import { columns } from './const';
 
 interface TransactionListProps {
+  userSettingsData?: UserSettings | null;
+  isUserSettingsLoading: boolean;
   // eslint-disable-next-line no-unused-vars
   selectedKeysFn: (keys: any) => void;
   // eslint-disable-next-line no-unused-vars
@@ -54,19 +57,24 @@ export interface TransactionUpdate extends TransactionCreate {
   id: string;
 }
 
-export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn, transactionListLengthFn }) => {
+export const TransactionList: React.FC<TransactionListProps> = ({
+  selectedKeysFn,
+  transactionListLengthFn,
+  userSettingsData,
+  isUserSettingsLoading,
+}) => {
   const [transaction, setTransaction] = useState<TransactionUpdate | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: 'date',
-    direction: 'descending',
+    column: userSettingsData?.transactionSortField || 'date',
+    direction: userSettingsData?.transactionSortOrder || 'descending',
   });
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [transactionListLength, setTransactionListLength] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState('5');
+  const [rowsPerPage, setRowsPerPage] = useState(userSettingsData?.transactionRowsPerPage || '5');
   const [dateValue, setDateValue] = useState<{ start: DateValue; end: DateValue }>({
-    start: parseAbsoluteToLocal(subDays(new Date(), 30).toISOString()),
+    start: parseAbsoluteToLocal(subDays(new Date(), userSettingsData?.transactionPeriod || 30).toISOString()),
     end: parseAbsoluteToLocal(new Date().toISOString()),
   });
   const [accountValue, setAccountValue] = useState<Selection>(new Set(['all']));
@@ -74,6 +82,10 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
 
   const { user } = useUser();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const period = useMemo(() => {
+    return differenceInDays(valueToDate(dateValue.end), valueToDate(dateValue.start));
+  }, [dateValue]);
 
   useEffect(() => {
     transactionListLengthFn(transactionListLength);
@@ -266,66 +278,69 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
   }, [page, transactionData, rowsPerPage, sortDescriptor, accountValue, categoryValue]);
 
   const TopContent = () => (
-    <div className="h-full flex gap-4 flex-col items-end sm:flex-row lg:items-center sm:justify-between mb-6">
-      <div className="flex flex-col lg:flex-row gap-4 items-center w-full lg:w-auto">
-        <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
-          <DatePicker
-            label="Date from"
-            granularity="day"
-            value={dateValue.start}
-            onChange={(value) => setDateValue((v) => ({ ...v, start: value }))}
-            className="w-full lg:w-[160px]"
-          />
-          <DatePicker
-            label="Date to"
-            granularity="day"
-            value={dateValue.end}
-            onChange={(value) => setDateValue((v) => ({ ...v, end: value }))}
-            className="w-full lg:w-[160px]"
-          />
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
-          {categoryData && categoryData.length > 0 && (
-            <Select
-              items={[{ id: 'all', categoryName: 'All categories' }, ...categoryData]}
-              label="Select category"
-              isLoading={isCategoryLoading}
-              isDisabled={isCategoryLoading}
-              selectedKeys={categoryValue}
-              onSelectionChange={setCategoryValue}
+    <div>
+      <div className="h-full flex gap-4 flex-col items-end sm:flex-row lg:items-center sm:justify-between">
+        <div className="flex flex-col lg:flex-row gap-4 items-center w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
+            <DatePicker
+              label="Date from"
+              granularity="day"
+              value={dateValue.start}
+              onChange={(value) => setDateValue((v) => ({ ...v, start: value }))}
               className="w-full lg:w-[160px]"
-            >
-              {(category) => <SelectItem key={category.id}>{category.categoryName}</SelectItem>}
-            </Select>
-          )}
-          {accountData && accountData.length > 0 && (
-            <Select
-              items={[{ id: 'all', accountName: 'All accounts' }, ...accountData]}
-              label="Select account"
-              isLoading={isAccountLoading}
-              isDisabled={isAccountLoading}
-              selectedKeys={accountValue}
-              onSelectionChange={setAccountValue}
+              isDisabled={isTransactionLoading}
+            />
+            <DatePicker
+              label="Date to"
+              granularity="day"
+              value={dateValue.end}
+              onChange={(value) => setDateValue((v) => ({ ...v, end: value }))}
               className="w-full lg:w-[160px]"
-            >
-              {(account) => <SelectItem key={account.id}>{account.accountName}</SelectItem>}
-            </Select>
-          )}
+              isDisabled={isTransactionLoading}
+            />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
+            {categoryData && categoryData.length > 0 && (
+              <Select
+                items={[{ id: 'all', categoryName: 'All categories' }, ...categoryData]}
+                label="Select category"
+                isLoading={isCategoryLoading}
+                isDisabled={isCategoryLoading}
+                selectedKeys={categoryValue}
+                onSelectionChange={setCategoryValue}
+                className="w-full lg:w-[160px]"
+              >
+                {(category) => <SelectItem key={category.id}>{category.categoryName}</SelectItem>}
+              </Select>
+            )}
+            {accountData && accountData.length > 0 && (
+              <Select
+                items={[{ id: 'all', accountName: 'All accounts' }, ...accountData]}
+                label="Select account"
+                isLoading={isAccountLoading}
+                isDisabled={isAccountLoading}
+                selectedKeys={accountValue}
+                onSelectionChange={setAccountValue}
+                className="w-full lg:w-[160px]"
+              >
+                {(account) => <SelectItem key={account.id}>{account.accountName}</SelectItem>}
+              </Select>
+            )}
+          </div>
         </div>
-      </div>
-      <div className="">
         <Select
           label="Select rows per page"
-          // labelPlacement="outside-left"
           className="w-[180px]"
           selectedKeys={[rowsPerPage]}
           onChange={onRowsPerPageChange}
+          isLoading={isUserSettingsLoading}
         >
           {rowsPerPageArray.map((row) => (
             <SelectItem key={row.key}>{row.label}</SelectItem>
           ))}
         </Select>
       </div>
+      <p className="text-xs italic text-gray-400 mb-3 ml-1 mt-1">{`selected period ${period} days`}</p>
     </div>
   );
 
@@ -363,9 +378,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({ selectedKeysFn
           {(column) => (
             <TableColumn
               key={column.key}
-              align={
-                column.key === 'date' || column.key === 'amount' || column.key === 'notes' ? 'start' : 'center'
-              }
+              align={column.key === 'date' || column.key === 'amount' || column.key === 'notes' ? 'start' : 'center'}
               allowsSorting={column.sortable}
             >
               {column.label}

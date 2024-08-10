@@ -17,17 +17,19 @@ import {
 } from '@nextui-org/react';
 
 import { deleteCategory } from '@/actions/Category/_index';
-import { Category } from '@prisma/client';
+import { Category, UserSettings } from '@prisma/client';
 import { useConfirm } from '@/hooks/use-confirm';
 import { CategoryFormTypes } from '@/validation/categoryValidation';
-import { cn } from '@/utils/cn';
+import { cn, rowsPerPageArray } from '@/utils/_index';
 
 import { CategoryModal } from './CategoryModal';
-import { columns, rowsPerPageArray } from './const';
+import { columns } from './const';
 
 interface CategoryListProps {
   categoryData?: Category[];
-  isLoading: boolean;
+  isCategoryDataLoading: boolean;
+  userSettingsData?: UserSettings | null;
+  isUserSettingsLoading: boolean;
   // eslint-disable-next-line no-unused-vars
   selectedKeysFn: (keys: any) => void;
   // eslint-disable-next-line no-unused-vars
@@ -45,7 +47,9 @@ export interface CategoryUpdate extends CategoryFormTypes {
 
 export const CategoryList: React.FC<CategoryListProps> = ({
   categoryData,
-  isLoading,
+  isCategoryDataLoading,
+  userSettingsData,
+  isUserSettingsLoading,
   selectedKeysFn,
   categoryListLengthFn,
 }) => {
@@ -53,13 +57,13 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: 'createdAt',
-    direction: 'descending',
+    column: userSettingsData?.categorySortField || 'createdAt',
+    direction: userSettingsData?.categorySortOrder || 'descending',
   });
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [categoryListLength, setCategoryListLength] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState('5');
+  const [rowsPerPage, setRowsPerPage] = useState(userSettingsData?.categoryRowsPerPage || '5');
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -136,7 +140,8 @@ export const CategoryList: React.FC<CategoryListProps> = ({
     const start = (page - 1) * +rowsPerPage;
     const end = start + +rowsPerPage;
 
-    const filteredData = categoryData?.filter((category) => category.categoryName.toLowerCase().includes(filterValue)) || [];
+    const filteredData =
+      categoryData?.filter((category) => category.categoryName.toLowerCase().includes(filterValue)) || [];
 
     const dataToUse = filterValue ? filteredData : categoryData || [];
     setPages(Math.ceil(dataToUse.length / +rowsPerPage));
@@ -201,6 +206,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         className="max-w-[400px] sm:max-w-[200px] self-end"
         selectedKeys={[rowsPerPage]}
         onChange={onRowsPerPageChange}
+        isLoading={isUserSettingsLoading}
       >
         {rowsPerPageArray.map((row) => (
           <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -253,7 +259,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         <TableBody
           items={tableContent || []}
           emptyContent={'No categories to display.'}
-          isLoading={isLoading}
+          isLoading={isCategoryDataLoading}
           loadingContent={<Spinner label="Loading..." />}
         >
           {(item) => (
@@ -263,7 +269,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
       </Table>
 
       {/* Mobile content */}
-      {isLoading ? (
+      {isCategoryDataLoading ? (
         <div className="flex justify-center bg-white shadow-md rounded-lg p-4 mb-4">
           <Spinner label="Loading..." />
         </div>

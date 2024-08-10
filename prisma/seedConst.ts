@@ -4,7 +4,7 @@ import { CategoryFormTypes } from '../src/validation/categoryValidation';
 import { AccountFormTypes } from '../src/validation/accountValidation';
 
 export const userId = 'user_2jVYHAZKO3OanLZ3NfsGwvuzXLg';
-export const transactionAmount = 200;
+export const transactionAmount = 120;
 
 export const categoryData: CategoryFormTypes[] = [
   {

@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import dynamic from 'next/dynamic';
 
 import { bulkDeleteAccounts, getAccounts } from '@/actions/Account/_index';
+import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { useConfirm } from '@/hooks/use-confirm';
 
 import { AccountModal } from './AccountModal';
@@ -28,10 +29,16 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
         : 'Are you sure you want to delete all these accounts?',
   });
 
-  const { data: accountData, isLoading } = useQuery({
+  const { data: accountData, isLoading: isAccountLoading } = useQuery({
     enabled: !!userId,
     queryKey: ['accounts'],
     queryFn: () => getAccounts(userId as string),
+  });
+
+  const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
+    enabled: !!userId,
+    queryKey: ['userSettings'],
+    queryFn: () => getUserSettings({ userId: userId as string }),
   });
 
   const bulkDeleteMutation = useMutation({
@@ -57,7 +64,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
     <>
       <Card className="-mt-24 mb-12 p-1 sm:p-4">
         <CardHeader className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          {isLoading ? (
+          {isAccountLoading ? (
             <>
               <Skeleton className="w-[200px] h-10 rounded-lg bg-slate-100"></Skeleton>
               <Skeleton className="w-[200px] h-10 rounded-lg bg-slate-100"></Skeleton>
@@ -96,9 +103,11 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
         <CardBody>
           <AccountList
             accountData={accountData}
-            isLoading={isLoading}
+            isAccountLoading={isAccountLoading}
             selectedKeysFn={setIdList}
             accountListLengthFn={setAccountListLength}
+            userSettingsData={userSettingsData}
+            isUserSettingsLoading={isUserSettingsLoading}
           />
         </CardBody>
       </Card>

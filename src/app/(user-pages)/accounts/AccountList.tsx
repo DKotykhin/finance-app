@@ -20,14 +20,17 @@ import {
 import { deleteAccount, ExtendedAccount } from '@/actions/Account/_index';
 import { useConfirm } from '@/hooks/use-confirm';
 import { AccountFormTypes } from '@/validation/accountValidation';
-import { cn, currencyMap, numberWithSpaces } from '@/utils/_index';
+import { cn, currencyMap, numberWithSpaces, rowsPerPageArray } from '@/utils/_index';
 
 import { AccountModal } from './AccountModal';
-import { columns, rowsPerPageArray } from './const';
+import { columns } from './const';
+import { UserSettings } from '@prisma/client';
 
 interface AccountListProps {
   accountData?: ExtendedAccount[];
-  isLoading: boolean;
+  isAccountLoading: boolean;
+  userSettingsData?: UserSettings | null;
+  isUserSettingsLoading: boolean;
   // eslint-disable-next-line no-unused-vars
   selectedKeysFn: (keys: any) => void;
   // eslint-disable-next-line no-unused-vars
@@ -45,7 +48,9 @@ export interface AccountUpdate extends AccountFormTypes {
 
 export const AccountList: React.FC<AccountListProps> = ({
   accountData,
-  isLoading,
+  isAccountLoading,
+  userSettingsData,
+  isUserSettingsLoading,
   selectedKeysFn,
   accountListLengthFn,
 }) => {
@@ -53,13 +58,13 @@ export const AccountList: React.FC<AccountListProps> = ({
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: 'createdAt',
-    direction: 'descending',
+    column: userSettingsData?.accountSortField || 'createdAt',
+    direction: userSettingsData?.accountSortOrder || 'descending',
   });
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [accountListLength, setAccountListLength] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState('5');
+  const [rowsPerPage, setRowsPerPage] = useState(userSettingsData?.accountRowsPerPage || '5');
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -208,6 +213,7 @@ export const AccountList: React.FC<AccountListProps> = ({
         className="max-w-[400px] sm:max-w-[200px] self-end"
         selectedKeys={[rowsPerPage]}
         onChange={onRowsPerPageChange}
+        isLoading={isUserSettingsLoading}
       >
         {rowsPerPageArray.map((row) => (
           <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -260,7 +266,7 @@ export const AccountList: React.FC<AccountListProps> = ({
         <TableBody
           items={tableContent || []}
           emptyContent={'No accounts to display.'}
-          isLoading={isLoading}
+          isLoading={isAccountLoading}
           loadingContent={<Spinner label="Loading..." />}
         >
           {(item) => (
@@ -270,7 +276,7 @@ export const AccountList: React.FC<AccountListProps> = ({
       </Table>
 
       {/* Mobile content */}
-      {isLoading ? (
+      {isAccountLoading ? (
         <div className="flex justify-center bg-white shadow-md rounded-lg p-4 mb-4">
           <Spinner label="Loading..." />
         </div>

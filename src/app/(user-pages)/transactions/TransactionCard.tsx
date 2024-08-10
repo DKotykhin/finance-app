@@ -4,12 +4,13 @@ import React, { useState } from 'react';
 import { Button, Card, CardBody, CardHeader, Chip, Skeleton, useDisclosure } from '@nextui-org/react';
 import { Plus, Trash2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useUser } from '@clerk/nextjs';
 
 import { useConfirm } from '@/hooks/use-confirm';
 import { bulkDeleteTransactions } from '@/actions/Transaction/_index';
+import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 
 import { TransactionModal } from './TransactionModal';
 const TransactionList = dynamic(async () => (await import('./TransactionList')).TransactionList, { ssr: false });
@@ -28,6 +29,12 @@ export const TransactionCard: React.FC = () => {
       idList.length === 1
         ? 'Are you sure you want to delete this transaction?'
         : 'Are you sure you want to delete all these transactions?',
+  });
+
+  const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
+    enabled: !!user?.id,
+    queryKey: ['userSettings'],
+    queryFn: () => getUserSettings({ userId: user?.id as string }),
   });
 
   const bulkDeleteMutation = useMutation({
@@ -106,7 +113,12 @@ export const TransactionCard: React.FC = () => {
           )}
         </CardHeader>
         <CardBody>
-          <TransactionList selectedKeysFn={setIdList} transactionListLengthFn={setTransactionListLength} />
+          <TransactionList
+            selectedKeysFn={setIdList}
+            transactionListLengthFn={setTransactionListLength}
+            userSettingsData={userSettingsData}
+            isUserSettingsLoading={isUserSettingsLoading}
+          />
         </CardBody>
       </Card>
       <TransactionModal isOpen={isOpen} onOpenChange={onOpenChange} />

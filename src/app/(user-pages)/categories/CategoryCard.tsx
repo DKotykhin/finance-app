@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import dynamic from 'next/dynamic';
 
 import { bulkDeleteCategories, getCategories } from '@/actions/Category/_index';
+import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { useConfirm } from '@/hooks/use-confirm';
 
 import { CategoryModal } from './CategoryModal';
@@ -28,10 +29,16 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
         : 'Are you sure you want to delete all these categories?',
   });
 
-  const { data: categoryData, isLoading } = useQuery({
+  const { data: categoryData, isLoading: isCategoryDataLoading } = useQuery({
     enabled: !!userId,
     queryKey: ['categories'],
     queryFn: () => getCategories({ userId: userId as string }),
+  });
+
+  const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
+    enabled: !!userId,
+    queryKey: ['userSettings'],
+    queryFn: () => getUserSettings({ userId: userId as string }),
   });
 
   const bulkDeleteMutation = useMutation({
@@ -67,7 +74,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
     <>
       <Card className="-mt-24 mb-12 p-1 sm:p-4">
         <CardHeader className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          {isLoading ? (
+          {isCategoryDataLoading ? (
             <>
               <Skeleton className="w-[200px] h-10 rounded-lg bg-slate-100"></Skeleton>
               <Skeleton className="w-[200px] h-10 rounded-lg bg-slate-100"></Skeleton>
@@ -106,7 +113,9 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
         <CardBody>
           <CategoryList
             categoryData={categoryData}
-            isLoading={isLoading}
+            isCategoryDataLoading={isCategoryDataLoading}
+            userSettingsData={userSettingsData}
+            isUserSettingsLoading={isUserSettingsLoading}
             selectedKeysFn={setIdList}
             categoryListLengthFn={setCategoryListLength}
           />
