@@ -16,6 +16,7 @@ import {
   TableCell,
   getKeyValue,
 } from '@nextui-org/react';
+import { SortOrder, UserSettings } from '@prisma/client';
 
 import { deleteAccount, ExtendedAccount } from '@/actions/Account/_index';
 import { useConfirm } from '@/hooks/use-confirm';
@@ -24,7 +25,6 @@ import { cn, currencyMap, numberWithSpaces, rowsPerPageArray } from '@/utils/_in
 
 import { AccountModal } from './AccountModal';
 import { columns } from './const';
-import { UserSettings } from '@prisma/client';
 
 interface AccountListProps {
   accountData?: ExtendedAccount[];
@@ -39,7 +39,7 @@ interface AccountListProps {
 
 interface SortDescriptor {
   column: (typeof columns)[number]['key'];
-  direction: 'ascending' | 'descending';
+  direction: SortOrder;
 }
 
 export interface AccountUpdate extends AccountFormTypes {
@@ -59,7 +59,7 @@ export const AccountList: React.FC<AccountListProps> = ({
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: userSettingsData?.accountSortField || 'createdAt',
-    direction: userSettingsData?.accountSortOrder || 'descending',
+    direction: userSettingsData?.accountSortOrder || SortOrder.descending,
   });
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);

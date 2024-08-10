@@ -3,10 +3,12 @@
 import React, { useState } from 'react';
 import { Card, CardBody, CardHeader, Radio, RadioGroup, Select, Selection, SelectItem } from '@nextui-org/react';
 import { BarChart3, LineChart, AreaChart } from 'lucide-react';
+import { TransactionCharts } from '@prisma/client';
 
 import { TransactionsWithStats } from '@/actions/Transaction/_index';
+
 import { TransactionChart } from './TransactionsChart';
-import { ChartView, Period } from '../const';
+import { Period } from '../const';
 
 interface TransactionsCardProps {
   transactionData?: TransactionsWithStats;
@@ -14,7 +16,7 @@ interface TransactionsCardProps {
 }
 
 export const TransactionsCard: React.FC<TransactionsCardProps> = ({ transactionData, previousTransactionData }) => {
-  const [chartView, setChartView] = useState<Selection>(new Set([ChartView.BarChart]));
+  const [chartView, setChartView] = useState<Selection>(new Set([TransactionCharts.BarChart]));
   const [selectedPeriod, setSelectedPeriod] = useState<Period>(Period.Current);
 
   return (
@@ -43,13 +45,13 @@ export const TransactionsCard: React.FC<TransactionsCardProps> = ({ transactionD
             selectedKeys={chartView}
             onSelectionChange={setChartView}
           >
-            <SelectItem key={ChartView.BarChart} startContent={<BarChart3 color="#2563eb" />}>
+            <SelectItem key={TransactionCharts.BarChart} startContent={<BarChart3 color="#2563eb" />}>
               Bar Chart
             </SelectItem>
-            <SelectItem key={ChartView.LineChart} startContent={<LineChart color="#2563eb" />}>
+            <SelectItem key={TransactionCharts.LineChart} startContent={<LineChart color="#2563eb" />}>
               Line Chart
             </SelectItem>
-            <SelectItem key={ChartView.AreaChart} startContent={<AreaChart color="#2563eb" />}>
+            <SelectItem key={TransactionCharts.AreaChart} startContent={<AreaChart color="#2563eb" />}>
               Area Chart
             </SelectItem>
           </Select>
@@ -62,13 +64,15 @@ export const TransactionsCard: React.FC<TransactionsCardProps> = ({ transactionD
           ) : previousTransactionData &&
             selectedPeriod === Period.Previous &&
             previousTransactionData.transactions.length === 0 ? (
-            <div className="text-gray-400 italic pl-3 pt-6 h-[500px]">No transactions in previous period to display</div>
+            <div className="text-gray-400 italic pl-3 pt-6 h-[500px]">
+              No transactions in previous period to display
+            </div>
           ) : (
             <TransactionChart
               currentTransactions={transactionData.transactions}
               previousTransactions={previousTransactionData?.transactions || []}
               selectedPeriod={selectedPeriod}
-              selectedView={Array.from(chartView)[0] as ChartView}
+              selectedView={Array.from(chartView)[0] as TransactionCharts}
             />
           )
         ) : (

@@ -17,7 +17,7 @@ import {
 } from '@nextui-org/react';
 
 import { deleteCategory } from '@/actions/Category/_index';
-import { Category, UserSettings } from '@prisma/client';
+import { Category, SortOrder, UserSettings } from '@prisma/client';
 import { useConfirm } from '@/hooks/use-confirm';
 import { CategoryFormTypes } from '@/validation/categoryValidation';
 import { cn, rowsPerPageArray } from '@/utils/_index';
@@ -38,7 +38,7 @@ interface CategoryListProps {
 
 interface SortDescriptor {
   column: (typeof columns)[number]['key'];
-  direction: 'ascending' | 'descending';
+  direction: SortOrder;
 }
 
 export interface CategoryUpdate extends CategoryFormTypes {
@@ -58,7 +58,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: userSettingsData?.categorySortField || 'createdAt',
-    direction: userSettingsData?.categorySortOrder || 'descending',
+    direction: userSettingsData?.categorySortOrder || SortOrder.descending,
   });
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);

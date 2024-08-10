@@ -129,117 +129,8 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
       </CardHeader>
       <CardBody>
         <div className="border p-3 sm:p-4 rounded-lg">
-          <p className="mb-2 font-semibold">Category Page</p>
-          <div className="flex flex-col md:flex-row gap-4 w-full">
-            <Select
-              label="Select default rows per page"
-              className="w-full sm:max-w-[240px]"
-              selectedKeys={[categorySettings.rowsPerPage]}
-              onChange={(e) =>
-                setCategorySettings({
-                  ...categorySettings,
-                  rowsPerPage: e.target.value,
-                })
-              }
-              isLoading={isGetLoading}
-            >
-              {rowsPerPageArray.map((row) => (
-                <SelectItem key={row.key}>{row.label}</SelectItem>
-              ))}
-            </Select>
-            <div className="w-full flex flex-col gap-4 sm:flex-row">
-              <Select
-                label="Select default sort field"
-                className="w-full sm:max-w-[240px]"
-                selectedKeys={[categorySettings.sortField]}
-                onChange={(e) =>
-                  setCategorySettings({
-                    ...categorySettings,
-                    sortField: e.target.value,
-                  })
-                }
-                isLoading={isGetLoading}
-              >
-                {categoryFieldArray.map((row) => (
-                  <SelectItem key={row.key}>{row.label}</SelectItem>
-                ))}
-              </Select>
-              <Select
-                label="Select default sort order"
-                className="w-full sm:max-w-[240px]"
-                selectedKeys={[categorySettings.sortOrder]}
-                onChange={(e) =>
-                  setCategorySettings({
-                    ...categorySettings,
-                    sortOrder: e.target.value as SortOrder,
-                  })
-                }
-                isLoading={isGetLoading}
-              >
-                {sortOrderArray.map((row) => (
-                  <SelectItem key={row.key}>{row.label}</SelectItem>
-                ))}
-              </Select>
-            </div>
-          </div>
+          <p className="mb-2 font-semibold">Main Page</p>
         </div>
-
-        <div className="border p-3 sm:p-4 rounded-lg mt-4">
-          <p className="mb-2 font-semibold">Account Page</p>
-          <div className="flex flex-col md:flex-row gap-4 w-full">
-            <Select
-              label="Select default rows per page"
-              className="w-full sm:max-w-[240px]"
-              selectedKeys={[accountSettings.rowsPerPage]}
-              onChange={(e) =>
-                setAccountSettings({
-                  ...accountSettings,
-                  rowsPerPage: e.target.value,
-                })
-              }
-              isLoading={isGetLoading}
-            >
-              {rowsPerPageArray.map((row) => (
-                <SelectItem key={row.key}>{row.label}</SelectItem>
-              ))}
-            </Select>
-            <div className="w-full flex flex-col gap-4 sm:flex-row">
-              <Select
-                label="Select default sort field"
-                className="w-full sm:max-w-[240px]"
-                selectedKeys={[accountSettings.sortField]}
-                onChange={(e) =>
-                  setAccountSettings({
-                    ...accountSettings,
-                    sortField: e.target.value,
-                  })
-                }
-                isLoading={isGetLoading}
-              >
-                {accountFieldArray.map((row) => (
-                  <SelectItem key={row.key}>{row.label}</SelectItem>
-                ))}
-              </Select>
-              <Select
-                label="Select default sort order"
-                className="w-full sm:max-w-[240px]"
-                selectedKeys={[accountSettings.sortOrder]}
-                onChange={(e) =>
-                  setAccountSettings({
-                    ...accountSettings,
-                    sortOrder: e.target.value as SortOrder,
-                  })
-                }
-                isLoading={isGetLoading}
-              >
-                {sortOrderArray.map((row) => (
-                  <SelectItem key={row.key}>{row.label}</SelectItem>
-                ))}
-              </Select>
-            </div>
-          </div>
-        </div>
-
         <div className="border p-3 sm:p-4 rounded-lg mt-4">
           <p className="mb-2 font-semibold">Transaction Page</p>
           <div className="w-full flex flex-col gap-4 sm:flex-row mb-4">
@@ -311,6 +202,119 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             </Select>
           </div>
         </div>
+
+        <div className="border p-3 sm:p-4 rounded-lg mt-4">
+          <p className="mb-2 font-semibold">Account Page</p>
+          <div className="flex flex-col md:flex-row gap-4 w-full">
+            <Select
+              label="Select default rows per page"
+              className="w-full sm:max-w-[240px]"
+              selectedKeys={[accountSettings.rowsPerPage]}
+              onChange={(e) =>
+                setAccountSettings({
+                  ...accountSettings,
+                  rowsPerPage: e.target.value,
+                })
+              }
+              isLoading={isGetLoading}
+            >
+              {rowsPerPageArray.map((row) => (
+                <SelectItem key={row.key}>{row.label}</SelectItem>
+              ))}
+            </Select>
+            <div className="w-full flex flex-col gap-4 sm:flex-row">
+              <Select
+                label="Select default sort field"
+                className="w-full sm:max-w-[240px]"
+                selectedKeys={[accountSettings.sortField]}
+                onChange={(e) =>
+                  setAccountSettings({
+                    ...accountSettings,
+                    sortField: e.target.value,
+                  })
+                }
+                isLoading={isGetLoading}
+              >
+                {accountFieldArray.map((row) => (
+                  <SelectItem key={row.key}>{row.label}</SelectItem>
+                ))}
+              </Select>
+              <Select
+                label="Select default sort order"
+                className="w-full sm:max-w-[240px]"
+                selectedKeys={[accountSettings.sortOrder]}
+                onChange={(e) =>
+                  setAccountSettings({
+                    ...accountSettings,
+                    sortOrder: e.target.value as SortOrder,
+                  })
+                }
+                isLoading={isGetLoading}
+              >
+                {sortOrderArray.map((row) => (
+                  <SelectItem key={row.key}>{row.label}</SelectItem>
+                ))}
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        <div className="border p-3 sm:p-4 rounded-lg mt-4">
+          <p className="mb-2 font-semibold">Category Page</p>
+          <div className="flex flex-col md:flex-row gap-4 w-full">
+            <Select
+              label="Select default rows per page"
+              className="w-full sm:max-w-[240px]"
+              selectedKeys={[categorySettings.rowsPerPage]}
+              onChange={(e) =>
+                setCategorySettings({
+                  ...categorySettings,
+                  rowsPerPage: e.target.value,
+                })
+              }
+              isLoading={isGetLoading}
+            >
+              {rowsPerPageArray.map((row) => (
+                <SelectItem key={row.key}>{row.label}</SelectItem>
+              ))}
+            </Select>
+            <div className="w-full flex flex-col gap-4 sm:flex-row">
+              <Select
+                label="Select default sort field"
+                className="w-full sm:max-w-[240px]"
+                selectedKeys={[categorySettings.sortField]}
+                onChange={(e) =>
+                  setCategorySettings({
+                    ...categorySettings,
+                    sortField: e.target.value,
+                  })
+                }
+                isLoading={isGetLoading}
+              >
+                {categoryFieldArray.map((row) => (
+                  <SelectItem key={row.key}>{row.label}</SelectItem>
+                ))}
+              </Select>
+              <Select
+                label="Select default sort order"
+                className="w-full sm:max-w-[240px]"
+                selectedKeys={[categorySettings.sortOrder]}
+                onChange={(e) =>
+                  setCategorySettings({
+                    ...categorySettings,
+                    sortOrder: e.target.value as SortOrder,
+                  })
+                }
+                isLoading={isGetLoading}
+              >
+                {sortOrderArray.map((row) => (
+                  <SelectItem key={row.key}>{row.label}</SelectItem>
+                ))}
+              </Select>
+            </div>
+          </div>
+        </div>
+
         <div className="mt-8 flex gap-4 justify-end">
           <Button
             color="default"

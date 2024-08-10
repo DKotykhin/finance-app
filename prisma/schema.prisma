@@ -19,6 +19,23 @@ enum SortOrder {
   descending
 }
 
+enum TransactionCharts {
+  BarChart
+  LineChart
+  AreaChart
+}
+
+enum CategoriesCharts {
+  PieChart
+  RadarChart
+  RadialBarChart
+}
+
+enum FlowType {
+  Income
+  Expenses
+}
+
 model Account {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now()) @map("created_at")
@@ -80,4 +97,9 @@ model UserSettings {
   transactionSortField   String    @default(value: "date") @map("transaction_sort_field")
   transactionSortOrder   SortOrder @default(value: descending) @map("transaction_sort_order")
   transactionPeriod      Int       @default(value: 30) @map("transaction_period")
+
+  mainPeriod            Int               @default(value: 30) @map("main_period")
+  mainTransactionsChart TransactionCharts @default(value: BarChart) @map("main_transaction_charts")
+  mainCategoriesChart   CategoriesCharts  @default(value: PieChart) @map("main_categories_charts")
+  mainFlowType          FlowType          @default(value: Income) @map("main_flow_type")
 }

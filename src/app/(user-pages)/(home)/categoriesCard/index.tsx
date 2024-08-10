@@ -13,9 +13,11 @@ import {
   SelectItem,
 } from '@nextui-org/react';
 import { PieChart, RadarIcon, RadiusIcon } from 'lucide-react';
+import { CategoriesCharts, FlowType } from '@prisma/client';
 
 import { TransactionsByCategory } from '@/actions/Transaction/_index';
-import { CategoriesChartView, FlowType, Period } from '../const';
+
+import { Period } from '../const';
 import { CategoriesChart } from './CategoriesChart';
 
 interface CategoriesCardProps {
@@ -28,7 +30,7 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
   previousTransactionByCategoryData,
 }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>(Period.Current);
-  const [chartView, setChartView] = useState<Selection>(new Set([CategoriesChartView.PieChart]));
+  const [chartView, setChartView] = useState<Selection>(new Set([CategoriesCharts.PieChart]));
   const [selectedFlowType, setSelectedFlowType] = useState<FlowType>(FlowType.Income);
 
   return (
@@ -57,13 +59,13 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
             selectedKeys={chartView}
             onSelectionChange={setChartView}
           >
-            <SelectItem key={CategoriesChartView.PieChart} startContent={<PieChart color="#2563eb" />}>
+            <SelectItem key={CategoriesCharts.PieChart} startContent={<PieChart color="#2563eb" />}>
               Pie Chart
             </SelectItem>
-            <SelectItem key={CategoriesChartView.RadarChart} startContent={<RadarIcon color="#2563eb" />}>
+            <SelectItem key={CategoriesCharts.RadarChart} startContent={<RadarIcon color="#2563eb" />}>
               Radar Chart
             </SelectItem>
-            <SelectItem key={CategoriesChartView.RadialBarChart} startContent={<RadiusIcon color="#2563eb" />}>
+            <SelectItem key={CategoriesCharts.RadialBarChart} startContent={<RadiusIcon color="#2563eb" />}>
               Radial Chart
             </SelectItem>
           </Select>
@@ -93,7 +95,7 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
             currentTransactionByCategory={transactionByCategoryData}
             previousTransactionByCategory={previousTransactionByCategoryData}
             selectedPeriod={selectedPeriod}
-            selectedView={Array.from(chartView)[0] as CategoriesChartView}
+            selectedView={Array.from(chartView)[0] as CategoriesCharts}
             selectedFlow={selectedFlowType}
           />
         </CardBody>

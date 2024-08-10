@@ -13,10 +13,10 @@ import {
   AreaChart,
   Area,
 } from 'recharts';
-import { Currency, Transaction } from '@prisma/client';
+import { Currency, Transaction, TransactionCharts } from '@prisma/client';
 import { format } from 'date-fns';
 
-import { ChartView, Period } from '../const';
+import { Period } from '../const';
 
 interface TransactionChartProps {
   currentTransactions?: (Transaction & { category: { categoryName: string } | null } & {
@@ -26,7 +26,7 @@ interface TransactionChartProps {
     account: { currency: Currency; hideDecimal: boolean };
   })[];
   selectedPeriod: Period;
-  selectedView: ChartView;
+  selectedView: TransactionCharts;
 }
 
 export const TransactionChart: React.FC<TransactionChartProps> = ({
@@ -53,7 +53,7 @@ export const TransactionChart: React.FC<TransactionChartProps> = ({
 
   return (
     <ResponsiveContainer width="100%" height={500}>
-      {selectedView === ChartView.LineChart ? (
+      {selectedView === TransactionCharts.LineChart ? (
         <LineChart data={selectedPeriod === Period.Previous ? previousData : currentData} margin={{ top: 10 }}>
           <XAxis dataKey="date" className="text-xs" padding={{ left: 30, right: 30 }} tickMargin={8} />
           <YAxis className="text-xs" />
@@ -77,7 +77,7 @@ export const TransactionChart: React.FC<TransactionChartProps> = ({
           />
           <Legend />
         </LineChart>
-      ) : selectedView === ChartView.AreaChart ? (
+      ) : selectedView === TransactionCharts.AreaChart ? (
         <AreaChart data={selectedPeriod === Period.Previous ? previousData : currentData} margin={{ top: 10 }}>
           <XAxis dataKey="date" className="text-xs" padding={{ left: 30, right: 30 }} tickMargin={8} />
           <YAxis className="text-xs" />

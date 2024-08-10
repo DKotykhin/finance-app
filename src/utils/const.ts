@@ -8,7 +8,7 @@ export const rowsPerPageArray: { key: string; label: string }[] = [
     label: '10',
   },
   {
-    key: '20',
-    label: '20',
+    key: '25',
+    label: '25',
   },
 ];

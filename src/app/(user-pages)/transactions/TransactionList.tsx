@@ -28,7 +28,7 @@ import {
   getKeyValue,
 } from '@nextui-org/react';
 import { DateValue, parseAbsoluteToLocal } from '@internationalized/date';
-import { UserSettings } from '@prisma/client';
+import { SortOrder, UserSettings } from '@prisma/client';
 
 import { deleteTransaction, getTransactions, TransactionCreate } from '@/actions/Transaction/_index';
 import { getAccounts } from '@/actions/Account/_index';
@@ -50,7 +50,7 @@ interface TransactionListProps {
 
 interface SortDescriptor {
   column: (typeof columns)[number]['key'];
-  direction: 'ascending' | 'descending';
+  direction: SortOrder;
 }
 
 export interface TransactionUpdate extends TransactionCreate {
@@ -67,7 +67,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: userSettingsData?.transactionSortField || 'date',
-    direction: userSettingsData?.transactionSortOrder || 'descending',
+    direction: userSettingsData?.transactionSortOrder || SortOrder.descending,
   });
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);

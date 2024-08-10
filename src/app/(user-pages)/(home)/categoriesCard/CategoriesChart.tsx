@@ -12,15 +12,16 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
+import { CategoriesCharts, FlowType } from '@prisma/client';
 
 import { TransactionsByCategory } from '@/actions/Transaction/_index';
-import { CategoriesChartView, FlowType, Period } from '../const';
+import { Period } from '../const';
 
 interface CategoriesChartProps {
   currentTransactionByCategory?: TransactionsByCategory;
   previousTransactionByCategory?: TransactionsByCategory;
   selectedPeriod: Period;
-  selectedView: CategoriesChartView;
+  selectedView: CategoriesCharts;
   selectedFlow: FlowType;
 }
 
@@ -90,7 +91,7 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
   return (
     <>
       <ResponsiveContainer width="100%" height={400}>
-        {selectedView === CategoriesChartView.PieChart ? (
+        {selectedView === CategoriesCharts.PieChart ? (
           <PieChart>
             <Pie
               dataKey="value"
@@ -114,7 +115,7 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
             />
             <Tooltip />
           </PieChart>
-        ) : selectedView === CategoriesChartView.RadialBarChart ? (
+        ) : selectedView === CategoriesCharts.RadialBarChart ? (
           <RadialBarChart
             cx="50%"
             cy="50%"
