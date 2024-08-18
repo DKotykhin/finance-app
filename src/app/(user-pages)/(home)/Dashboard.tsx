@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Autocomplete, AutocompleteItem, DateRangePicker, Skeleton } from '@nextui-org/react';
 import { RangeValue } from '@react-types/shared';
 import { DateValue } from '@react-types/datepicker';
-import { addDays, differenceInDays, subDays } from 'date-fns';
+import { addDays, differenceInDays, subDays, isToday } from 'date-fns';
 
 import { getAccounts } from '@/actions/Account/_index';
 import { getTransactionsByCategory, getTransactionsWithStats } from '@/actions/Transaction/_index';
@@ -15,11 +15,19 @@ import { MainCards } from './mainCards';
 import { TransactionsCard } from './transactionsCard';
 import { CategoriesCard } from './categoriesCard';
 import { StatsCards } from './statsCards';
+import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 
 export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const [accountValue, setAccountValue] = useState<any>();
+
+  const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
+    enabled: !!userId,
+    queryKey: ['userSettings'],
+    queryFn: () => getUserSettings({ userId: userId as string }),
+  });
+
   const [dateValue, setDateValue] = useState<RangeValue<DateValue>>({
-    start: dateToValue(subDays(new Date(), 30)),
+    start: dateToValue(subDays(new Date(), userSettingsData?.dashboardPeriod || 30)),
     end: dateToValue(new Date()),
   });
 
@@ -106,13 +114,18 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
             >
               {(account) => <AutocompleteItem key={account.id}>{account.accountName}</AutocompleteItem>}
             </Autocomplete>
-            <DateRangePicker
-              label="Period"
-              visibleMonths={2}
-              className="w-full sm:max-w-[280px]"
-              value={dateValue}
-              onChange={setDateValue}
-            />
+            <div>
+              <DateRangePicker
+                label="Period"
+                visibleMonths={2}
+                className="w-full sm:max-w-[280px]"
+                value={dateValue}
+                onChange={setDateValue}
+              />
+              <p className="text-xs italic text-blue-200 mt-1 ml-1">
+                {isToday(valueToDate(dateValue.end)) ? `last ${period} days selected` : `${period} days selected`}
+              </p>
+            </div>
           </div>
           {isTransactionLoading || isPreviousTransactionLoading ? (
             <div className="flex flex-wrap lg:flex-nowrap gap-4 justify-between mt-8">
@@ -130,10 +143,17 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
               />
               <StatsCards transactionData={transactionData} period={period} />
               <div className="flex flex-wrap lg:flex-nowrap gap-4 justify-between my-8">
-                <TransactionsCard transactionData={transactionData} previousTransactionData={previousTransactionData} />
+                <TransactionsCard
+                  transactionData={transactionData}
+                  previousTransactionData={previousTransactionData}
+                  userSettingsData={userSettingsData}
+                  isUserSettingsLoading={isUserSettingsLoading}
+                />
                 <CategoriesCard
                   transactionByCategoryData={transactionByCategoryData}
                   previousTransactionByCategoryData={previousTransactionByCategoryData}
+                  userSettingsData={userSettingsData}
+                  isUserSettingsLoading={isUserSettingsLoading}
                 />
               </div>
             </>

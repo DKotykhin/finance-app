@@ -98,8 +98,8 @@ model UserSettings {
   transactionSortOrder   SortOrder @default(value: descending) @map("transaction_sort_order")
   transactionPeriod      Int       @default(value: 30) @map("transaction_period")
 
-  mainPeriod            Int               @default(value: 30) @map("main_period")
-  mainTransactionsChart TransactionCharts @default(value: BarChart) @map("main_transaction_charts")
-  mainCategoriesChart   CategoriesCharts  @default(value: PieChart) @map("main_categories_charts")
-  mainFlowType          FlowType          @default(value: Income) @map("main_flow_type")
+  dashboardPeriod            Int               @default(value: 30) @map("dashboard_period")
+  dashboardTransactionsChart TransactionCharts @default(value: BarChart) @map("dashboard_transaction_charts")
+  dashboardCategoriesChart   CategoriesCharts  @default(value: PieChart) @map("dashboard_categories_charts")
+  dashboardFlowType          FlowType          @default(value: Income) @map("dashboard_flow_type")
 }

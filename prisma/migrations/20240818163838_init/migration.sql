@@ -4,6 +4,15 @@ CREATE TYPE "Currency" AS ENUM ('USD', 'EUR', 'GBP', 'UAH');
 -- CreateEnum
 CREATE TYPE "SortOrder" AS ENUM ('ascending', 'descending');
 
+-- CreateEnum
+CREATE TYPE "TransactionCharts" AS ENUM ('BarChart', 'LineChart', 'AreaChart');
+
+-- CreateEnum
+CREATE TYPE "CategoriesCharts" AS ENUM ('PieChart', 'RadarChart', 'RadialBarChart');
+
+-- CreateEnum
+CREATE TYPE "FlowType" AS ENUM ('Income', 'Expenses');
+
 -- CreateTable
 CREATE TABLE "Account" (
     "id" TEXT NOT NULL,
@@ -60,6 +69,10 @@ CREATE TABLE "UserSettings" (
     "transaction_sort_field" TEXT NOT NULL DEFAULT 'date',
     "transaction_sort_order" "SortOrder" NOT NULL DEFAULT 'descending',
     "transaction_period" INTEGER NOT NULL DEFAULT 30,
+    "dashboard_period" INTEGER NOT NULL DEFAULT 30,
+    "dashboard_transaction_charts" "TransactionCharts" NOT NULL DEFAULT 'BarChart',
+    "dashboard_categories_charts" "CategoriesCharts" NOT NULL DEFAULT 'PieChart',
+    "dashboard_flow_type" "FlowType" NOT NULL DEFAULT 'Income',
 
     CONSTRAINT "UserSettings_pkey" PRIMARY KEY ("id")
 );

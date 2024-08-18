@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardBody, CardHeader, Radio, RadioGroup, Select, Selection, SelectItem } from '@nextui-org/react';
 import { BarChart3, LineChart, AreaChart } from 'lucide-react';
-import { TransactionCharts } from '@prisma/client';
+import { TransactionCharts, UserSettings } from '@prisma/client';
 
 import { TransactionsWithStats } from '@/actions/Transaction/_index';
 
@@ -13,10 +13,19 @@ import { Period } from '../const';
 interface TransactionsCardProps {
   transactionData?: TransactionsWithStats;
   previousTransactionData?: TransactionsWithStats;
+  userSettingsData?: UserSettings | null;
+  isUserSettingsLoading: boolean;
 }
 
-export const TransactionsCard: React.FC<TransactionsCardProps> = ({ transactionData, previousTransactionData }) => {
-  const [chartView, setChartView] = useState<Selection>(new Set([TransactionCharts.BarChart]));
+export const TransactionsCard: React.FC<TransactionsCardProps> = ({
+  transactionData,
+  previousTransactionData,
+  userSettingsData,
+  isUserSettingsLoading,
+}) => {
+  const [chartView, setChartView] = useState<Selection>(
+    new Set([userSettingsData?.dashboardTransactionsChart || TransactionCharts.BarChart])
+  );
   const [selectedPeriod, setSelectedPeriod] = useState<Period>(Period.Current);
 
   return (
@@ -44,6 +53,7 @@ export const TransactionsCard: React.FC<TransactionsCardProps> = ({ transactionD
             className="w-full sm:max-w-[180px]"
             selectedKeys={chartView}
             onSelectionChange={setChartView}
+            isLoading={isUserSettingsLoading}
           >
             <SelectItem key={TransactionCharts.BarChart} startContent={<BarChart3 color="#2563eb" />}>
               Bar Chart

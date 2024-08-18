@@ -51,7 +51,7 @@ export const MainCards: React.FC<MainCardsProps> = ({
   ];
 
   return (
-    <div className="flex flex-wrap lg:flex-nowrap gap-4 justify-between mt-8">
+    <div className="flex flex-wrap lg:flex-nowrap gap-4 justify-between mt-4">
       {cardArray.map((card, index) => (
         <Card key={index} className="w-full">
           <CardHeader>

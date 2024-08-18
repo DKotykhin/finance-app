@@ -13,7 +13,7 @@ import {
   SelectItem,
 } from '@nextui-org/react';
 import { PieChart, RadarIcon, RadiusIcon } from 'lucide-react';
-import { CategoriesCharts, FlowType } from '@prisma/client';
+import { CategoriesCharts, FlowType, UserSettings } from '@prisma/client';
 
 import { TransactionsByCategory } from '@/actions/Transaction/_index';
 
@@ -23,14 +23,20 @@ import { CategoriesChart } from './CategoriesChart';
 interface CategoriesCardProps {
   transactionByCategoryData?: TransactionsByCategory;
   previousTransactionByCategoryData?: TransactionsByCategory;
+  userSettingsData?: UserSettings | null;
+  isUserSettingsLoading: boolean;
 }
 
 export const CategoriesCard: React.FC<CategoriesCardProps> = ({
   transactionByCategoryData,
   previousTransactionByCategoryData,
+  userSettingsData,
+  isUserSettingsLoading,
 }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>(Period.Current);
-  const [chartView, setChartView] = useState<Selection>(new Set([CategoriesCharts.PieChart]));
+  const [chartView, setChartView] = useState<Selection>(
+    new Set([userSettingsData?.dashboardCategoriesChart || CategoriesCharts.PieChart])
+  );
   const [selectedFlowType, setSelectedFlowType] = useState<FlowType>(FlowType.Income);
 
   return (
@@ -58,6 +64,7 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
             className="w-full sm:max-w-[180px]"
             selectedKeys={chartView}
             onSelectionChange={setChartView}
+            isLoading={isUserSettingsLoading}
           >
             <SelectItem key={CategoriesCharts.PieChart} startContent={<PieChart color="#2563eb" />}>
               Pie Chart

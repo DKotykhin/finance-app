@@ -15,7 +15,7 @@ import {
 } from '@nextui-org/react';
 import { Loader2, Pencil, Trash2, TriangleAlert } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { differenceInDays, format, subDays } from 'date-fns';
+import { differenceInDays, format, subDays, isToday } from 'date-fns';
 import { useUser } from '@clerk/nextjs';
 import {
   Selection,
@@ -279,25 +279,30 @@ export const TransactionList: React.FC<TransactionListProps> = ({
 
   const TopContent = () => (
     <div>
-      <div className="h-full flex gap-4 flex-col items-end sm:flex-row lg:items-center sm:justify-between">
+      <div className="h-full flex gap-4 flex-col items-end lg:flex-row lg:items-center sm:justify-between mb-4 lg:mb-0">
         <div className="flex flex-col lg:flex-row gap-4 items-center w-full lg:w-auto">
-          <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
-            <DatePicker
-              label="Date from"
-              granularity="day"
-              value={dateValue.start}
-              onChange={(value) => setDateValue((v) => ({ ...v, start: value }))}
-              className="w-full lg:w-[160px]"
-              isDisabled={isTransactionLoading}
-            />
-            <DatePicker
-              label="Date to"
-              granularity="day"
-              value={dateValue.end}
-              onChange={(value) => setDateValue((v) => ({ ...v, end: value }))}
-              className="w-full lg:w-[160px]"
-              isDisabled={isTransactionLoading}
-            />
+          <div className="w-full flex flex-col">
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full lg:w-auto">
+              <DatePicker
+                label="Date from"
+                granularity="day"
+                value={dateValue.start}
+                onChange={(value) => setDateValue((v) => ({ ...v, start: value }))}
+                className="w-full lg:w-[160px]"
+                isDisabled={isTransactionLoading}
+              />
+              <DatePicker
+                label="Date to"
+                granularity="day"
+                value={dateValue.end}
+                onChange={(value) => setDateValue((v) => ({ ...v, end: value }))}
+                className="w-full lg:w-[160px]"
+                isDisabled={isTransactionLoading}
+              />
+            </div>
+            <p className="lg:hidden text-xs italic text-gray-400 mt-1 ml-1">
+              {isToday(valueToDate(dateValue.end)) ? `last ${period} days selected` : `${period} days selected`}
+            </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
             {categoryData && categoryData.length > 0 && (
@@ -340,7 +345,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           ))}
         </Select>
       </div>
-      <p className="text-xs italic text-gray-400 mb-3 ml-1 mt-1">{`selected period ${period} days`}</p>
+      <p className="hidden lg:block text-xs italic text-gray-400 mb-3 ml-1 mt-1">
+        {isToday(valueToDate(dateValue.end)) ? `last ${period} days selected` : `${period} days selected`}
+      </p>
     </div>
   );
 
