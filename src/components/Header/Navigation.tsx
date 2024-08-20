@@ -12,7 +12,11 @@ import { cn } from '@/utils/cn';
 const routes = [
   {
     href: '/',
-    label: 'Overview',
+    label: 'Home',
+  },
+  {
+    href: '/dashboard',
+    label: 'Dashboard',
   },
   {
     href: '/transactions',
@@ -45,7 +49,7 @@ const Navigation: React.FC = () => {
               size="md"
               variant="bordered"
               className={cn(
-                'w-full lg:w-auto justify-between font-normal hover:bg-white/20 hover:text-white border-none text-white',
+                'w-full lg:w-auto font-normal hover:bg-white/20 hover:text-white border-none text-white',
                 pathname === route.href ? 'bg-white/10 text-white' : 'bg-transparent'
               )}
             >

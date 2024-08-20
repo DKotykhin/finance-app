@@ -8,7 +8,7 @@ const SignInPage = () => {
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
       <div className="flex justify-center items-center">
         <ClerkLoaded>
-          <SignIn />
+          <SignIn forceRedirectUrl={'/dashboard'} />
         </ClerkLoaded>
         <ClerkLoading>
           <div className="pt-10">

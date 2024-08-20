@@ -3,11 +3,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { SignInButton, SignedIn, SignedOut, UserButton, ClerkLoaded, ClerkLoading } from '@clerk/nextjs';
 import { Loader2 } from 'lucide-react';
+import { auth } from '@clerk/nextjs/server';
 
 import Navigation from './Navigation';
 import { ThemeButton } from './ThemeButton';
 
 const Header: React.FC = () => {
+  const { userId }: { userId: string | null } = auth();
+
   return (
     <header className="bg-gradient-to-b from-blue-700 to-blue-500 dark:from-blue-950 dark:to-blue-600 px-4 py-8 lg:px-8 pb-48">
       <div className="max-w-screen-2xl mx-auto">
@@ -19,16 +22,18 @@ const Header: React.FC = () => {
                 <p className="ml-2 text-white text-3xl font-semibold">Finance</p>
               </div>
             </Link>
-            <Navigation />
+            {userId && <Navigation />}
           </div>
-          <div className='flex gap-8 items-center'>
+          <div className="flex gap-6 items-center">
             <ThemeButton />
             <ClerkLoading>
               <Loader2 className="text-slate-400 animate-spin" size={40} />
             </ClerkLoading>
             <ClerkLoaded>
               <SignedOut>
-                <SignInButton />
+                <SignInButton>
+                  <span className="text-blue-200 cursor-pointer">Sign In</span>
+                </SignInButton>
               </SignedOut>
               <SignedIn>
                 <UserButton />

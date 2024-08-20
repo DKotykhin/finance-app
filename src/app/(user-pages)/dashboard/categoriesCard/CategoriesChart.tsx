@@ -91,30 +91,33 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
   return (
     <>
       <ResponsiveContainer width="100%" height={400}>
-        {selectedView === CategoriesCharts.PieChart ? (
-          <PieChart>
-            <Pie
+        {selectedView === CategoriesCharts.RadarChart ? (
+          <RadarChart
+            cx="50%"
+            cy="50%"
+            outerRadius="60%"
+            data={
+              selectedFlow === FlowType.Income
+                ? selectedPeriod === Period.Previous
+                  ? incomePreviousData
+                  : incomeCurrentData
+                : selectedPeriod === Period.Previous
+                  ? expensesPreviousData
+                  : expensesCurrentData
+            }
+          >
+            <PolarGrid />
+            <PolarAngleAxis dataKey="name" style={{ fontSize: '12px' }} />
+            <PolarRadiusAxis style={{ fontSize: '12px' }} />
+            <Radar
+              name={selectedFlow === FlowType.Income ? 'income' : 'expenses'}
               dataKey="value"
-              data={
-                selectedFlow === FlowType.Income
-                  ? selectedPeriod === Period.Previous
-                    ? incomePreviousData
-                    : incomeCurrentData
-                  : selectedPeriod === Period.Previous
-                    ? expensesPreviousData
-                    : expensesCurrentData
-              }
-              cx="50%"
-              cy="50%"
-              innerRadius={80}
-              outerRadius={120}
+              stroke={selectedFlow === FlowType.Income ? '#2563eb' : '#ef4444'}
               fill={selectedFlow === FlowType.Income ? '#2563eb' : '#ef4444'}
-              fillOpacity={0.8}
-              paddingAngle={5}
-              label={customizedLabel}
+              fillOpacity={0.6}
             />
             <Tooltip />
-          </PieChart>
+          </RadarChart>
         ) : selectedView === CategoriesCharts.RadialBarChart ? (
           <RadialBarChart
             cx="50%"
@@ -146,32 +149,29 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
             <Tooltip content={<CustomTooltip active={false} payload={[]} />} />
           </RadialBarChart>
         ) : (
-          <RadarChart
-            cx="50%"
-            cy="50%"
-            outerRadius="60%"
-            data={
-              selectedFlow === FlowType.Income
-                ? selectedPeriod === Period.Previous
-                  ? incomePreviousData
-                  : incomeCurrentData
-                : selectedPeriod === Period.Previous
-                  ? expensesPreviousData
-                  : expensesCurrentData
-            }
-          >
-            <PolarGrid />
-            <PolarAngleAxis dataKey="name" style={{ fontSize: '12px' }} />
-            <PolarRadiusAxis style={{ fontSize: '12px' }} />
-            <Radar
-              name={selectedFlow === FlowType.Income ? 'income' : 'expenses'}
+          <PieChart>
+            <Pie
               dataKey="value"
-              stroke={selectedFlow === FlowType.Income ? '#2563eb' : '#ef4444'}
+              data={
+                selectedFlow === FlowType.Income
+                  ? selectedPeriod === Period.Previous
+                    ? incomePreviousData
+                    : incomeCurrentData
+                  : selectedPeriod === Period.Previous
+                    ? expensesPreviousData
+                    : expensesCurrentData
+              }
+              cx="50%"
+              cy="50%"
+              innerRadius={80}
+              outerRadius={120}
               fill={selectedFlow === FlowType.Income ? '#2563eb' : '#ef4444'}
-              fillOpacity={0.6}
+              fillOpacity={0.8}
+              paddingAngle={5}
+              label={customizedLabel}
             />
             <Tooltip />
-          </RadarChart>
+          </PieChart>
         )}
       </ResponsiveContainer>
     </>
