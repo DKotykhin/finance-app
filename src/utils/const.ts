@@ -12,3 +12,9 @@ export const rowsPerPageArray: { key: string; label: string }[] = [
     label: '25',
   },
 ];
+
+export const freeLimits = {
+  accounts: 3,
+  categories: 5,
+  transactions: 3,
+};

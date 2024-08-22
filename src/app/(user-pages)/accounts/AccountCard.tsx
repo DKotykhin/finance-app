@@ -6,18 +6,27 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import dynamic from 'next/dynamic';
+import { SubscriptionType } from '@prisma/client';
 
 import { bulkDeleteAccounts, getAccounts } from '@/actions/Account/_index';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { useConfirm } from '@/hooks/use-confirm';
+import { freeLimits } from '@/utils/_index';
+import { SubscriptionModal } from '@/components/SubscriptionModal';
 
 import { AccountModal } from './AccountModal';
 const AccountList = dynamic(async () => (await import('./AccountList')).AccountList, { ssr: false });
 
 export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const [idList, setIdList] = useState<string[]>([]);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [accountListLength, setAccountListLength] = useState(0);
+
+  const { isOpen: isAccountOpen, onOpen: onAccountOpen, onOpenChange: onAccountOpenChange } = useDisclosure();
+  const {
+    isOpen: isSubscriptionOpen,
+    onOpen: onSubscriptionOpen,
+    onOpenChange: onSubscriptionOpenChange,
+  } = useDisclosure();
 
   const queryClient = useQueryClient();
 
@@ -92,7 +101,16 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
                     Delete ({idList.length})
                   </Button>
                 )}
-                <Button color="secondary" onPress={onOpen} className="w-full sm:w-auto">
+                <Button
+                  color="secondary"
+                  onPress={
+                    userSettingsData?.subscriptionType === SubscriptionType.Free &&
+                    (accountData?.length ?? 0) >= freeLimits.accounts
+                      ? onSubscriptionOpen
+                      : onAccountOpen
+                  }
+                  className="w-full sm:w-auto"
+                >
                   <Plus size={16} />
                   Add New
                 </Button>
@@ -111,7 +129,13 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
           />
         </CardBody>
       </Card>
-      <AccountModal isOpen={isOpen} onOpenChange={onOpenChange} />
+      <AccountModal isOpen={isAccountOpen} onOpenChange={onAccountOpenChange} />
+      <SubscriptionModal
+        isOpen={isSubscriptionOpen}
+        onOpenChange={onSubscriptionOpenChange}
+        userId={userId}
+        title={`You can't create more than ${freeLimits.accounts} accounts on FREE plan`}
+      />
       <ConfirmModal />
     </>
   );

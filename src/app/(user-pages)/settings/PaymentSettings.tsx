@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Button, Card, CardBody, CardHeader } from '@nextui-org/react';
+import { Button } from '@nextui-org/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -9,6 +9,7 @@ import { SubscriptionType } from '@prisma/client';
 
 import { cancelStripeSubscription, createStripeSession } from '@/actions/Payment/stripeSession';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
+import { useConfirm } from '@/hooks/use-confirm';
 
 // import { loadStripe } from '@stripe/stripe-js';
 // const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string);
@@ -16,6 +17,11 @@ import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 export const PaymentSettings: React.FC<{ userId: string | null }> = ({ userId }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  const [ConfirmModal, confirm] = useConfirm({
+    title: 'Cancel Subscription',
+    message: 'Are you sure you want to cancel your subscription?',
+  });
 
   const { data: userSettingsData } = useQuery({
     enabled: !!userId,
@@ -74,67 +80,66 @@ export const PaymentSettings: React.FC<{ userId: string | null }> = ({ userId })
     if (!sessionId) {
       return toast.error('Failed to cancel subscription!');
     }
-    cancelMutation.mutateAsync(sessionId);
+    const ok = await confirm();
+    if (ok) {
+      cancelMutation.mutateAsync(sessionId);
+    }
   };
 
   return (
-    <Card className="p-1 sm:p-4">
-      <CardHeader>
-        <p className="font-bold text-xl">Payment Settings</p>
-      </CardHeader>
-      <CardBody>
-        <p className="w-full text-center mt-1 mb-1 text-2xl uppercase font-bold">Choose the best payment plan</p>
-        <p className="w-full text-center mb-8 text-gray-500 italic">{`your current plan: ${userSettingsData?.subscriptionType}`}</p>
-        <div className="flex flex-col lg:flex-row justify-center items-center lg:items-stretch gap-4">
-          <div className="flex flex-col gap-2 items-center border p-4 rounded-md w-full max-w-[400px] shadow-lg">
-            <p className="font-bold text-2xl uppercase text-blue-600">Free</p>
-            <div className="border border-blue-600 w-6"></div>
-            <p className="font-bold text-2xl mt-4">$ 0</p>
-            <p className="text-grey-500 text-sm italic mb-8">per month</p>
-          </div>
-          <div className="flex flex-col gap-2 items-center border p-4 rounded-md w-full max-w-[400px] shadow-lg">
-            <p className="font-bold text-2xl uppercase text-blue-600">Monthly</p>
-            <div className="border border-blue-600 w-6"></div>
-            <p className="font-bold text-2xl mt-4">$ 5.99</p>
-            <p className="text-grey-500 text-sm italic mb-8">per month</p>
-            <Button
-              color="primary"
-              variant={userSettingsData?.subscriptionType === SubscriptionType.Monthly ? 'flat' : 'solid'}
-              onClick={() =>
-                userSettingsData?.subscriptionType === SubscriptionType.Monthly
-                  ? cancelPaymentClick(userSettingsData.subscriptionId)
-                  : createPaymentClick(SubscriptionType.Monthly)
-              }
-              isDisabled={cancelMutation.isPending}
-            >
-              {userSettingsData?.subscriptionType === SubscriptionType.Monthly ? 'Unsubscribe' : 'Subscribe'}
-            </Button>
-          </div>
-          <div className="flex flex-col gap-2 items-center border p-4 rounded-md w-full max-w-[400px] shadow-lg relative">
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute top-6 left-[-40px] w-[200px] bg-orange-500 text-white font-bold pl-8 py-1 rotate-[-45deg] shadow-md pointer-events-auto">
-                Most Popular
-              </div>
-            </div>
-            <p className="font-bold text-2xl uppercase text-blue-600">Yearly</p>
-            <div className="border border-blue-600 w-6"></div>
-            <p className="font-bold text-2xl mt-4">$ 4.99</p>
-            <p className="text-grey-500 text-sm italic mb-8">per month</p>
-            <Button
-              color="primary"
-              variant={userSettingsData?.subscriptionType === SubscriptionType.Yearly ? 'flat' : 'solid'}
-              onClick={() =>
-                userSettingsData?.subscriptionType === SubscriptionType.Yearly
-                  ? cancelPaymentClick(userSettingsData.subscriptionId)
-                  : createPaymentClick(SubscriptionType.Yearly)
-              }
-              isDisabled={cancelMutation.isPending}
-            >
-              {userSettingsData?.subscriptionType === SubscriptionType.Yearly ? 'Unsubscribe' : 'Subscribe'}
-            </Button>
-          </div>
+    <div>
+      <p className="w-full text-center mt-1 mb-1 text-2xl uppercase font-bold">Choose the best payment plan</p>
+      <p className="w-full text-center mb-8 text-gray-500 italic">{`your current plan: ${userSettingsData?.subscriptionType}`}</p>
+      <div className="flex flex-col lg:flex-row justify-center items-center lg:items-stretch gap-4">
+        <div className="flex flex-col gap-2 items-center border p-4 rounded-md w-full max-w-[400px] shadow-lg">
+          <p className="font-bold text-2xl uppercase text-blue-600">Free</p>
+          <div className="border border-blue-600 w-6"></div>
+          <p className="font-bold text-2xl mt-4">$ 0</p>
+          <p className="text-grey-500 text-sm italic mb-8">per month</p>
         </div>
-      </CardBody>
-    </Card>
+        <div className="flex flex-col gap-2 items-center border p-4 rounded-md w-full max-w-[400px] shadow-lg">
+          <p className="font-bold text-2xl uppercase text-blue-600">Monthly</p>
+          <div className="border border-blue-600 w-6"></div>
+          <p className="font-bold text-2xl mt-4">$ 5.99</p>
+          <p className="text-grey-500 text-sm italic mb-8">per month</p>
+          <Button
+            color="primary"
+            variant={userSettingsData?.subscriptionType === SubscriptionType.Monthly ? 'flat' : 'solid'}
+            onClick={() =>
+              userSettingsData?.subscriptionType === SubscriptionType.Monthly
+                ? cancelPaymentClick(userSettingsData.subscriptionId)
+                : createPaymentClick(SubscriptionType.Monthly)
+            }
+            isLoading={cancelMutation.isPending}
+          >
+            {userSettingsData?.subscriptionType === SubscriptionType.Monthly ? 'Unsubscribe' : 'Subscribe'}
+          </Button>
+        </div>
+        <div className="flex flex-col gap-2 items-center border p-4 rounded-md w-full max-w-[400px] shadow-lg relative">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-6 left-[-40px] w-[200px] bg-orange-500 text-white font-bold pl-8 py-1 rotate-[-45deg] shadow-md pointer-events-auto">
+              Most Popular
+            </div>
+          </div>
+          <p className="font-bold text-2xl uppercase text-blue-600">Yearly</p>
+          <div className="border border-blue-600 w-6"></div>
+          <p className="font-bold text-2xl mt-4">$ 4.99</p>
+          <p className="text-grey-500 text-sm italic mb-8">per month</p>
+          <Button
+            color="primary"
+            variant={userSettingsData?.subscriptionType === SubscriptionType.Yearly ? 'flat' : 'solid'}
+            onClick={() =>
+              userSettingsData?.subscriptionType === SubscriptionType.Yearly
+                ? cancelPaymentClick(userSettingsData.subscriptionId)
+                : createPaymentClick(SubscriptionType.Yearly)
+            }
+            isLoading={cancelMutation.isPending}
+          >
+            {userSettingsData?.subscriptionType === SubscriptionType.Yearly ? 'Unsubscribe' : 'Subscribe'}
+          </Button>
+        </div>
+      </div>
+      <ConfirmModal />
+    </div>
   );
 };
