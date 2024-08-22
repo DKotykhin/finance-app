@@ -13,7 +13,7 @@ import {
   SelectItem,
 } from '@nextui-org/react';
 import { PieChart, RadarIcon, RadiusIcon } from 'lucide-react';
-import { CategoriesCharts, FlowType, UserSettings } from '@prisma/client';
+import { CategoriesCharts, TransactionType, UserSettings } from '@prisma/client';
 
 import { TransactionsByCategory } from '@/actions/Transaction/_index';
 
@@ -37,7 +37,7 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
   const [chartView, setChartView] = useState<Selection>(
     new Set([userSettingsData?.dashboardCategoriesChart || CategoriesCharts.PieChart])
   );
-  const [selectedFlowType, setSelectedFlowType] = useState<FlowType>(FlowType.Income);
+  const [selectedFlowType, setSelectedFlowType] = useState<TransactionType>(TransactionType.Income);
 
   return (
     <Card className="w-full lg:w-[calc(33.33%-6px)]">
@@ -82,19 +82,19 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
         <div className="text-gray-400 italic pl-3 pt-6 h-[424px]">No data available</div>
       ) : selectedPeriod === Period.Current &&
         !transactionByCategoryData.income.length &&
-        selectedFlowType === FlowType.Income ? (
+        selectedFlowType === TransactionType.Income ? (
         <div className="text-gray-400 italic pl-3 pt-6 h-[424px]">No income in current period</div>
       ) : selectedPeriod === Period.Current &&
         !transactionByCategoryData.expenses.length &&
-        selectedFlowType === FlowType.Expenses ? (
+        selectedFlowType === TransactionType.Expenses ? (
         <div className="text-gray-400 italic pl-3 pt-6 h-[424px]">No expenses in current period</div>
       ) : selectedPeriod === Period.Previous &&
         !previousTransactionByCategoryData.income.length &&
-        selectedFlowType === FlowType.Income ? (
+        selectedFlowType === TransactionType.Income ? (
         <div className="text-gray-400 italic pl-3 pt-6 h-[424px]">No income in previous period</div>
       ) : selectedPeriod === Period.Previous &&
         !previousTransactionByCategoryData.expenses.length &&
-        selectedFlowType === FlowType.Expenses ? (
+        selectedFlowType === TransactionType.Expenses ? (
         <div className="text-gray-400 italic pl-3 pt-6 h-[424px]">No expenses in previous period</div>
       ) : (
         <CardBody>
@@ -112,12 +112,12 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
           label="Select finance flow"
           orientation="horizontal"
           value={selectedFlowType}
-          onValueChange={(value: string) => setSelectedFlowType(value as FlowType)}
+          onValueChange={(value: string) => setSelectedFlowType(value as TransactionType)}
         >
-          <Radio value={FlowType.Income} classNames={{ label: 'text-sm' }}>
+          <Radio value={TransactionType.Income} classNames={{ label: 'text-sm' }}>
             Income
           </Radio>
-          <Radio value={FlowType.Expenses} classNames={{ label: 'text-sm' }} color="warning">
+          <Radio value={TransactionType.Expenses} classNames={{ label: 'text-sm' }} color="warning">
             Expenses
           </Radio>
         </RadioGroup>

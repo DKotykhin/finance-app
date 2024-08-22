@@ -11,7 +11,7 @@ const Settings: React.FC = () => {
     <div className="max-w-screen-2xl mx-auto">
       <div className="flex flex-col gap-4 -mt-24 mb-12">
         <PagesSettings userId={userId} />
-        <PaymentSettings />
+        <PaymentSettings userId={userId} />
       </div>
     </div>
   );

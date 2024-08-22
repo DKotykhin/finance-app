@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { SignInButton, SignedIn, SignedOut, UserButton, ClerkLoaded, ClerkLoading } from '@clerk/nextjs';
 import { Loader2 } from 'lucide-react';
 import { auth } from '@clerk/nextjs/server';
+import { Button } from '@nextui-org/react';
 
 import Navigation from './Navigation';
 import { ThemeButton } from './ThemeButton';
@@ -32,7 +33,7 @@ const Header: React.FC = () => {
             <ClerkLoaded>
               <SignedOut>
                 <SignInButton>
-                  <span className="text-blue-200 cursor-pointer">Sign In</span>
+                  <Button variant='light' className="text-white">Sign In</Button>
                 </SignInButton>
               </SignedOut>
               <SignedIn>

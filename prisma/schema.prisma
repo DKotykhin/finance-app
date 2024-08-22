@@ -31,9 +31,15 @@ enum CategoriesCharts {
   RadialBarChart
 }
 
-enum FlowType {
+enum TransactionType {
   Income
   Expenses
+}
+
+enum SubscriptionType {
+  Free
+  Monthly
+  Yearly
 }
 
 model Account {
@@ -101,5 +107,10 @@ model UserSettings {
   dashboardPeriod            Int               @default(value: 30) @map("dashboard_period")
   dashboardTransactionsChart TransactionCharts @default(value: BarChart) @map("dashboard_transaction_charts")
   dashboardCategoriesChart   CategoriesCharts  @default(value: PieChart) @map("dashboard_categories_charts")
-  dashboardFlowType          FlowType          @default(value: Income) @map("dashboard_flow_type")
+  dashboardTransactionType   TransactionType   @default(value: Income) @map("dashboard_transaction_type")
+
+  subscriptionType  SubscriptionType @default(value: Free) @map("subscription_type")
+  subscriptionStart DateTime?        @map("subscription_start")
+  subscriptionEnd   DateTime?        @map("subscription_end")
+  subscriptionId    String?          @map("subscription_id")
 }

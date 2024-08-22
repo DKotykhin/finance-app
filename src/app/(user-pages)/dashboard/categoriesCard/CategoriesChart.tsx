@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
-import { CategoriesCharts, FlowType } from '@prisma/client';
+import { CategoriesCharts, TransactionType } from '@prisma/client';
 
 import { TransactionsByCategory } from '@/actions/Transaction/_index';
 import { Period } from '../const';
@@ -22,7 +22,7 @@ interface CategoriesChartProps {
   previousTransactionByCategory?: TransactionsByCategory;
   selectedPeriod: Period;
   selectedView: CategoriesCharts;
-  selectedFlow: FlowType;
+  selectedFlow: TransactionType;
 }
 
 export const CategoriesChart: React.FC<CategoriesChartProps> = ({
@@ -97,7 +97,7 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
             cy="50%"
             outerRadius="60%"
             data={
-              selectedFlow === FlowType.Income
+              selectedFlow === TransactionType.Income
                 ? selectedPeriod === Period.Previous
                   ? incomePreviousData
                   : incomeCurrentData
@@ -110,10 +110,10 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
             <PolarAngleAxis dataKey="name" style={{ fontSize: '12px' }} />
             <PolarRadiusAxis style={{ fontSize: '12px' }} />
             <Radar
-              name={selectedFlow === FlowType.Income ? 'income' : 'expenses'}
+              name={selectedFlow === TransactionType.Income ? 'income' : 'expenses'}
               dataKey="value"
-              stroke={selectedFlow === FlowType.Income ? '#2563eb' : '#ef4444'}
-              fill={selectedFlow === FlowType.Income ? '#2563eb' : '#ef4444'}
+              stroke={selectedFlow === TransactionType.Income ? '#2563eb' : '#ef4444'}
+              fill={selectedFlow === TransactionType.Income ? '#2563eb' : '#ef4444'}
               fillOpacity={0.6}
             />
             <Tooltip />
@@ -126,7 +126,7 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
             outerRadius="80%"
             barSize={16}
             data={
-              selectedFlow === FlowType.Income
+              selectedFlow === TransactionType.Income
                 ? selectedPeriod === Period.Previous
                   ? incomePreviousData?.map((data) => ({ ...data, fill: '#2563eb', label: data.name, type: 'Income' }))
                   : incomeCurrentData?.map((data) => ({ ...data, fill: '#2563eb', label: data.name, type: 'Income' }))
@@ -153,7 +153,7 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
             <Pie
               dataKey="value"
               data={
-                selectedFlow === FlowType.Income
+                selectedFlow === TransactionType.Income
                   ? selectedPeriod === Period.Previous
                     ? incomePreviousData
                     : incomeCurrentData
@@ -165,7 +165,7 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
               cy="50%"
               innerRadius={80}
               outerRadius={120}
-              fill={selectedFlow === FlowType.Income ? '#2563eb' : '#ef4444'}
+              fill={selectedFlow === TransactionType.Income ? '#2563eb' : '#ef4444'}
               fillOpacity={0.8}
               paddingAngle={5}
               label={customizedLabel}
