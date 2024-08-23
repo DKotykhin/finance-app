@@ -6,18 +6,27 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import dynamic from 'next/dynamic';
+import { SubscriptionType } from '@prisma/client';
 
 import { bulkDeleteCategories, getCategories } from '@/actions/Category/_index';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { useConfirm } from '@/hooks/use-confirm';
+import { freeLimits } from '@/utils/_index';
+import { SubscriptionModal } from '@/components/SubscriptionModal';
 
 import { CategoryModal } from './CategoryModal';
 const CategoryList = dynamic(async () => (await import('./CategoryList')).CategoryList, { ssr: false });
 
 export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const [idList, setIdList] = useState<string[]>([]);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [categoryListLength, setCategoryListLength] = useState(0);
+
+  const { isOpen: isCategoryOpen, onOpen: onCategoryOpen, onOpenChange: onCategoryOpenChange } = useDisclosure();
+  const {
+    isOpen: isSubscriptionOpen,
+    onOpen: onSubscriptionOpen,
+    onOpenChange: onSubscriptionOpenChange,
+  } = useDisclosure();
 
   const queryClient = useQueryClient();
 
@@ -102,7 +111,16 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
                     Delete ({idList.length})
                   </Button>
                 )}
-                <Button color="secondary" onPress={onOpen} className="w-full sm:w-auto">
+                <Button
+                  color="secondary"
+                  onPress={
+                    userSettingsData?.subscriptionType === SubscriptionType.Free &&
+                    (categoryData?.length ?? 0) >= freeLimits.categories
+                      ? onSubscriptionOpen
+                      : onCategoryOpen
+                  }
+                  className="w-full sm:w-auto"
+                >
                   <Plus size={16} />
                   Add New
                 </Button>
@@ -121,7 +139,13 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
           />
         </CardBody>
       </Card>
-      <CategoryModal isOpen={isOpen} onOpenChange={onOpenChange} />
+      <CategoryModal isOpen={isCategoryOpen} onOpenChange={onCategoryOpenChange} />
+      <SubscriptionModal
+        isOpen={isSubscriptionOpen}
+        onOpenChange={onSubscriptionOpenChange}
+        userId={userId}
+        title={`You can't create more than ${freeLimits.categories} categories on FREE plan`}
+      />
       <ConfirmModal />
     </>
   );

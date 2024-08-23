@@ -5,6 +5,7 @@ import { Button } from '@nextui-org/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Check } from 'lucide-react';
 import { SubscriptionType } from '@prisma/client';
 
 import { cancelStripeSubscription, createStripeSession } from '@/actions/Payment/stripeSession';
@@ -96,12 +97,40 @@ export const PaymentSettings: React.FC<{ userId: string | null }> = ({ userId })
           <div className="border border-blue-600 w-6"></div>
           <p className="font-bold text-2xl mt-4">$ 0</p>
           <p className="text-grey-500 text-sm italic mb-8">per month</p>
+          <div>
+            <div className="flex gap-2 items-center">
+              <Check color='#2563eb' />
+              <p className="text-gray-500 text-sm italic">Maximum 3 accounts</p>
+            </div>
+            <div className="flex gap-2 items-center">
+              <Check color='#2563eb' />
+              <p className="text-gray-500 text-sm italic">Maximum 5 categories</p>
+            </div>
+            <div className="flex gap-2 items-center">
+              <Check color='#2563eb' />
+              <p className="text-gray-500 text-sm italic">Maximum 3 transactions a day</p>
+            </div>
+          </div>
         </div>
         <div className="flex flex-col gap-2 items-center border p-4 rounded-md w-full max-w-[400px] shadow-lg">
           <p className="font-bold text-2xl uppercase text-blue-600">Monthly</p>
           <div className="border border-blue-600 w-6"></div>
           <p className="font-bold text-2xl mt-4">$ 5.99</p>
           <p className="text-grey-500 text-sm italic mb-8">per month</p>
+          <div className='mb-6 grow'>
+            <div className="flex gap-2 items-center">
+              <Check color='#2563eb' />
+              <p className="text-gray-500 text-sm italic">Unlimited accounts</p>
+            </div>
+            <div className="flex gap-2 items-center">
+              <Check color='#2563eb' />
+              <p className="text-gray-500 text-sm italic">Unlimited categories</p>
+            </div>
+            <div className="flex gap-2 items-center">
+              <Check color='#2563eb' />
+              <p className="text-gray-500 text-sm italic">Unlimited transactions</p>
+            </div>
+          </div>
           <Button
             color="primary"
             variant={userSettingsData?.subscriptionType === SubscriptionType.Monthly ? 'flat' : 'solid'}
@@ -125,6 +154,24 @@ export const PaymentSettings: React.FC<{ userId: string | null }> = ({ userId })
           <div className="border border-blue-600 w-6"></div>
           <p className="font-bold text-2xl mt-4">$ 4.99</p>
           <p className="text-grey-500 text-sm italic mb-8">per month</p>
+          <div className='mb-6'>
+            <div className="flex gap-2 items-center">
+              <Check color='#2563eb' />
+              <p className="text-gray-500 text-sm italic">Unlimited accounts</p>
+            </div>
+            <div className="flex gap-2 items-center">
+              <Check color='#2563eb' />
+              <p className="text-gray-500 text-sm italic">Unlimited categories</p>
+            </div>
+            <div className="flex gap-2 items-center">
+              <Check color='#2563eb' />
+              <p className="text-gray-500 text-sm italic">Unlimited transactions</p>
+            </div>
+            <div className="flex gap-2 items-center">
+              <Check color='#2563eb' />
+              <p className="text-gray-500 text-sm italic">Save 17%</p>
+            </div>
+          </div>
           <Button
             color="primary"
             variant={userSettingsData?.subscriptionType === SubscriptionType.Yearly ? 'flat' : 'solid'}
