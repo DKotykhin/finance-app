@@ -12,7 +12,8 @@
     "lint": "next lint",
     "migrate": "npx prisma migrate dev",
     "studio": "npx prisma studio",
-    "seed": "npx prisma db seed"
+    "seed": "npx prisma db seed",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@clerk/nextjs": "^5.5.5",
