@@ -4,8 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:Co4QFxOn9i6RYnxv@db.bnwdfcjlaiarliyzdnee.supabase.co:5432/postgres"
-  relationMode = "prisma"
+  url      = env("DATABASE_URL")
 }
 
 enum Currency {
@@ -83,9 +82,6 @@ model Transaction {
 
   categoryId String?   @map("category_id")
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-
-  @@index([accountId])
-  @@index([categoryId])
 }
 
 model UserSettings {
