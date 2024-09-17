@@ -13,7 +13,7 @@ export const deleteTransaction = async (id: string): Promise<void> => {
         id,
       },
     });
-  } catch (error) {
-    throw ApiError.internalError('Failed to delete transaction');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to delete transaction');
   }
 };

@@ -16,7 +16,7 @@ export const deleteAccount = async (accountId: string): Promise<void> => {
         id: accountId,
       },
     });
-  } catch (error) {
-    throw ApiError.internalError('Failed to delete account');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to delete account');
   }
 };

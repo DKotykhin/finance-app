@@ -59,7 +59,7 @@ export const getTransactions = async ({
     });
 
     return transactions;
-  } catch (error) {
-    throw ApiError.internalError('Failed to get transactions');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to get transactions');
   }
 };

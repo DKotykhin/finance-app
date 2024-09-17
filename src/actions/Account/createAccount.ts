@@ -29,7 +29,7 @@ export const createAccount = async ({ accountData }: { accountData: AccountFormT
         ...accountData,
       },
     });
-  } catch (error) {
-    throw ApiError.internalError('Failed to create account');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to create account');
   }
 };

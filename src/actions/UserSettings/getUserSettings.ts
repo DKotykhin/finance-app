@@ -17,7 +17,7 @@ export const getUserSettings = async ({ userId }: { userId: string }): Promise<U
     });
 
     return userSettings;
-  } catch (error) {
-    throw ApiError.internalError('Error getting user settings');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Error getting user settings');
   }
 };

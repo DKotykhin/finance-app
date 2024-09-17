@@ -98,7 +98,7 @@ export const getTransactionsWithStats = async ({
       expense: { count: expenseCount, amount: expenseAmount, uniqueCategoriesCount: expenseUniqueCategoriesCount },
       remaining,
     };
-  } catch (error) {
-    throw ApiError.internalError('Failed to get transactions');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to get transactions');
   }
 };

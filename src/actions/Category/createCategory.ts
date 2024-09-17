@@ -16,7 +16,7 @@ export const createCategory = async ({ categoryData }: { categoryData: CategoryF
         ...categoryData,
       },
     });
-  } catch (error) {
-    throw ApiError.internalError('Failed to create category');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to create category');
   }
 };

@@ -39,7 +39,7 @@ export const updateAccount = async ({
         ...accountData,
       },
     });
-  } catch (error) {
-    throw ApiError.internalError('Failed to update account');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to update account');
   }
 };

@@ -25,7 +25,7 @@ export const createTransaction = async (data: TransactionCreate): Promise<Transa
     });
 
     return transaction;
-  } catch (error) {
-    throw ApiError.internalError('Failed to create transaction');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to create transaction');
   }
 };

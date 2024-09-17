@@ -29,7 +29,7 @@ export const getAccounts = async (userId: string): Promise<ExtendedAccount[]> =>
     });
 
     return accounts;
-  } catch (error) {
-    throw ApiError.internalError('Failed to get account');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to get account');
   }
 };

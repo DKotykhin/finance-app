@@ -19,7 +19,7 @@ export const getCategories = async ({ userId, hidden }: { userId: string; hidden
     });
 
     return categories;
-  } catch (error) {
-    throw ApiError.internalError('Failed to get categories');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to get categories');
   }
 };

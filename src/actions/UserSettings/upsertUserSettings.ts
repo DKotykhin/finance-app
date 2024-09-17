@@ -30,7 +30,7 @@ export const upsertUserSettings = async ({
     });
 
     return userSettings;
-  } catch (error) {
-    throw ApiError.internalError('Error updating user settings');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Error updating user settings');
   }
 };

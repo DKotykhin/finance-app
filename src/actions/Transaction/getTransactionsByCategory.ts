@@ -121,7 +121,7 @@ export const getTransactionsByCategory = async ({
       income: incomeCategories,
       expenses: expensesCategories,
     };
-  } catch (error) {
-    throw ApiError.internalError('Failed to get transactions');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to get transactions');
   }
 };

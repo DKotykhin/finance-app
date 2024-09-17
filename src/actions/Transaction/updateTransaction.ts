@@ -25,7 +25,7 @@ export const updateTransaction = async ({
     });
 
     return transaction;
-  } catch (error) {
-    throw ApiError.internalError('Failed to update transaction');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to update transaction');
   }
 };

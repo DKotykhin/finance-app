@@ -13,7 +13,7 @@ export const deleteCategory = async (categoryId: string): Promise<void> => {
         id: categoryId,
       },
     });
-  } catch (error) {
-    throw ApiError.internalError('Failed to delete category');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to delete category');
   }
 };

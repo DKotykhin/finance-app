@@ -24,7 +24,7 @@ export const updateCategory = async ({
         ...categoryData,
       },
     });
-  } catch (error) {
-    throw ApiError.internalError('Failed to update category');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to update category');
   }
 };
