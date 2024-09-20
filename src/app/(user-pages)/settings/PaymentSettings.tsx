@@ -15,7 +15,7 @@ import { useConfirm } from '@/hooks/use-confirm';
 // import { loadStripe } from '@stripe/stripe-js';
 // const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string);
 
-export const PaymentSettings: React.FC<{ userId: string | null }> = ({ userId }) => {
+export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -88,9 +88,13 @@ export const PaymentSettings: React.FC<{ userId: string | null }> = ({ userId })
   };
 
   return (
-    <div>
-      <p className="w-full text-center mt-1 mb-1 text-2xl uppercase font-bold">Choose the best payment plan</p>
-      <p className="w-full text-center mb-8 text-gray-500 italic">{`your current plan: ${userSettingsData?.subscriptionType}`}</p>
+    <>
+      <div className='mb-8'>
+        <p className="w-full text-center mt-1 mb-1 text-2xl uppercase font-bold">Choose the best payment plan</p>
+        {userSettingsData?.subscriptionType && (
+          <p className="w-full text-center text-gray-500 italic">{`your current plan: ${userSettingsData.subscriptionType}`}</p>
+        )}
+      </div>
       <div className="flex flex-col lg:flex-row justify-center items-center lg:items-stretch gap-4">
         <div className="flex flex-col gap-2 items-center border p-4 rounded-md w-full max-w-[400px] shadow-lg">
           <p className="font-bold text-2xl uppercase text-blue-600">Free</p>
@@ -99,15 +103,15 @@ export const PaymentSettings: React.FC<{ userId: string | null }> = ({ userId })
           <p className="text-grey-500 text-sm italic mb-8">per month</p>
           <div>
             <div className="flex gap-2 items-center">
-              <Check color='#2563eb' />
+              <Check color="#2563eb" />
               <p className="text-gray-500 text-sm italic">Maximum 3 accounts</p>
             </div>
             <div className="flex gap-2 items-center">
-              <Check color='#2563eb' />
+              <Check color="#2563eb" />
               <p className="text-gray-500 text-sm italic">Maximum 5 categories</p>
             </div>
             <div className="flex gap-2 items-center">
-              <Check color='#2563eb' />
+              <Check color="#2563eb" />
               <p className="text-gray-500 text-sm italic">Maximum 3 transactions a day</p>
             </div>
           </div>
@@ -117,17 +121,17 @@ export const PaymentSettings: React.FC<{ userId: string | null }> = ({ userId })
           <div className="border border-blue-600 w-6"></div>
           <p className="font-bold text-2xl mt-4">$ 5.99</p>
           <p className="text-grey-500 text-sm italic mb-8">per month</p>
-          <div className='mb-6 grow'>
+          <div className="mb-6 grow">
             <div className="flex gap-2 items-center">
-              <Check color='#2563eb' />
+              <Check color="#2563eb" />
               <p className="text-gray-500 text-sm italic">Unlimited accounts</p>
             </div>
             <div className="flex gap-2 items-center">
-              <Check color='#2563eb' />
+              <Check color="#2563eb" />
               <p className="text-gray-500 text-sm italic">Unlimited categories</p>
             </div>
             <div className="flex gap-2 items-center">
-              <Check color='#2563eb' />
+              <Check color="#2563eb" />
               <p className="text-gray-500 text-sm italic">Unlimited transactions</p>
             </div>
           </div>
@@ -154,21 +158,21 @@ export const PaymentSettings: React.FC<{ userId: string | null }> = ({ userId })
           <div className="border border-blue-600 w-6"></div>
           <p className="font-bold text-2xl mt-4">$ 4.99</p>
           <p className="text-grey-500 text-sm italic mb-8">per month</p>
-          <div className='mb-6'>
+          <div className="mb-6">
             <div className="flex gap-2 items-center">
-              <Check color='#2563eb' />
+              <Check color="#2563eb" />
               <p className="text-gray-500 text-sm italic">Unlimited accounts</p>
             </div>
             <div className="flex gap-2 items-center">
-              <Check color='#2563eb' />
+              <Check color="#2563eb" />
               <p className="text-gray-500 text-sm italic">Unlimited categories</p>
             </div>
             <div className="flex gap-2 items-center">
-              <Check color='#2563eb' />
+              <Check color="#2563eb" />
               <p className="text-gray-500 text-sm italic">Unlimited transactions</p>
             </div>
             <div className="flex gap-2 items-center">
-              <Check color='#2563eb' />
+              <Check color="#2563eb" />
               <p className="text-gray-500 text-sm italic">Save 17%</p>
             </div>
           </div>
@@ -187,6 +191,6 @@ export const PaymentSettings: React.FC<{ userId: string | null }> = ({ userId })
         </div>
       </div>
       <ConfirmModal />
-    </div>
+    </>
   );
 };

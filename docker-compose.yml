@@ -24,7 +24,7 @@ services:
       - pg_data:/var/lib/postgresql/data
 
   adminer:
-    image: adminer
+    image: adminer:latest
     container_name: finance-adminer
     ports:
       - 8080:8080

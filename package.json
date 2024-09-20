@@ -13,6 +13,7 @@
     "migrate": "npx prisma migrate dev",
     "studio": "npx prisma studio",
     "seed": "npx prisma db seed",
+    "generate": "npx prisma generate",
     "postinstall": "prisma generate"
   },
   "dependencies": {

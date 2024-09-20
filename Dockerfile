@@ -7,6 +7,7 @@ COPY package-lock.json /app
 COPY prisma /app/prisma
 
 RUN npm install
+RUN npm run generate
 
 COPY . /app
 

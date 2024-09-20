@@ -20,9 +20,6 @@ const Settings: React.FC = () => {
           </CardBody>
         </Card>
         <Card className="p-1 sm:p-4">
-          <CardHeader>
-            <p className="font-bold text-xl">Payment Settings</p>
-          </CardHeader>
           <CardBody>
             <PaymentSettings userId={userId} />
           </CardBody>
