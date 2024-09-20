@@ -6,8 +6,8 @@ import { Card, CardBody } from '@nextui-org/react';
 import { useTheme } from 'next-themes';
 import { useUser } from '@clerk/nextjs';
 
-import { RedirectButton } from './RedirectButton';
 import { PaymentSettings } from '@/app/(user-pages)/settings/PaymentSettings';
+import { RedirectButton } from './RedirectButton';
 
 const Homepage = () => {
   const { theme } = useTheme();
@@ -55,7 +55,10 @@ const Homepage = () => {
                 <p className="text-2xl sm:text-3xl md:text-5xl text-blue-600 font-bold mb-4 md:mb-14">
                   Manage your transaction
                 </p>
-                <p className="italic font-light">Transaction description</p>
+                <p className="italic font-light">
+                  Create multiple accounts and different categories. Put incomes and expenses and control all your
+                  transactions. Set default categories and accounts for your transactions.
+                </p>
               </div>
             </div>
           </CardBody>
@@ -67,7 +70,11 @@ const Homepage = () => {
                 <p className="text-2xl sm:text-3xl md:text-5xl text-blue-600 font-bold mb-4 md:mb-14">
                   Inspire by dashboard
                 </p>
-                <p className="italic font-light">Dashboard description</p>
+                <p className="italic font-light">
+                  Get insights into your financial health with our intuitive dashboard. Track your spending history and
+                  gain insights into your financial health. Monitor your income and expenses, and stay on top of your
+                  financial goals.
+                </p>
               </div>
               <Image
                 src={theme === 'dark' ? '/images/home-7.png' : '/images/home-6.png'}
