@@ -11,6 +11,7 @@ import { getAccounts } from '@/actions/Account/_index';
 import { getTransactionsByCategory, getTransactionsWithStats } from '@/actions/Transaction/_index';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { valueToDate, dateToValue } from '@/utils/_index';
+import { useAccountStore } from '@/store/accountSlice';
 
 import { MainCards } from './mainCards';
 import { TransactionsCard } from './transactionsCard';
@@ -18,7 +19,7 @@ import { CategoriesCard } from './categoriesCard';
 import { StatsCards } from './statsCards';
 
 export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
-  const [accountId, setAccountId] = useState<string>('');
+  const { accountId, setId } = useAccountStore();
 
   const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
     enabled: !!userId,
@@ -42,9 +43,11 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   });
 
   useEffect(() => {
-    const defaultAccount = accountData?.find((account) => account.isDefault);
-    defaultAccount && setAccountId(defaultAccount.id);
-  }, [accountData]);
+    if (!accountId) {
+      const defaultAccount = accountData?.find((account) => account.isDefault);
+      defaultAccount && setId(defaultAccount.id);
+    }
+  }, [accountData, accountId, setId]);
 
   const { data: transactionData, isLoading: isTransactionLoading } = useQuery({
     enabled: !!accountId,
@@ -110,7 +113,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
               placeholder="Search an account"
               className="w-full sm:max-w-[220px]"
               selectedKey={accountId}
-              onSelectionChange={(key) => setAccountId(key as string)}
+              onSelectionChange={(key) => setId(key as string)}
             >
               {(account) => <AutocompleteItem key={account.id}>{account.accountName}</AutocompleteItem>}
             </Autocomplete>
