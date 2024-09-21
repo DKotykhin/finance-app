@@ -9,16 +9,16 @@ import { addDays, differenceInDays, subDays, isToday } from 'date-fns';
 
 import { getAccounts } from '@/actions/Account/_index';
 import { getTransactionsByCategory, getTransactionsWithStats } from '@/actions/Transaction/_index';
+import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { valueToDate, dateToValue } from '@/utils/_index';
 
 import { MainCards } from './mainCards';
 import { TransactionsCard } from './transactionsCard';
 import { CategoriesCard } from './categoriesCard';
 import { StatsCards } from './statsCards';
-import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 
 export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
-  const [accountValue, setAccountValue] = useState<any>();
+  const [accountId, setAccountId] = useState<string>('');
 
   const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
     enabled: !!userId,
@@ -43,56 +43,56 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
 
   useEffect(() => {
     const defaultAccount = accountData?.find((account) => account.isDefault);
-    defaultAccount && setAccountValue(defaultAccount.id);
+    defaultAccount && setAccountId(defaultAccount.id);
   }, [accountData]);
 
   const { data: transactionData, isLoading: isTransactionLoading } = useQuery({
-    enabled: !!accountValue,
-    queryKey: ['transactionsWithStat', dateValue, accountValue],
+    enabled: !!accountId,
+    queryKey: ['transactionsWithStat', dateValue, accountId],
     queryFn: () =>
       getTransactionsWithStats({
-        accountId: accountValue,
+        accountId: accountId,
         from: valueToDate(dateValue.start),
         to: valueToDate(dateValue.end),
       }),
   });
 
   const { data: previousTransactionData, isLoading: isPreviousTransactionLoading } = useQuery({
-    enabled: !!accountValue && period > 0,
-    queryKey: ['previousTransactionsWithStat', dateValue, accountValue],
+    enabled: !!accountId && period > 0,
+    queryKey: ['previousTransactionsWithStat', dateValue, accountId],
     queryFn: () =>
       getTransactionsWithStats({
-        accountId: accountValue,
+        accountId: accountId,
         from: addDays(subDays(valueToDate(dateValue.start), period), -1),
         to: addDays(subDays(valueToDate(dateValue.end), period), -1),
       }),
   });
 
   const { data: transactionByCategoryData } = useQuery({
-    enabled: !!accountValue,
-    queryKey: ['transactionsByCategory', dateValue, accountValue],
+    enabled: !!accountId,
+    queryKey: ['transactionsByCategory', dateValue, accountId],
     queryFn: () =>
       getTransactionsByCategory({
-        accountId: accountValue,
+        accountId: accountId,
         from: valueToDate(dateValue.start),
         to: valueToDate(dateValue.end),
       }),
   });
 
   const { data: previousTransactionByCategoryData } = useQuery({
-    enabled: !!accountValue,
-    queryKey: ['previousTransactionsByCategory', dateValue, accountValue],
+    enabled: !!accountId,
+    queryKey: ['previousTransactionsByCategory', dateValue, accountId],
     queryFn: () =>
       getTransactionsByCategory({
-        accountId: accountValue,
+        accountId: accountId,
         from: addDays(subDays(valueToDate(dateValue.start), period), -1),
         to: addDays(subDays(valueToDate(dateValue.end), period), -1),
       }),
   });
 
   const currentAccount = useMemo(() => {
-    return accountData?.find((account) => account.id === accountValue);
-  }, [accountData, accountValue]);
+    return accountData?.find((account) => account.id === accountId);
+  }, [accountData, accountId]);
 
   return (
     <div className="-mt-44">
@@ -109,8 +109,8 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
               label="Your accounts"
               placeholder="Search an account"
               className="w-full sm:max-w-[220px]"
-              selectedKey={accountValue}
-              onSelectionChange={setAccountValue}
+              selectedKey={accountId}
+              onSelectionChange={(key) => setAccountId(key as string)}
             >
               {(account) => <AutocompleteItem key={account.id}>{account.accountName}</AutocompleteItem>}
             </Autocomplete>
@@ -133,7 +133,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
               <Skeleton className="w-full h-36 rounded-lg bg-slate-100"></Skeleton>
               <Skeleton className="w-full h-36 rounded-lg bg-slate-100"></Skeleton>
             </div>
-          ) : accountValue ? (
+          ) : accountId ? (
             <>
               <MainCards
                 transactionData={transactionData}
@@ -141,7 +141,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
                 dateValue={dateValue}
                 currentAccount={currentAccount}
               />
-              <StatsCards transactionData={transactionData} period={period} />
+              <StatsCards transactionData={transactionData} />
               <div className="flex flex-wrap lg:flex-nowrap gap-4 justify-between my-8">
                 <TransactionsCard
                   transactionData={transactionData}

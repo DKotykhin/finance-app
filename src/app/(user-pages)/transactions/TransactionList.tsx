@@ -142,6 +142,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         queryClient.invalidateQueries({
           queryKey: ['previousTransactionsByCategory'],
         }),
+        queryClient.invalidateQueries({
+          queryKey: ['todaysTransactionsData'],
+        }),
       ]);
     },
     onError: (error) => {

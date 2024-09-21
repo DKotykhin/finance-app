@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { Card, CardBody, CardHeader, Chip } from '@nextui-org/react';
 import { TrendingDown, TrendingUp } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, startOfDay } from 'date-fns';
 import { Currency } from '@prisma/client';
 
 import { TransactionsWithStats } from '@/actions/Transaction/_index';
@@ -11,10 +11,9 @@ import { cn, currencyMap } from '@/utils/_index';
 
 interface StatsCardsProps {
   transactionData?: TransactionsWithStats;
-  period?: number;
 }
 
-export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period }) => {
+export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData }) => {
   const lastTransactions = useMemo(() => {
     if (!transactionData) return [];
     const sortedData = [...transactionData?.transactions].sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -28,6 +27,15 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
       min: sortedData[0]?.amount < 0 ? sortedData[0] : null,
       max: sortedData[sortedData.length - 1]?.amount > 0 ? sortedData[sortedData.length - 1] : null,
     };
+  }, [transactionData]);
+
+  const todaysBallance = useMemo(() => {
+    if (!transactionData) return {};
+    const value = transactionData.transactions
+      .filter((transaction) => transaction.date > startOfDay(new Date()))
+      .reduce((acc, transaction) => acc + transaction.amount, 0);
+    const currency = transactionData.transactions[0]?.account.currency || Currency.USD;
+    return { value, currency };
   }, [transactionData]);
 
   return (
@@ -76,6 +84,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
                     <Chip color="primary" variant="faded">
                       {transaction.category?.categoryName || 'Uncategorized'}
                     </Chip>
+                    <p className="italic text-sm text-gray-600">{transaction.notes}</p>
                   </div>
                   <p className="text-gray-400">{format(transaction.date, 'dd MMM, yyyy')}</p>
                 </div>
@@ -95,14 +104,16 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData, period 
             <p className="text-gray-400 italic">No statistic in this period</p>
           ) : (
             <div className="flex flex-col gap-x-4 gap-y-6 w-full">
-              {period && (
-                <div className="flex gap-2 justify-between items-center">
-                  <span>Period: </span>
-                  <Chip radius="md" color="secondary">
-                    {period} days
+              <div className="flex gap-2 justify-between items-center">
+                <span>Today&apos;s balance: </span>
+                {todaysBallance?.value && todaysBallance.value > 0 ? (
+                  <Chip radius="md" color={todaysBallance.value > 0 ? 'primary' : 'danger'}>
+                    {currencyMap.get(todaysBallance.currency || Currency.USD)?.sign} {todaysBallance.value}
                   </Chip>
-                </div>
-              )}
+                ) : (
+                  <p className="text-gray-500 italic text-sm">No transactions today</p>
+                )}
+              </div>
               {minMaxTransaction?.max && (
                 <div className="flex gap-2 justify-between items-center">
                   <span>Max income: </span>

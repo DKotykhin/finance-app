@@ -124,6 +124,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
         queryClient.invalidateQueries({
           queryKey: ['previousTransactionsByCategory'],
         }),
+        queryClient.invalidateQueries({
+          queryKey: ['todaysTransactionsData'],
+        }),
       ]);
       reset();
       onOpenChange();

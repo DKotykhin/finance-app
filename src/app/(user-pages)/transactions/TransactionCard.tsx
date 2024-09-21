@@ -15,8 +15,8 @@ import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { getAccounts } from '@/actions/Account/_index';
 import { freeLimits } from '@/utils/const';
 
-import { TransactionModal } from './TransactionModal';
 import { SubscriptionModal } from '@/components/SubscriptionModal';
+import { TransactionModal } from './TransactionModal';
 const TransactionList = dynamic(async () => (await import('./TransactionList')).TransactionList, { ssr: false });
 
 export const TransactionCard: React.FC = () => {
@@ -83,6 +83,9 @@ export const TransactionCard: React.FC = () => {
         }),
         queryClient.invalidateQueries({
           queryKey: ['previousTransactionsByCategory'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['todaysTransactionsData'],
         }),
       ]);
     },
