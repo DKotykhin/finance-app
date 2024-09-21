@@ -7,7 +7,7 @@ import { PaymentSettings } from '@/app/(user-pages)/settings/PaymentSettings';
 interface SubscriptionModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
-  userId: string | null;
+  userId?: string | null;
   title?: string;
 }
 

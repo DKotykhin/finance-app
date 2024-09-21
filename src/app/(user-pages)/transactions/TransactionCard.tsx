@@ -7,12 +7,16 @@ import dynamic from 'next/dynamic';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useUser } from '@clerk/nextjs';
+import { SubscriptionType } from '@prisma/client';
 
 import { useConfirm } from '@/hooks/use-confirm';
-import { bulkDeleteTransactions } from '@/actions/Transaction/_index';
+import { bulkDeleteTransactions, getTodaysTransactions } from '@/actions/Transaction/_index';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
+import { getAccounts } from '@/actions/Account/_index';
+import { freeLimits } from '@/utils/const';
 
 import { TransactionModal } from './TransactionModal';
+import { SubscriptionModal } from '@/components/SubscriptionModal';
 const TransactionList = dynamic(async () => (await import('./TransactionList')).TransactionList, { ssr: false });
 
 export const TransactionCard: React.FC = () => {
@@ -21,7 +25,13 @@ export const TransactionCard: React.FC = () => {
 
   const [idList, setIdList] = useState<string[]>([]);
   const [transactionListLength, setTransactionListLength] = useState(0);
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const {
+    isOpen: isSubscriptionOpen,
+    onOpen: onSubscriptionOpen,
+    onOpenChange: onSubscriptionOpenChange,
+  } = useDisclosure();
 
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Delete Transaction',
@@ -35,6 +45,22 @@ export const TransactionCard: React.FC = () => {
     enabled: !!user?.id,
     queryKey: ['userSettings'],
     queryFn: () => getUserSettings({ userId: user?.id as string }),
+  });
+
+  const { data: accountData, isLoading: isAccountLoading } = useQuery({
+    enabled: !!user?.id,
+    queryKey: ['accounts'],
+    queryFn: () => getAccounts(user?.id as string),
+  });
+
+  const { data: todaysTransactionsData, isLoading: isTodaysTransactionsLoading } = useQuery({
+    enabled:
+      !!user?.id &&
+      !isUserSettingsLoading &&
+      !isAccountLoading &&
+      userSettingsData?.subscriptionType === SubscriptionType.Free,
+    queryKey: ['todaysTransactionsData'],
+    queryFn: () => getTodaysTransactions({ accountIds: accountData?.map((account) => account.id) ?? [] }),
   });
 
   const bulkDeleteMutation = useMutation({
@@ -104,7 +130,17 @@ export const TransactionCard: React.FC = () => {
                     Delete ({idList.length})
                   </Button>
                 )}
-                <Button color="secondary" onPress={onOpen} className="w-full sm:w-auto">
+                <Button
+                  color="secondary"
+                  onPress={
+                    userSettingsData?.subscriptionType === SubscriptionType.Free &&
+                    (todaysTransactionsData?.length ?? 0) >= freeLimits.transactions &&
+                    !isTodaysTransactionsLoading
+                      ? onSubscriptionOpen
+                      : onOpen
+                  }
+                  className="w-full sm:w-auto"
+                >
                   <Plus size={16} />
                   Add New
                 </Button>
@@ -123,6 +159,12 @@ export const TransactionCard: React.FC = () => {
       </Card>
       <TransactionModal isOpen={isOpen} onOpenChange={onOpenChange} />
       <ConfirmModal />
+      <SubscriptionModal
+        isOpen={isSubscriptionOpen}
+        onOpenChange={onSubscriptionOpenChange}
+        userId={user?.id}
+        title={`You can't create more than ${freeLimits.transactions} transactions on FREE plan`}
+      />
     </>
   );
 };
