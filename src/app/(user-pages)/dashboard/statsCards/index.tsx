@@ -35,7 +35,9 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData }) => {
       .filter((transaction) => transaction.date > startOfDay(new Date()))
       .reduce((acc, transaction) => acc + transaction.amount, 0);
     const currency = transactionData.transactions[0]?.account.currency || Currency.USD;
-    return { value, currency };
+    const isHideDecimal = transactionData.transactions[0]?.account.hideDecimal;
+    const newValue = isHideDecimal ? Math.round(value) : Math.round(value * 100) / 100;
+    return { value: newValue, currency };
   }, [transactionData]);
 
   return (
@@ -106,7 +108,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData }) => {
             <div className="flex flex-col gap-x-4 gap-y-6 w-full">
               <div className="flex gap-2 justify-between items-center">
                 <span>Today&apos;s balance: </span>
-                {todaysBallance?.value && todaysBallance.value > 0 ? (
+                {todaysBallance?.value ? (
                   <Chip radius="md" color={todaysBallance.value > 0 ? 'primary' : 'danger'}>
                     {currencyMap.get(todaysBallance.currency || Currency.USD)?.sign} {todaysBallance.value}
                   </Chip>
