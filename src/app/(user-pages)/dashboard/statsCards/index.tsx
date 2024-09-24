@@ -113,7 +113,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData }) => {
                     {currencyMap.get(todaysBallance.currency || Currency.USD)?.sign} {todaysBallance.value}
                   </Chip>
                 ) : (
-                  <p className="text-gray-500 italic text-sm">No transactions today</p>
+                  <p className="text-gray-400 italic text-sm">No transactions today</p>
                 )}
               </div>
               {minMaxTransaction?.max && (
