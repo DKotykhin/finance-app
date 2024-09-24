@@ -141,7 +141,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
     const end = start + +rowsPerPage;
 
     const filteredData =
-      categoryData?.filter((category) => category.categoryName.toLowerCase().includes(filterValue)) || [];
+      categoryData?.filter((category) => category.categoryName.toLowerCase().includes(filterValue.toLowerCase())) || [];
 
     const dataToUse = filterValue ? filteredData : categoryData || [];
     setPages(Math.ceil(dataToUse.length / +rowsPerPage));

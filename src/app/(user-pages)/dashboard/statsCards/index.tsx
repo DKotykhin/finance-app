@@ -151,11 +151,11 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData }) => {
                     <Chip radius="md" color="primary">
                       {transactionData.income.count}
                     </Chip>
-                    <span> in </span>
+                    <span className="text-gray-400"> in </span>
                     <Chip radius="md" color="secondary">
                       {transactionData.income.uniqueCategoriesCount || 0}
                     </Chip>
-                    <span> categories</span>
+                    <span className="text-gray-400"> categories</span>
                   </div>
                 </div>
               ) : (
@@ -168,11 +168,11 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData }) => {
                     <Chip radius="md" color="danger">
                       {transactionData.expense.count}
                     </Chip>
-                    <span> in </span>
+                    <span className="text-gray-400"> in </span>
                     <Chip radius="md" color="secondary">
                       {transactionData.expense.uniqueCategoriesCount || 0}
                     </Chip>
-                    <span> categories</span>
+                    <span className="text-gray-400"> categories</span>
                   </div>
                 </div>
               ) : (

@@ -133,7 +133,7 @@ export const AccountList: React.FC<AccountListProps> = ({
     const end = start + +rowsPerPage;
 
     const filteredData =
-      accountData?.filter((account) => account.accountName.toLowerCase().includes(filterValue)) || [];
+      accountData?.filter((account) => account.accountName.toLowerCase().includes(filterValue.toLowerCase())) || [];
 
     const dataToUse = filterValue ? filteredData : accountData || [];
     setPages(Math.ceil(dataToUse.length / +rowsPerPage));
