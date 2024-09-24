@@ -5,7 +5,6 @@ import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 import { Currency, Transaction } from '@prisma/client';
-import { logger } from "@/logger";
 
 import { checkAuth } from '../checkAuth';
 
@@ -39,10 +38,6 @@ export const getTransactionsWithStats = async ({
 
   const dateFrom = startOfDay(from || subDays(new Date(), 30));
   const dateTo = endOfDay(to || new Date());
-  logger.info(`from: ${from}`);
-  logger.info(`to: ${to}`);
-  logger.info(`dateFrom: ${dateFrom}`);
-  logger.info(`dateTo: ${dateTo}`);
 
   try {
     const transactions = await db.transaction.findMany({

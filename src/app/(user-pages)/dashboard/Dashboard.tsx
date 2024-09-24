@@ -32,6 +32,12 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
     end: dateToValue(new Date()),
   });
 
+  useEffect(() => {
+    console.log(`new Date: ${new Date()}`);
+    console.log(`dateValue.end: ${dateValue.end}`);
+    console.log(`valueToDate: ${valueToDate(dateValue.end)}`);
+  }, [dateValue.end]);
+
   const period = useMemo(() => {
     return differenceInDays(valueToDate(dateValue.end), valueToDate(dateValue.start));
   }, [dateValue]);
