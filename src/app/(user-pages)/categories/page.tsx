@@ -1,7 +1,11 @@
 import React from 'react';
 import { auth } from '@clerk/nextjs/server';
+import { Metadata } from 'next';
 
+import { categoriesMetadata } from '@/metadata/metadata';
 import { CategoryCard } from './CategoryCard';
+
+export const metadata: Metadata = categoriesMetadata;
 
 const Categories: React.FC = () => {
   const { userId }: { userId: string | null } = auth();

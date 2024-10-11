@@ -166,7 +166,7 @@ export const AccountList: React.FC<AccountListProps> = ({
           </Badge>
         ),
         balance: (
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-1 items-center">
             <div>{currencyMap.get(account.currency)?.sign}</div>
             <div className={cn('font-semibold', account.balance < 0 ? 'text-red-500' : '')}>
               {numberWithSpaces(

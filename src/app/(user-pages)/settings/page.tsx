@@ -1,9 +1,13 @@
 import React from 'react';
 import { auth } from '@clerk/nextjs/server';
 import { Card, CardBody, CardHeader } from '@nextui-org/react';
+import { Metadata } from 'next';
 
+import { settingsMetadata } from '@/metadata/metadata';
 import { PagesSettings } from './PagesSettings';
 import { PaymentSettings } from './PaymentSettings';
+
+export const metadata: Metadata = settingsMetadata;
 
 const Settings: React.FC = () => {
   const { userId }: { userId: string | null } = auth();

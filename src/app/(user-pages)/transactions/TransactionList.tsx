@@ -11,9 +11,10 @@ import {
   Select,
   SelectItem,
   Spinner,
+  Tooltip,
   useDisclosure,
 } from '@nextui-org/react';
-import { Loader2, Pencil, Trash2, TriangleAlert } from 'lucide-react';
+import { EyeIcon, Loader2, Pencil, Trash2, TriangleAlert } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { differenceInDays, format, subDays, isToday } from 'date-fns';
 import { useUser } from '@clerk/nextjs';
@@ -30,7 +31,12 @@ import {
 import { DateValue, parseAbsoluteToLocal } from '@internationalized/date';
 import { SortOrder, UserSettings } from '@prisma/client';
 
-import { deleteTransaction, getTransactions, TransactionCreate } from '@/actions/Transaction/_index';
+import {
+  deleteTransaction,
+  ExtendedTransaction,
+  getTransactions,
+  TransactionCreate,
+} from '@/actions/Transaction/_index';
 import { getAccounts } from '@/actions/Account/_index';
 import { getCategories } from '@/actions/Category/_index';
 import { useConfirm } from '@/hooks/use-confirm';
@@ -38,6 +44,7 @@ import { cn, currencyMap, numberWithSpaces, rowsPerPageArray, valueToDate } from
 
 import { TransactionModal } from './TransactionModal';
 import { columns } from './const';
+import { ViewModal } from './ViewModal';
 
 interface TransactionListProps {
   userSettingsData?: UserSettings | null;
@@ -63,7 +70,8 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   userSettingsData,
   isUserSettingsLoading,
 }) => {
-  const [transaction, setTransaction] = useState<TransactionUpdate | null>(null);
+  const [updateTransaction, setUpdateTransaction] = useState<TransactionUpdate | null>(null);
+  const [transaction, setTransaction] = useState<ExtendedTransaction | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: userSettingsData?.transactionSortField || 'date',
@@ -81,7 +89,8 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   const [categoryValue, setCategoryValue] = useState<Selection>(new Set(['all']));
 
   const { user } = useUser();
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen: isOpenView, onOpen: onOpenView, onOpenChange: onOpenChangeView } = useDisclosure();
+  const { isOpen: isOpenUpdate, onOpen: onOpenUpdate, onOpenChange: onOpenChangeUpdate } = useDisclosure();
 
   const period = useMemo(() => {
     return differenceInDays(valueToDate(dateValue.end), valueToDate(dateValue.start));
@@ -160,8 +169,8 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   };
 
   const updateClick = (transaction: TransactionUpdate) => {
-    setTransaction(transaction);
-    onOpen();
+    setUpdateTransaction(transaction);
+    onOpenUpdate();
   };
 
   const onRowsPerPageChange = useCallback((e: { target: { value: React.SetStateAction<string> } }) => {
@@ -214,10 +223,11 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       .slice(start, end)
       .map((transaction) => ({
         ...transaction,
-        date: <p className="font-semibold">{format(new Date(transaction.date), 'dd MMM, yyyy')}</p>,
+        rawTransaction: transaction,
+        date: <p className="text-xs lg:text-sm font-semibold">{format(new Date(transaction.date), 'dd MMM, yyyy')}</p>,
         notesValue: transaction.notes,
         amount: (
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-1 items-center">
             <div className={transaction.amount < 0 ? 'text-red-500' : ''}>
               {currencyMap.get(transaction.account.currency)?.sign}
             </div>
@@ -227,8 +237,10 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           </div>
         ),
         notes: (
-          <div className="text-sm text-gray-500 italic truncate text-ellipsis max-w-[80px] lg:max-w-[160px] xl:max-w-[250px]">
-            <span>{transaction.notes}</span>
+          <div className="text-xs lg:text-sm text-gray-500 italic truncate text-ellipsis md:max-w-[70px] lg:max-w-[160px] xl:max-w-[250px]">
+            <Tooltip showArrow={true} content={<div className="px-4 py-2">{transaction.notes}</div>}>
+              <span>{transaction.notes}</span>
+            </Tooltip>
           </div>
         ),
         categoryName: (
@@ -251,7 +263,16 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           </Badge>
         ),
         actions: (
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-2 lg:gap-3">
+            <Button isIconOnly size="sm" variant="light">
+              <EyeIcon
+                className="cursor-pointer text-green-500"
+                onClick={() => {
+                  setTransaction(transaction);
+                  onOpenView();
+                }}
+              />
+            </Button>
             <Button isIconOnly size="sm" variant="light">
               <Pencil
                 className="cursor-pointer text-orange-300"
@@ -421,7 +442,14 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                 <div className="text-sm text-gray-500 mb-4">{transaction.date}</div>
                 <div className="flex justify-between items-center">
                   <div className="text-lg font-semibold">{transaction.amount}</div>
-                  <div className="flex gap-4">
+                  <div className="flex gap-3">
+                    <EyeIcon
+                      className="cursor-pointer text-green-500"
+                      onClick={() => {
+                        setTransaction(transaction.rawTransaction);
+                        onOpenView();
+                      }}
+                    />
                     <Pencil
                       size={24}
                       className="cursor-pointer text-orange-300"
@@ -465,7 +493,8 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       )}
 
       {/* Modals */}
-      <TransactionModal isOpen={isOpen} onOpenChange={onOpenChange} transaction={transaction} />
+      <TransactionModal isOpen={isOpenUpdate} onOpenChange={onOpenChangeUpdate} transaction={updateTransaction} />
+      <ViewModal isOpen={isOpenView} onOpenChange={onOpenChangeView} transaction={transaction} />
       <ConfirmModal />
     </>
   );

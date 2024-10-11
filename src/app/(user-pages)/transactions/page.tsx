@@ -1,6 +1,10 @@
 import React from 'react';
+import { Metadata } from 'next';
 
+import { transactionsMetadata } from '@/metadata/metadata';
 import { TransactionCard } from './TransactionCard';
+
+export const metadata: Metadata = transactionsMetadata;
 
 const Transactions: React.FC = () => {
   return (
