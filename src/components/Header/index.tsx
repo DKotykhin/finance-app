@@ -33,7 +33,9 @@ const Header: React.FC = () => {
             <ClerkLoaded>
               <SignedOut>
                 <SignInButton>
-                  <Button variant='light' className="text-white">Sign In</Button>
+                  <Button variant="light" className="text-white">
+                    Sign In
+                  </Button>
                 </SignInButton>
               </SignedOut>
               <SignedIn>

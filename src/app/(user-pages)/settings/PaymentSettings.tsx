@@ -5,7 +5,7 @@ import { Button } from '@nextui-org/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check } from 'lucide-react';
+import { BadgeCheck, Check } from 'lucide-react';
 import { SubscriptionType } from '@prisma/client';
 
 import { cancelStripeSubscription, createStripeSession } from '@/actions/Payment/stripeSession';
@@ -89,15 +89,32 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
 
   return (
     <>
-      <div className='mb-8'>
+      <div className="mb-8">
         <p className="w-full text-center mt-1 mb-1 text-2xl uppercase font-bold">Choose the best payment plan</p>
         {userSettingsData?.subscriptionType && (
-          <p className="w-full text-center text-gray-500 italic">{`your current plan: ${userSettingsData.subscriptionType}`}</p>
+          <>
+            <div className="w-full flex justify-center items-center gap-1">
+              <p className="text-gray-500 italic">{`your current plan: ${userSettingsData.subscriptionType}`}</p>
+              <BadgeCheck
+                color={
+                  userSettingsData?.subscriptionType === SubscriptionType.Monthly
+                    ? '#10b981'
+                    : userSettingsData?.subscriptionType === SubscriptionType.Yearly
+                      ? '#f0cc01'
+                      : '#c0c0c0'
+                }
+                size={20}
+              />
+            </div>
+          </>
         )}
       </div>
       <div className="flex flex-col lg:flex-row justify-center items-center lg:items-stretch gap-4">
         <div className="flex flex-col gap-2 items-center border p-4 rounded-md w-full max-w-[400px] shadow-lg">
-          <p className="font-bold text-2xl uppercase text-blue-600">Free</p>
+          <div className="flex items-center gap-1">
+            <p className="font-bold text-2xl uppercase text-blue-600">Free</p>
+            <BadgeCheck color="#c0c0c0" />
+          </div>
           <div className="border border-blue-600 w-6"></div>
           <p className="font-bold text-2xl mt-4">$ 0</p>
           <p className="text-grey-500 text-sm italic mb-8">per month</p>
@@ -117,7 +134,10 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
           </div>
         </div>
         <div className="flex flex-col gap-2 items-center border p-4 rounded-md w-full max-w-[400px] shadow-lg">
-          <p className="font-bold text-2xl uppercase text-blue-600">Monthly</p>
+          <div className="flex items-center gap-1">
+            <p className="font-bold text-2xl uppercase text-blue-600">Pro</p>
+            <BadgeCheck color="#10b981" />
+          </div>
           <div className="border border-blue-600 w-6"></div>
           <p className="font-bold text-2xl mt-4">$ 5.99</p>
           <p className="text-grey-500 text-sm italic mb-8">per month</p>
@@ -154,10 +174,13 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
               Most Popular
             </div>
           </div>
-          <p className="font-bold text-2xl uppercase text-blue-600">Yearly</p>
+          <div className="flex items-center gap-1">
+            <p className="font-bold text-2xl uppercase text-blue-600">Gold</p>
+            <BadgeCheck color="#f0cc01" />
+          </div>
           <div className="border border-blue-600 w-6"></div>
-          <p className="font-bold text-2xl mt-4">$ 4.99</p>
-          <p className="text-grey-500 text-sm italic mb-8">per month</p>
+          <p className="font-bold text-2xl mt-4">$ 59.99</p>
+          <p className="text-grey-500 text-sm italic mb-8">per year</p>
           <div className="mb-6">
             <div className="flex gap-2 items-center">
               <Check color="#2563eb" />

@@ -4,7 +4,6 @@ export const mainViewport: Viewport = {
   themeColor: '#000000',
   width: 'device-width',
   initialScale: 1,
-  userScalable: false,
   maximumScale: 1,
 };
 
