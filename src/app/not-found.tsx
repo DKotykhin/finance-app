@@ -1,11 +1,11 @@
-import { Error } from '@/components/Error';
 import type { Metadata } from 'next';
+import { NotFoundBlock } from '@/components/NotFoundBlock';
 
 export const metadata: Metadata = {
-  title: 'Error page',
+  title: 'Not found page',
   icons: ['/logo-blue.svg'],
 };
 
 export default function NotFound() {
-  return <Error />;
+  return <NotFoundBlock />;
 }
