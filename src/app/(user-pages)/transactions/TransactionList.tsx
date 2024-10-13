@@ -10,6 +10,7 @@ import {
   Pagination,
   Select,
   SelectItem,
+  Skeleton,
   Spinner,
   Tooltip,
   useDisclosure,
@@ -40,7 +41,8 @@ import {
 import { getAccounts } from '@/actions/Account/_index';
 import { getCategories } from '@/actions/Category/_index';
 import { useConfirm } from '@/hooks/use-confirm';
-import { cn, currencyMap, numberWithSpaces, rowsPerPageArray, valueToDate } from '@/utils/_index';
+import { cn, currencyMap, dateToValue, numberWithSpaces, rowsPerPageArray, valueToDate } from '@/utils/_index';
+import { useTransactionsStore } from '@/store/transactionsSlice';
 
 import { TransactionModal } from './TransactionModal';
 import { columns } from './const';
@@ -70,6 +72,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   userSettingsData,
   isUserSettingsLoading,
 }) => {
+  const { accountValue, categoryValue, startDate, endDate, setAccountValue, setCategoryValue, setStartDate, setEndDate } =
+    useTransactionsStore();
+
   const [updateTransaction, setUpdateTransaction] = useState<TransactionUpdate | null>(null);
   const [transaction, setTransaction] = useState<ExtendedTransaction | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
@@ -81,12 +86,11 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   const [pages, setPages] = useState(1);
   const [transactionListLength, setTransactionListLength] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(userSettingsData?.transactionRowsPerPage || '5');
+  // to do: move to store
   const [dateValue, setDateValue] = useState<{ start: DateValue; end: DateValue }>({
-    start: parseAbsoluteToLocal(subDays(new Date(), userSettingsData?.transactionPeriod || 30).toISOString()),
+    start: parseAbsoluteToLocal(subDays(new Date(), (userSettingsData?.transactionPeriod ?? 30) - 1).toISOString()),
     end: parseAbsoluteToLocal(new Date().toISOString()),
   });
-  const [accountValue, setAccountValue] = useState<Selection>(new Set(['all']));
-  const [categoryValue, setCategoryValue] = useState<Selection>(new Set(['all']));
 
   const { user } = useUser();
   const { isOpen: isOpenView, onOpen: onOpenView, onOpenChange: onOpenChangeView } = useDisclosure();
@@ -95,6 +99,29 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   const period = useMemo(() => {
     return differenceInDays(valueToDate(dateValue.end), valueToDate(dateValue.start));
   }, [dateValue]);
+
+  useEffect(() => {
+    if (startDate) {
+      setDateValue((v) => ({ ...v, start: dateToValue(startDate) }));
+    } else {
+      setDateValue((v) => ({
+        ...v,
+        start: parseAbsoluteToLocal(subDays(new Date(), (userSettingsData?.transactionPeriod ?? 30) - 1).toISOString()),
+      }));
+    }
+    if (endDate) {
+      setDateValue((v) => ({ ...v, end: dateToValue(endDate) }));
+    } else {
+      setDateValue((v) => ({ ...v, end: parseAbsoluteToLocal(new Date().toISOString()) }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userSettingsData?.transactionPeriod]);
+
+  useEffect(() => {
+    if (userSettingsData?.transactionRowsPerPage) {
+      setRowsPerPage(userSettingsData.transactionRowsPerPage);
+    }
+  }, [userSettingsData?.transactionRowsPerPage]);
 
   useEffect(() => {
     transactionListLengthFn(transactionListLength);
@@ -181,6 +208,15 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   const onSelectedKeys = (keys: Selection) => {
     setSelectedKeys(keys);
     selectedKeysFn(keys === 'all' ? tableContent?.map((transaction) => transaction.id) : Array.from(keys));
+  };
+
+  const onChangeStartDateValue = (value: DateValue) => {
+    setDateValue((v) => ({ ...v, start: value }));
+    setStartDate(valueToDate(value));
+  };
+  const onChangeEndDateValue = (value: DateValue) => {
+    setDateValue((v) => ({ ...v, end: value }));
+    setEndDate(valueToDate(value));
   };
 
   const tableContent = useMemo(() => {
@@ -302,30 +338,39 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   }, [page, transactionData, rowsPerPage, sortDescriptor, accountValue, categoryValue]);
 
   const TopContent = () => (
-    <div>
+    <>
       <div className="h-full flex gap-4 flex-col items-end lg:flex-row lg:items-center sm:justify-between mb-4 lg:mb-0">
         <div className="flex flex-col lg:flex-row gap-4 items-center w-full lg:w-auto">
           <div className="w-full flex flex-col">
             <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full lg:w-auto">
-              <DatePicker
-                label="Date from"
-                granularity="day"
-                value={dateValue.start}
-                onChange={(value) => setDateValue((v) => ({ ...v, start: value }))}
-                className="w-full lg:w-[160px]"
-                isDisabled={isTransactionLoading}
-              />
-              <DatePicker
-                label="Date to"
-                granularity="day"
-                value={dateValue.end}
-                onChange={(value) => setDateValue((v) => ({ ...v, end: value }))}
-                className="w-full lg:w-[160px]"
-                isDisabled={isTransactionLoading}
-              />
+              {isUserSettingsLoading ? (
+                <>
+                  <Skeleton className="w-[160px] h-14 rounded-lg bg-slate-100" />
+                  <Skeleton className="w-[160px] h-14 rounded-lg bg-slate-100" />
+                </>
+              ) : (
+                <>
+                  <DatePicker
+                    label="Date from"
+                    granularity="day"
+                    value={dateValue.start}
+                    onChange={onChangeStartDateValue}
+                    className="w-full lg:w-[160px]"
+                    isDisabled={isTransactionLoading}
+                  />
+                  <DatePicker
+                    label="Date to"
+                    granularity="day"
+                    value={dateValue.end}
+                    onChange={onChangeEndDateValue}
+                    className="w-full lg:w-[160px]"
+                    isDisabled={isTransactionLoading}
+                  />
+                </>
+              )}
             </div>
             <p className="lg:hidden text-xs italic text-gray-400 mt-1 ml-1">
-              {isToday(valueToDate(dateValue.end)) ? `last ${period} days selected` : `${period} days selected`}
+              {isToday(valueToDate(dateValue.end)) ? `last ${period + 1} days selected` : `${period + 1} days selected`}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
@@ -357,22 +402,27 @@ export const TransactionList: React.FC<TransactionListProps> = ({
             )}
           </div>
         </div>
-        <Select
-          label="Select rows per page"
-          className="w-[180px]"
-          selectedKeys={[rowsPerPage]}
-          onChange={onRowsPerPageChange}
-          isLoading={isUserSettingsLoading}
-        >
-          {rowsPerPageArray.map((row) => (
-            <SelectItem key={row.key}>{row.label}</SelectItem>
-          ))}
-        </Select>
+        {isUserSettingsLoading ? (
+          <Skeleton className="w-[180px] h-14 rounded-lg bg-slate-100" />
+        ) : (
+          <Select
+            label="Select rows per page"
+            className="w-[180px]"
+            selectedKeys={[rowsPerPage]}
+            onChange={onRowsPerPageChange}
+          >
+            {rowsPerPageArray.map((row) => (
+              <SelectItem key={row.key}>{row.label}</SelectItem>
+            ))}
+          </Select>
+        )}
       </div>
-      <p className="hidden lg:block text-xs italic text-gray-400 mb-3 ml-1 mt-1">
-        {isToday(valueToDate(dateValue.end)) ? `last ${period} days selected` : `${period} days selected`}
-      </p>
-    </div>
+      {!isUserSettingsLoading && (
+        <p className="hidden lg:block text-xs italic text-gray-400 mb-3 ml-1 mt-1">
+          {isToday(valueToDate(dateValue.end)) ? `last ${period + 1} days selected` : `${period + 1} days selected`}
+        </p>
+      )}
+    </>
   );
 
   const BottomContent = () => (

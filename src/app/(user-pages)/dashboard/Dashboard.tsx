@@ -11,7 +11,7 @@ import { getAccounts } from '@/actions/Account/_index';
 import { getTransactionsByCategory, getTransactionsWithStats } from '@/actions/Transaction/_index';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { valueToDate, dateToValue } from '@/utils/_index';
-import { useAccountStore } from '@/store/accountSlice';
+import { useDashboardStore } from '@/store/dashboardSlice';
 
 import { MainCards } from './mainCards';
 import { TransactionsCard } from './transactionsCard';
@@ -19,7 +19,7 @@ import { CategoriesCard } from './categoriesCard';
 import { StatsCards } from './statsCards';
 
 export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
-  const { accountId, setId } = useAccountStore();
+  const { accountId, date, setAccountId, setDates } = useDashboardStore();
 
   const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
     enabled: !!userId,
@@ -27,8 +27,9 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
     queryFn: () => getUserSettings({ userId: userId as string }),
   });
 
+  // to do: move to store
   const [dateValue, setDateValue] = useState<RangeValue<DateValue>>({
-    start: dateToValue(subDays(new Date(), userSettingsData?.dashboardPeriod || 30)),
+    start: dateToValue(subDays(new Date(), (userSettingsData?.dashboardPeriod ?? 30) - 1)),
     end: dateToValue(new Date()),
   });
 
@@ -45,9 +46,24 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   useEffect(() => {
     if (!accountId) {
       const defaultAccount = accountData?.find((account) => account.isDefault);
-      defaultAccount && setId(defaultAccount.id);
+      defaultAccount && setAccountId(defaultAccount.id);
     }
-  }, [accountData, accountId, setId]);
+  }, [accountData, accountId, setAccountId]);
+
+  useEffect(() => {
+    if (date.startDate && date.endDate) {
+      setDateValue({
+        start: dateToValue(date.startDate),
+        end: dateToValue(date.endDate),
+      });
+    } else {
+      setDateValue({
+        start: dateToValue(subDays(new Date(), (userSettingsData?.dashboardPeriod ?? 30) - 1)),
+        end: dateToValue(new Date()),
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userSettingsData?.dashboardPeriod]);
 
   const { data: transactionData, isLoading: isTransactionLoading } = useQuery({
     enabled: !!accountId,
@@ -97,12 +113,17 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
     return accountData?.find((account) => account.id === accountId);
   }, [accountData, accountId]);
 
+  const onChangeDateValue = (value: RangeValue<DateValue>) => {
+    setDateValue(value);
+    setDates(valueToDate(value.start), valueToDate(value.end));
+  };
+
   return (
     <div className="-mt-44">
       {isAccountLoading ? (
         <div className="flex flex-col md:flex-row gap-4">
-          <Skeleton className="w-full sm:w-[220px] h-14 rounded-lg bg-slate-100"></Skeleton>
-          <Skeleton className="w-full sm:w-[280px] h-14 rounded-lg bg-slate-100"></Skeleton>
+          <Skeleton className="w-full sm:w-[220px] h-14 rounded-lg bg-slate-100" />
+          <Skeleton className="w-full sm:w-[280px] h-14 rounded-lg bg-slate-100" />
         </div>
       ) : accountData && accountData.length > 0 ? (
         <>
@@ -113,7 +134,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
               placeholder="Search an account"
               className="w-full sm:max-w-[220px]"
               selectedKey={accountId}
-              onSelectionChange={(key) => setId(key as string)}
+              onSelectionChange={(key) => setAccountId(key as string)}
             >
               {(account) => <AutocompleteItem key={account.id}>{account.accountName}</AutocompleteItem>}
             </Autocomplete>
@@ -123,18 +144,18 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
                 visibleMonths={2}
                 className="w-full sm:max-w-[280px]"
                 value={dateValue}
-                onChange={setDateValue}
+                onChange={onChangeDateValue}
               />
               <p className="text-xs italic text-blue-200 mt-1 ml-1">
-                {isToday(valueToDate(dateValue.end)) ? `last ${period} days selected` : `${period} days selected`}
+                {isToday(valueToDate(dateValue.end)) ? `last ${period + 1} days selected` : `${period + 1} days selected`}
               </p>
             </div>
           </div>
           {isTransactionLoading || isPreviousTransactionLoading ? (
             <div className="flex flex-wrap lg:flex-nowrap gap-4 justify-between mt-8">
-              <Skeleton className="w-full h-36 rounded-lg bg-slate-100"></Skeleton>
-              <Skeleton className="w-full h-36 rounded-lg bg-slate-100"></Skeleton>
-              <Skeleton className="w-full h-36 rounded-lg bg-slate-100"></Skeleton>
+              <Skeleton className="w-full h-36 rounded-lg bg-slate-100" />
+              <Skeleton className="w-full h-36 rounded-lg bg-slate-100" />
+              <Skeleton className="w-full h-36 rounded-lg bg-slate-100" />
             </div>
           ) : accountId ? (
             <>
