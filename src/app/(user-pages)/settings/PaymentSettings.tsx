@@ -12,9 +12,6 @@ import { cancelStripeSubscription, createStripeSession } from '@/actions/Payment
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { useConfirm } from '@/hooks/use-confirm';
 
-// import { loadStripe } from '@stripe/stripe-js';
-// const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string);
-
 export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -53,25 +50,11 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
         },
       ];
 
-      const { sessionId, sessionUrl } = await createStripeSession({ lineItems, subscriptionType });
+      const { sessionUrl } = await createStripeSession({ lineItems, subscriptionType });
 
-      if (!sessionId) {
-        throw new Error('Failed to create checkout session!');
-      }
       if (sessionUrl) {
         router.push(sessionUrl);
       }
-
-      // const stripe = await stripePromise;
-      // if (!stripe) throw new Error('Failed to load Stripe!');
-
-      // const { error } = await stripe.redirectToCheckout({ sessionId });
-
-      // if (error) {
-      //   if (error instanceof Error) throw new Error(error.message);
-      // } else {
-      //   throw error;
-      // }
     } catch (error: any) {
       toast.error(error?.message || 'Failed to create checkout session!');
     }
