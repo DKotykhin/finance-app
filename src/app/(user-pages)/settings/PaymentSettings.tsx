@@ -40,17 +40,7 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
 
   const createPaymentClick = async (subscriptionType: SubscriptionType) => {
     try {
-      const lineItems = [
-        {
-          price:
-            subscriptionType === SubscriptionType.Monthly
-              ? process.env.NEXT_PUBLIC_MONTHLY_PRICE_ID
-              : process.env.NEXT_PUBLIC_YEARLY_PRICE_ID,
-          quantity: 1,
-        },
-      ];
-
-      const { sessionUrl } = await createStripeSession({ lineItems, subscriptionType });
+      const { sessionUrl } = await createStripeSession({ subscriptionType });
 
       if (sessionUrl) {
         router.push(sessionUrl);

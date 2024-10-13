@@ -14,16 +14,24 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export type LineItem = Stripe.Checkout.SessionCreateParams.LineItem;
 
 export const createStripeSession = async ({
-  lineItems,
   subscriptionType,
 }: {
-  lineItems: LineItem[];
   subscriptionType: SubscriptionType;
 }) => {
   const user = await currentUser();
   if (!user) {
     throw ApiError.unauthorized('Unauthorized');
   }
+
+  const lineItems: LineItem[] = [
+    {
+      price:
+        subscriptionType === SubscriptionType.Monthly
+          ? process.env.MONTHLY_PRICE_ID
+          : process.env.YEARLY_PRICE_ID,
+      quantity: 1,
+    },
+  ];
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
