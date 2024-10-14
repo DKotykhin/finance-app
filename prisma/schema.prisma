@@ -38,9 +38,9 @@ enum TransactionType {
 }
 
 enum SubscriptionType {
-  Free
-  Monthly
-  Yearly
+  FREE
+  PRO
+  GOLD
 }
 
 enum SubscriptionStatus {

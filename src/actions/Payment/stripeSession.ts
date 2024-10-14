@@ -26,7 +26,7 @@ export const createStripeSession = async ({
   const lineItems: LineItem[] = [
     {
       price:
-        subscriptionType === SubscriptionType.Monthly
+        subscriptionType === SubscriptionType.PRO
           ? process.env.MONTHLY_PRICE_ID
           : process.env.YEARLY_PRICE_ID,
       quantity: 1,
@@ -84,7 +84,7 @@ export const retrieveStripeSession = async (sessionId: string) => {
       });
     }
   } catch (error: any) {
-    throw ApiError.internalError(error.message || 'Error updating user settings');
+    throw ApiError.internalError(error.message || 'Error updating subscription');
   }
 };
 

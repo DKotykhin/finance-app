@@ -5,21 +5,19 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Card, CardBody, CardHeader } from '@nextui-org/react';
 import { CircleCheckBig } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { useUser } from '@clerk/nextjs';
 
-import { getSubscription } from '@/actions/Payment/getSubscription';
+import { retrieveStripeSession } from '@/actions/Payment/stripeSession';
 
 export const PaymentContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useUser();
 
   const session_id = searchParams.get('session_id');
 
   const { data: subscriptionData } = useQuery({
     enabled: !!session_id,
     queryKey: ['subscription'],
-    queryFn: () => getSubscription({ userId: user?.id as string }),
+    queryFn: () => retrieveStripeSession(session_id as string),
   });
 
   return (

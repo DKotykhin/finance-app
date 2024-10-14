@@ -120,7 +120,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
                 <Button
                   color="secondary"
                   onPress={
-                    subscriptionData &&
+                    !subscriptionData &&
                     (categoryData?.length ?? 0) >= freeLimits.categories
                       ? onSubscriptionOpen
                       : onCategoryOpen

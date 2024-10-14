@@ -110,7 +110,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
                 <Button
                   color="secondary"
                   onPress={
-                    subscriptionData &&
+                    !subscriptionData &&
                     (accountData?.length ?? 0) >= freeLimits.accounts
                       ? onSubscriptionOpen
                       : onAccountOpen
