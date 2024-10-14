@@ -1,10 +1,8 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Autocomplete, AutocompleteItem, DateRangePicker, Skeleton } from '@nextui-org/react';
-import { RangeValue } from '@react-types/shared';
-import { DateValue } from '@react-types/datepicker';
 import { addDays, differenceInDays, subDays, isToday } from 'date-fns';
 
 import { getAccounts } from '@/actions/Account/_index';
@@ -19,19 +17,7 @@ import { CategoriesCard } from './categoriesCard';
 import { StatsCards } from './statsCards';
 
 export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
-  const { accountId, date, setAccountId, setDates } = useDashboardStore();
-
-  const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
-    enabled: !!userId,
-    queryKey: ['userSettings'],
-    queryFn: () => getUserSettings({ userId: userId as string }),
-  });
-
-  // to do: move to store
-  const [dateValue, setDateValue] = useState<RangeValue<DateValue>>({
-    start: dateToValue(subDays(new Date(), 29)),
-    end: dateToValue(new Date()),
-  });
+  const { accountId, setAccountId, dateValue, setDateValue } = useDashboardStore();
   
   const currentPeriod = useMemo(() => {
     return {
@@ -43,13 +29,19 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const periodInDays = useMemo(() => {
     return differenceInDays(currentPeriod.end, currentPeriod.start);
   }, [currentPeriod]);
-
+  
   const previousPeriod = useMemo(() => {
     return {
       start: addDays(subDays(currentPeriod.start, periodInDays), -1),
       end: addDays(subDays(currentPeriod.end, periodInDays), -1),
     };
   }, [currentPeriod, periodInDays]);
+
+  const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
+    enabled: !!userId,
+    queryKey: ['userSettings'],
+    queryFn: () => getUserSettings({ userId: userId as string }),
+  });
 
   const { data: accountData, isLoading: isAccountLoading } = useQuery({
     enabled: !!userId,
@@ -65,12 +57,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   }, [accountData, accountId, setAccountId]);
 
   useEffect(() => {
-    if (date.startDate && date.endDate) {
-      setDateValue({
-        start: dateToValue(date.startDate),
-        end: dateToValue(date.endDate),
-      });
-    } else {
+    if (!dateValue.start && !dateValue.end && !isUserSettingsLoading) {
       setDateValue({
         start: dateToValue(subDays(new Date(), (userSettingsData?.dashboardPeriod ?? 30) - 1)),
         end: dateToValue(new Date()),
@@ -127,11 +114,6 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
     return accountData?.find((account) => account.id === accountId);
   }, [accountData, accountId]);
 
-  const onChangeDateValue = (value: RangeValue<DateValue>) => {
-    setDateValue(value);
-    setDates(valueToDate(value.start), valueToDate(value.end));
-  };
-
   return (
     <div className="-mt-44">
       {isAccountLoading ? (
@@ -158,7 +140,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
                 visibleMonths={2}
                 className="w-full sm:max-w-[280px]"
                 value={dateValue}
-                onChange={onChangeDateValue}
+                onChange={setDateValue}
               />
               <p className="text-xs italic text-blue-200 mt-1 ml-1">
                 {isToday(currentPeriod.end) ? `last ${periodInDays + 1} days selected` : `${periodInDays + 1} days selected`}

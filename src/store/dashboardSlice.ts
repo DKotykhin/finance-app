@@ -1,22 +1,21 @@
 /* eslint-disable no-unused-vars */
 import { create } from 'zustand';
+import { RangeValue } from '@react-types/shared';
+import { DateValue } from '@react-types/datepicker';
 
 type DashboardState = {
   accountId: string;
-  date: {
-    startDate?: Date;
-    endDate?: Date;
-  };
+  dateValue: RangeValue<DateValue>;
   setAccountId: (id: string) => void;
-  setDates: (startDate: Date, endDate: Date) => void;
+  setDateValue: (value: RangeValue<DateValue>) => void;
 };
 
 export const useDashboardStore = create<DashboardState>()((set) => ({
   accountId: '',
-  date: {
-    startDate: undefined,
-    endDate: undefined,
+  dateValue: {
+    start: null as unknown as DateValue,
+    end: null as unknown as DateValue,
   },
   setAccountId: (accountId: string) => set(() => ({ accountId })),
-  setDates: (startDate: Date, endDate: Date) => set(() => ({ date: { startDate, endDate } })),
+  setDateValue: (dateValue: RangeValue<DateValue>) => set(() => ({ dateValue })),
 }));

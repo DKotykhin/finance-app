@@ -17,7 +17,7 @@ import {
 } from '@nextui-org/react';
 import { EyeIcon, Loader2, Pencil, Trash2, TriangleAlert } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { differenceInDays, format, subDays, isToday } from 'date-fns';
+import { format, subDays, isToday } from 'date-fns';
 import { useUser } from '@clerk/nextjs';
 import {
   Selection,
@@ -29,7 +29,7 @@ import {
   TableCell,
   getKeyValue,
 } from '@nextui-org/react';
-import { DateValue, parseAbsoluteToLocal } from '@internationalized/date';
+import { parseAbsoluteToLocal } from '@internationalized/date';
 import { SortOrder, UserSettings } from '@prisma/client';
 
 import {
@@ -41,7 +41,7 @@ import {
 import { getAccounts } from '@/actions/Account/_index';
 import { getCategories } from '@/actions/Category/_index';
 import { useConfirm } from '@/hooks/use-confirm';
-import { cn, currencyMap, dateToValue, numberWithSpaces, rowsPerPageArray, valueToDate } from '@/utils/_index';
+import { cn, currencyMap, numberWithSpaces, rowsPerPageArray, valueToDate } from '@/utils/_index';
 import { useTransactionsStore } from '@/store/transactionsSlice';
 
 import { TransactionModal } from './TransactionModal';
@@ -72,11 +72,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   userSettingsData,
   isUserSettingsLoading,
 }) => {
-  const { accountValue, categoryValue, startDate, endDate, setAccountValue, setCategoryValue, setStartDate, setEndDate } =
+  const { accountValue, setAccountValue, categoryValue, setCategoryValue, dateValue, setDateValue } =
     useTransactionsStore();
 
   const [updateTransaction, setUpdateTransaction] = useState<TransactionUpdate | null>(null);
   const [transaction, setTransaction] = useState<ExtendedTransaction | null>(null);
+
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: userSettingsData?.transactionSortField || 'date',
@@ -86,33 +87,26 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   const [pages, setPages] = useState(1);
   const [transactionListLength, setTransactionListLength] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(userSettingsData?.transactionRowsPerPage || '5');
-  // to do: move to store
-  const [dateValue, setDateValue] = useState<{ start: DateValue; end: DateValue }>({
-    start: parseAbsoluteToLocal(subDays(new Date(), 30).toISOString()),
-    end: parseAbsoluteToLocal(new Date().toISOString()),
-  });
 
   const { user } = useUser();
+  const queryClient = useQueryClient();
+  
   const { isOpen: isOpenView, onOpen: onOpenView, onOpenChange: onOpenChangeView } = useDisclosure();
   const { isOpen: isOpenUpdate, onOpen: onOpenUpdate, onOpenChange: onOpenChangeUpdate } = useDisclosure();
 
-  const period = useMemo(() => {
-    return differenceInDays(valueToDate(dateValue.end), valueToDate(dateValue.start));
+  const periodInDays = useMemo(() => {
+    return valueToDate(dateValue.end)?.getDate() - valueToDate(dateValue.start)?.getDate();
   }, [dateValue]);
 
   useEffect(() => {
-    if (startDate) {
-      setDateValue((v) => ({ ...v, start: dateToValue(startDate) }));
-    } else {
-      setDateValue((v) => ({
-        ...v,
+    if (!dateValue.start) {
+      setDateValue({
+        ...dateValue,
         start: parseAbsoluteToLocal(subDays(new Date(), (userSettingsData?.transactionPeriod ?? 30) - 1).toISOString()),
-      }));
+      });
     }
-    if (endDate) {
-      setDateValue((v) => ({ ...v, end: dateToValue(endDate) }));
-    } else {
-      setDateValue((v) => ({ ...v, end: parseAbsoluteToLocal(new Date().toISOString()) }));
+    if (!dateValue.end) {
+      setDateValue({ ...dateValue, end: parseAbsoluteToLocal(new Date().toISOString()) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userSettingsData?.transactionPeriod]);
@@ -132,8 +126,6 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     title: 'Delete Transaction',
     message: 'Are you sure you want to delete this transaction?',
   });
-
-  const queryClient = useQueryClient();
 
   const { data: accountData, isLoading: isAccountLoading } = useQuery({
     enabled: !!user?.id,
@@ -208,15 +200,6 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   const onSelectedKeys = (keys: Selection) => {
     setSelectedKeys(keys);
     selectedKeysFn(keys === 'all' ? tableContent?.map((transaction) => transaction.id) : Array.from(keys));
-  };
-
-  const onChangeStartDateValue = (value: DateValue) => {
-    setDateValue((v) => ({ ...v, start: value }));
-    setStartDate(valueToDate(value));
-  };
-  const onChangeEndDateValue = (value: DateValue) => {
-    setDateValue((v) => ({ ...v, end: value }));
-    setEndDate(valueToDate(value));
   };
 
   const tableContent = useMemo(() => {
@@ -354,7 +337,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                     label="Date from"
                     granularity="day"
                     value={dateValue.start}
-                    onChange={onChangeStartDateValue}
+                    onChange={(value) => setDateValue({ ...dateValue, start: value })}
                     className="w-full lg:w-[160px]"
                     isDisabled={isTransactionLoading}
                   />
@@ -362,7 +345,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                     label="Date to"
                     granularity="day"
                     value={dateValue.end}
-                    onChange={onChangeEndDateValue}
+                    onChange={(value) => setDateValue({ ...dateValue, end: value })}
                     className="w-full lg:w-[160px]"
                     isDisabled={isTransactionLoading}
                   />
@@ -370,7 +353,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({
               )}
             </div>
             <p className="lg:hidden text-xs italic text-gray-400 mt-1 ml-1">
-              {isToday(valueToDate(dateValue.end)) ? `last ${period + 1} days selected` : `${period + 1} days selected`}
+              {isToday(valueToDate(dateValue.end))
+                ? `last ${periodInDays + 1} days selected`
+                : `${periodInDays + 1} days selected`}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
@@ -419,7 +404,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       </div>
       {!isUserSettingsLoading && (
         <p className="hidden lg:block text-xs italic text-gray-400 mb-3 ml-1 mt-1">
-          {isToday(valueToDate(dateValue.end)) ? `last ${period + 1} days selected` : `${period + 1} days selected`}
+          {isToday(valueToDate(dateValue.end))
+            ? `last ${periodInDays + 1} days selected`
+            : `${periodInDays + 1} days selected`}
         </p>
       )}
     </>
@@ -434,7 +421,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         color="secondary"
         page={page}
         total={pages}
-        onChange={(page) => setPage(page)}
+        onChange={setPage}
       />
     </div>
   );
