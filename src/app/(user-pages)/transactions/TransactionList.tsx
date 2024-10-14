@@ -88,7 +88,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   const [rowsPerPage, setRowsPerPage] = useState(userSettingsData?.transactionRowsPerPage || '5');
   // to do: move to store
   const [dateValue, setDateValue] = useState<{ start: DateValue; end: DateValue }>({
-    start: parseAbsoluteToLocal(subDays(new Date(), (userSettingsData?.transactionPeriod ?? 30) - 1).toISOString()),
+    start: parseAbsoluteToLocal(subDays(new Date(), 30).toISOString()),
     end: parseAbsoluteToLocal(new Date().toISOString()),
   });
 

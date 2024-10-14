@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardBody, CardHeader, Radio, RadioGroup, Select, Selection, SelectItem } from '@nextui-org/react';
 import { BarChart3, LineChart, AreaChart } from 'lucide-react';
 import { TransactionCharts, UserSettings } from '@prisma/client';
+import { format } from 'date-fns';
 
 import { TransactionsWithStats } from '@/actions/Transaction/_index';
 
@@ -15,6 +16,8 @@ interface TransactionsCardProps {
   previousTransactionData?: TransactionsWithStats;
   userSettingsData?: UserSettings | null;
   isUserSettingsLoading: boolean;
+  currentPeriod: { start: Date; end: Date };
+  previousPeriod: { start: Date; end: Date };
 }
 
 export const TransactionsCard: React.FC<TransactionsCardProps> = ({
@@ -22,6 +25,8 @@ export const TransactionsCard: React.FC<TransactionsCardProps> = ({
   previousTransactionData,
   userSettingsData,
   isUserSettingsLoading,
+  currentPeriod,
+  previousPeriod,
 }) => {
   const [chartView, setChartView] = useState<Selection>(
     new Set([userSettingsData?.dashboardTransactionsChart || TransactionCharts.BarChart])
@@ -33,7 +38,16 @@ export const TransactionsCard: React.FC<TransactionsCardProps> = ({
       <CardHeader>
         <div className="w-full flex flex-col gap-6 sm:flex-row sm:justify-between sm:items-end">
           <div>
-            <p className="card-title mb-4">Transactions</p>
+            <p className="card-title mb-1">Transactions</p>
+            {selectedPeriod === Period.Current ? (
+              <p className="text-sm text-gray-400 mb-4">
+                {`Your transactions ${format(new Date(currentPeriod.start), 'dd MMM')} - ${format(new Date(currentPeriod.end), 'dd MMM')}`}
+              </p>
+            ) : (
+              <p className="text-sm text-gray-400 mb-4">
+                {`Your transactions ${format(new Date(previousPeriod.start), 'dd MMM')} - ${format(new Date(previousPeriod.end), 'dd MMM')}`}
+              </p>
+            )}
             <RadioGroup
               label="Select period"
               orientation="horizontal"

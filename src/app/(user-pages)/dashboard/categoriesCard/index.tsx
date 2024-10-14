@@ -14,6 +14,7 @@ import {
 } from '@nextui-org/react';
 import { PieChart, RadarIcon, RadiusIcon } from 'lucide-react';
 import { CategoriesCharts, TransactionType, UserSettings } from '@prisma/client';
+import { format } from 'date-fns';
 
 import { TransactionsByCategory } from '@/actions/Transaction/_index';
 
@@ -25,6 +26,8 @@ interface CategoriesCardProps {
   previousTransactionByCategoryData?: TransactionsByCategory;
   userSettingsData?: UserSettings | null;
   isUserSettingsLoading: boolean;
+  currentPeriod: { start: Date; end: Date };
+  previousPeriod: { start: Date; end: Date };
 }
 
 export const CategoriesCard: React.FC<CategoriesCardProps> = ({
@@ -32,6 +35,8 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
   previousTransactionByCategoryData,
   userSettingsData,
   isUserSettingsLoading,
+  currentPeriod,
+  previousPeriod,
 }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>(Period.Current);
   const [chartView, setChartView] = useState<Selection>(
@@ -44,7 +49,16 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
       <CardHeader>
         <div className="w-full flex flex-col gap-6 sm:flex-row sm:justify-between sm:items-end">
           <div>
-            <p className="card-title mb-4">Categories</p>
+            <p className="card-title mb-1">Categories</p>
+            {selectedPeriod === Period.Current ? (
+              <p className="text-sm text-gray-400 mb-4">
+                {`Your categories ${format(new Date(currentPeriod.start), 'dd MMM')} - ${format(new Date(currentPeriod.end), 'dd MMM')}`}
+              </p>
+            ) : (
+              <p className="text-sm text-gray-400 mb-4">
+                {`Your categories ${format(new Date(previousPeriod.start), 'dd MMM')} - ${format(new Date(previousPeriod.end), 'dd MMM')}`}
+              </p>
+            )}
             <RadioGroup
               label="Select period"
               orientation="horizontal"

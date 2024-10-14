@@ -29,13 +29,27 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
 
   // to do: move to store
   const [dateValue, setDateValue] = useState<RangeValue<DateValue>>({
-    start: dateToValue(subDays(new Date(), (userSettingsData?.dashboardPeriod ?? 30) - 1)),
+    start: dateToValue(subDays(new Date(), 29)),
     end: dateToValue(new Date()),
   });
-
-  const period = useMemo(() => {
-    return differenceInDays(valueToDate(dateValue.end), valueToDate(dateValue.start));
+  
+  const currentPeriod = useMemo(() => {
+    return {
+      start: valueToDate(dateValue.start),
+      end: valueToDate(dateValue.end),
+    };
   }, [dateValue]);
+  
+  const periodInDays = useMemo(() => {
+    return differenceInDays(currentPeriod.end, currentPeriod.start);
+  }, [currentPeriod]);
+
+  const previousPeriod = useMemo(() => {
+    return {
+      start: addDays(subDays(currentPeriod.start, periodInDays), -1),
+      end: addDays(subDays(currentPeriod.end, periodInDays), -1),
+    };
+  }, [currentPeriod, periodInDays]);
 
   const { data: accountData, isLoading: isAccountLoading } = useQuery({
     enabled: !!userId,
@@ -71,19 +85,19 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
     queryFn: () =>
       getTransactionsWithStats({
         accountId: accountId,
-        from: valueToDate(dateValue.start),
-        to: valueToDate(dateValue.end),
+        from: currentPeriod.start,
+        to: currentPeriod.end,
       }),
   });
 
   const { data: previousTransactionData, isLoading: isPreviousTransactionLoading } = useQuery({
-    enabled: !!accountId && period > 0,
+    enabled: !!accountId && periodInDays > 0,
     queryKey: ['previousTransactionsWithStat', dateValue, accountId],
     queryFn: () =>
       getTransactionsWithStats({
         accountId: accountId,
-        from: addDays(subDays(valueToDate(dateValue.start), period), -1),
-        to: addDays(subDays(valueToDate(dateValue.end), period), -1),
+        from: previousPeriod.start,
+        to: previousPeriod.end,
       }),
   });
 
@@ -93,8 +107,8 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
     queryFn: () =>
       getTransactionsByCategory({
         accountId: accountId,
-        from: valueToDate(dateValue.start),
-        to: valueToDate(dateValue.end),
+        from: currentPeriod.start,
+        to: currentPeriod.end,
       }),
   });
 
@@ -104,8 +118,8 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
     queryFn: () =>
       getTransactionsByCategory({
         accountId: accountId,
-        from: addDays(subDays(valueToDate(dateValue.start), period), -1),
-        to: addDays(subDays(valueToDate(dateValue.end), period), -1),
+        from: previousPeriod.start,
+        to: previousPeriod.end,
       }),
   });
 
@@ -147,7 +161,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
                 onChange={onChangeDateValue}
               />
               <p className="text-xs italic text-blue-200 mt-1 ml-1">
-                {isToday(valueToDate(dateValue.end)) ? `last ${period + 1} days selected` : `${period + 1} days selected`}
+                {isToday(currentPeriod.end) ? `last ${periodInDays + 1} days selected` : `${periodInDays + 1} days selected`}
               </p>
             </div>
           </div>
@@ -172,12 +186,16 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
                   previousTransactionData={previousTransactionData}
                   userSettingsData={userSettingsData}
                   isUserSettingsLoading={isUserSettingsLoading}
+                  currentPeriod={currentPeriod}
+                  previousPeriod={previousPeriod}
                 />
                 <CategoriesCard
                   transactionByCategoryData={transactionByCategoryData}
                   previousTransactionByCategoryData={previousTransactionByCategoryData}
                   userSettingsData={userSettingsData}
                   isUserSettingsLoading={isUserSettingsLoading}
+                  currentPeriod={currentPeriod}
+                  previousPeriod={previousPeriod}
                 />
               </div>
             </>
