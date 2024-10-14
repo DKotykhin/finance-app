@@ -6,11 +6,12 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BadgeCheck, Check } from 'lucide-react';
-import { SubscriptionType } from '@prisma/client';
+import { SubscriptionStatus, SubscriptionType } from '@prisma/client';
 
 import { cancelStripeSubscription, createStripeSession } from '@/actions/Payment/stripeSession';
-import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
+import { getSubscription } from '@/actions/Payment/getSubscription';
 import { useConfirm } from '@/hooks/use-confirm';
+import { format } from 'date-fns';
 
 export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }) => {
   const router = useRouter();
@@ -21,17 +22,17 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
     message: 'Are you sure you want to cancel your subscription?',
   });
 
-  const { data: userSettingsData } = useQuery({
+  const { data: subscriptionData } = useQuery({
     enabled: !!userId,
-    queryKey: ['userSettings'],
-    queryFn: () => getUserSettings({ userId: userId as string }),
+    queryKey: ['subscription'],
+    queryFn: () => getSubscription({ userId: userId as string }),
   });
 
   const cancelMutation = useMutation({
     mutationFn: (sessionId: string) => cancelStripeSubscription(sessionId),
     onSuccess: () => {
       toast.success(`Subscription updated successfully`);
-      queryClient.invalidateQueries({ queryKey: ['userSettings'] });
+      queryClient.invalidateQueries({ queryKey: ['subscription'] });
     },
     onError: (error) => {
       toast.error(error.message);
@@ -40,8 +41,11 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
 
   const createPaymentClick = async (subscriptionType: SubscriptionType) => {
     try {
-      const { sessionUrl } = await createStripeSession({ subscriptionType });
+      const { sessionUrl, sessionId } = await createStripeSession({ subscriptionType });
 
+      if (!sessionId) {
+        return toast.error('Failed to create checkout session!');
+      }
       if (sessionUrl) {
         router.push(sessionUrl);
       }
@@ -64,15 +68,15 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
     <>
       <div className="mb-8">
         <p className="w-full text-center mt-1 mb-1 text-2xl uppercase font-bold">Choose the best payment plan</p>
-        {userSettingsData?.subscriptionType && (
+        {subscriptionData?.type && (
           <>
             <div className="w-full flex justify-center items-center gap-1">
-              <p className="text-gray-500 italic">{`your current plan: ${userSettingsData.subscriptionType}`}</p>
+              <p className="text-gray-500 italic">{`your current plan: ${subscriptionData?.type}`}</p>
               <BadgeCheck
                 color={
-                  userSettingsData?.subscriptionType === SubscriptionType.Monthly
+                  subscriptionData?.type === SubscriptionType.Monthly
                     ? '#10b981'
-                    : userSettingsData?.subscriptionType === SubscriptionType.Yearly
+                    : subscriptionData?.type === SubscriptionType.Yearly
                       ? '#f0cc01'
                       : '#c0c0c0'
                 }
@@ -128,18 +132,37 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
               <p className="text-gray-500 text-sm italic">Unlimited transactions</p>
             </div>
           </div>
-          <Button
-            color="primary"
-            variant={userSettingsData?.subscriptionType === SubscriptionType.Monthly ? 'flat' : 'solid'}
-            onClick={() =>
-              userSettingsData?.subscriptionType === SubscriptionType.Monthly
-                ? cancelPaymentClick(userSettingsData.subscriptionId)
-                : createPaymentClick(SubscriptionType.Monthly)
-            }
-            isLoading={cancelMutation.isPending}
-          >
-            {userSettingsData?.subscriptionType === SubscriptionType.Monthly ? 'Unsubscribe' : 'Subscribe'}
-          </Button>
+          {subscriptionData?.type === SubscriptionType.Monthly &&
+          subscriptionData?.status === SubscriptionStatus.Canceled &&
+          subscriptionData.endDate &&
+          new Date(subscriptionData.endDate) > new Date() ? (
+            <div className="text-sm text-grey-500 text-center space-y-1">
+              <p>{subscriptionData?.status}</p>
+              <p>Expiration Date: {format(new Date(subscriptionData.endDate), 'dd MMM, yyyy')}</p>
+            </div>
+          ) : (
+            <Button
+              color="primary"
+              variant={
+                subscriptionData?.type === SubscriptionType.Monthly &&
+                subscriptionData?.status === SubscriptionStatus.Active
+                  ? 'flat'
+                  : 'solid'
+              }
+              onClick={() =>
+                subscriptionData?.type === SubscriptionType.Monthly &&
+                subscriptionData?.status === SubscriptionStatus.Active
+                  ? cancelPaymentClick(subscriptionData.subscriptionId)
+                  : createPaymentClick(SubscriptionType.Monthly)
+              }
+              isLoading={cancelMutation.isPending}
+            >
+              {subscriptionData?.type === SubscriptionType.Monthly &&
+              subscriptionData?.status === SubscriptionStatus.Active
+                ? 'Unsubscribe'
+                : 'Subscribe'}
+            </Button>
+          )}
         </div>
         <div className="flex flex-col gap-2 items-center border p-4 rounded-md w-full max-w-[400px] shadow-lg relative">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -172,18 +195,37 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
               <p className="text-gray-500 text-sm italic">Save 17%</p>
             </div>
           </div>
-          <Button
-            color="primary"
-            variant={userSettingsData?.subscriptionType === SubscriptionType.Yearly ? 'flat' : 'solid'}
-            onClick={() =>
-              userSettingsData?.subscriptionType === SubscriptionType.Yearly
-                ? cancelPaymentClick(userSettingsData.subscriptionId)
-                : createPaymentClick(SubscriptionType.Yearly)
-            }
-            isLoading={cancelMutation.isPending}
-          >
-            {userSettingsData?.subscriptionType === SubscriptionType.Yearly ? 'Unsubscribe' : 'Subscribe'}
-          </Button>
+          {subscriptionData?.type === SubscriptionType.Yearly &&
+          subscriptionData?.status === SubscriptionStatus.Canceled &&
+          subscriptionData.endDate &&
+          new Date(subscriptionData.endDate) > new Date() ? (
+            <div className="text-sm text-grey-500 text-center space-y-1">
+              <p>{subscriptionData?.status}</p>
+              <p>Expiration Date: {format(new Date(subscriptionData.endDate), 'dd MMM, yyyy')}</p>
+            </div>
+          ) : (
+            <Button
+              color="primary"
+              variant={
+                subscriptionData?.type === SubscriptionType.Yearly &&
+                subscriptionData?.status === SubscriptionStatus.Active
+                  ? 'flat'
+                  : 'solid'
+              }
+              onClick={() =>
+                subscriptionData?.type === SubscriptionType.Yearly &&
+                subscriptionData?.status === SubscriptionStatus.Active
+                  ? cancelPaymentClick(subscriptionData.subscriptionId)
+                  : createPaymentClick(SubscriptionType.Yearly)
+              }
+              isLoading={cancelMutation.isPending}
+            >
+              {subscriptionData?.type === SubscriptionType.Yearly &&
+              subscriptionData?.status === SubscriptionStatus.Active
+                ? 'Unsubscribe'
+                : 'Subscribe'}
+            </Button>
+          )}
         </div>
       </div>
       <ConfirmModal />

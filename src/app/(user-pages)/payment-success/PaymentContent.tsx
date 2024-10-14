@@ -34,7 +34,7 @@ export const PaymentContent: React.FC = () => {
         </CardHeader>
         <CardBody>
           <div className="flex flex-col items-center w-full">
-            <Button color="success" variant="flat" onClick={() => router.push('/dashboard')}>
+            <Button color="primary" variant="solid" onClick={() => router.push('/dashboard')}>
               Go to Dashboard
             </Button>
           </div>

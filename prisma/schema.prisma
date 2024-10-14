@@ -43,6 +43,12 @@ enum SubscriptionType {
   Yearly
 }
 
+enum SubscriptionStatus {
+  Active
+  Inactive
+  Canceled
+}
+
 model Account {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now()) @map("created_at")
@@ -109,9 +115,24 @@ model UserSettings {
   dashboardTransactionsChart TransactionCharts @default(value: BarChart) @map("dashboard_transaction_charts")
   dashboardCategoriesChart   CategoriesCharts  @default(value: PieChart) @map("dashboard_categories_charts")
   dashboardTransactionType   TransactionType   @default(value: Income) @map("dashboard_transaction_type")
+}
 
-  subscriptionType  SubscriptionType @default(value: Free) @map("subscription_type")
-  subscriptionStart DateTime?        @map("subscription_start")
-  subscriptionEnd   DateTime?        @map("subscription_end")
-  subscriptionId    String?          @map("subscription_id")
+model Subscription {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId String @map("user_id")
+
+  type           SubscriptionType   @map("type")
+  startDate      DateTime           @map("start_date")
+  endDate        DateTime?          @map("end_date")
+  cancelledAt    DateTime?          @map("cancelled_at")
+  price          Int                @map("price")
+  mode           String             @map("mode")
+  currency       String             @map("currency")
+  customerId     String             @map("customer_id")
+  customerEmail  String?            @map("customer_email")
+  subscriptionId String             @map("subscription_id")
+  status         SubscriptionStatus @default(value: Inactive) @map("status")
 }

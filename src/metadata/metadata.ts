@@ -22,6 +22,7 @@ export const mainMetadata: Metadata = {
     locale: 'en_US',
     url: 'https://finance-app-sandy-two.vercel.app/',
     images: ['/logo-blue.svg'],
+    siteName: 'Financial App',
   },
   metadataBase: new URL('https://finance-app-sandy-two.vercel.app/'),
 };
