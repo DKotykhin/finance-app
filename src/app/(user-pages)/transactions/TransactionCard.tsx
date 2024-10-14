@@ -17,6 +17,7 @@ import { freeLimits } from '@/utils/const';
 
 import { SubscriptionModal } from '@/components/SubscriptionModal';
 import { TransactionModal } from './TransactionModal';
+import { getSubscription } from '@/actions/Payment/getSubscription';
 const TransactionList = dynamic(async () => (await import('./TransactionList')).TransactionList, { ssr: false });
 
 export const TransactionCard: React.FC = () => {
@@ -53,12 +54,18 @@ export const TransactionCard: React.FC = () => {
     queryFn: () => getAccounts(user?.id as string),
   });
 
+  const { data: subscriptionData } = useQuery({
+    enabled: !!user?.id,
+    queryKey: ['subscription'],
+    queryFn: () => getSubscription({ userId: user?.id as string }),
+  });
+
   const { data: todaysTransactionsData, isLoading: isTodaysTransactionsLoading } = useQuery({
     enabled:
       !!user?.id &&
       !isUserSettingsLoading &&
       !isAccountLoading &&
-      userSettingsData?.subscriptionType === SubscriptionType.Free,
+      subscriptionData?.type === SubscriptionType.Free,
     queryKey: ['todaysTransactionsData'],
     queryFn: () => getTodaysTransactions({ accountIds: accountData?.map((account) => account.id) ?? [] }),
   });
@@ -136,7 +143,7 @@ export const TransactionCard: React.FC = () => {
                 <Button
                   color="secondary"
                   onPress={
-                    userSettingsData?.subscriptionType === SubscriptionType.Free &&
+                    subscriptionData?.type === SubscriptionType.Free &&
                     (todaysTransactionsData?.length ?? 0) >= freeLimits.transactions &&
                     !isTodaysTransactionsLoading
                       ? onSubscriptionOpen

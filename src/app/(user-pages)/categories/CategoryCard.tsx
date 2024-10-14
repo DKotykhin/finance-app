@@ -10,6 +10,7 @@ import { SubscriptionType } from '@prisma/client';
 
 import { bulkDeleteCategories, getCategories } from '@/actions/Category/_index';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
+import { getSubscription } from '@/actions/Payment/getSubscription';
 import { useConfirm } from '@/hooks/use-confirm';
 import { freeLimits } from '@/utils/_index';
 import { SubscriptionModal } from '@/components/SubscriptionModal';
@@ -48,6 +49,12 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
     enabled: !!userId,
     queryKey: ['userSettings'],
     queryFn: () => getUserSettings({ userId: userId as string }),
+  });
+
+  const { data: subscriptionData } = useQuery({
+    enabled: !!userId,
+    queryKey: ['subscription'],
+    queryFn: () => getSubscription({ userId: userId as string }),
   });
 
   const bulkDeleteMutation = useMutation({
@@ -114,7 +121,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
                 <Button
                   color="secondary"
                   onPress={
-                    userSettingsData?.subscriptionType === SubscriptionType.Free &&
+                    subscriptionData?.type === SubscriptionType.Free &&
                     (categoryData?.length ?? 0) >= freeLimits.categories
                       ? onSubscriptionOpen
                       : onCategoryOpen

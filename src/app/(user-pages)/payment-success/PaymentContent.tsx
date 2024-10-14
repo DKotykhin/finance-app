@@ -5,19 +5,21 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Card, CardBody, CardHeader } from '@nextui-org/react';
 import { CircleCheckBig } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { useUser } from '@clerk/nextjs';
 
-import { retrieveStripeSession } from '@/actions/Payment/stripeSession';
+import { getSubscription } from '@/actions/Payment/getSubscription';
 
 export const PaymentContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useUser();
 
   const session_id = searchParams.get('session_id');
 
-  const { data: userSettingsData } = useQuery({
+  const { data: subscriptionData } = useQuery({
     enabled: !!session_id,
-    queryKey: ['userSettings'],
-    queryFn: () => retrieveStripeSession(session_id as string),
+    queryKey: ['subscription'],
+    queryFn: () => getSubscription({ userId: user?.id as string }),
   });
 
   return (
@@ -29,7 +31,7 @@ export const PaymentContent: React.FC = () => {
               <CircleCheckBig color="#4ade80" size={30} />
               <p className="font-bold text-2xl uppercase text-green-400">Success</p>
             </div>
-            <p className="text-gray-500 italic mt-2 mb-8">{`you successfully subscribe to ${userSettingsData?.subscriptionType} plan`}</p>
+            <p className="text-gray-500 italic mt-2 mb-8">{`you successfully subscribe to ${subscriptionData?.type} plan`}</p>
           </div>
         </CardHeader>
         <CardBody>
