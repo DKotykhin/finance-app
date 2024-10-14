@@ -203,22 +203,6 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
         <p className="mb-2 font-semibold">Transactions</p>
         <div className="w-full flex flex-col gap-4 sm:flex-row mb-4">
           <Select
-            label="Select default rows per page"
-            className="w-full sm:max-w-[240px]"
-            selectedKeys={[transactionSettings.rowsPerPage]}
-            onChange={(e) =>
-              setTransactionSettings({
-                ...transactionSettings,
-                rowsPerPage: e.target.value,
-              })
-            }
-            isLoading={isGetLoading}
-          >
-            {rowsPerPageArray.map((row) => (
-              <SelectItem key={row.key}>{row.label}</SelectItem>
-            ))}
-          </Select>
-          <Select
             label="Select default period"
             className="w-full sm:max-w-[240px]"
             selectedKeys={[transactionSettings.period.toString()]}
@@ -234,8 +218,6 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               <SelectItem key={value}>{value.toString()}</SelectItem>
             ))}
           </Select>
-        </div>
-        <div className="w-full flex flex-col gap-4 sm:flex-row">
           <Select
             label="Select default sort field"
             className="w-full sm:max-w-[240px]"
@@ -252,6 +234,25 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               <SelectItem key={row.key}>{row.label}</SelectItem>
             ))}
           </Select>
+        </div>
+        <div className="w-full flex flex-col gap-4 sm:flex-row">
+          <Select
+            label="Select default rows per page"
+            className="w-full sm:max-w-[240px]"
+            selectedKeys={[transactionSettings.rowsPerPage]}
+            onChange={(e) =>
+              setTransactionSettings({
+                ...transactionSettings,
+                rowsPerPage: e.target.value,
+              })
+            }
+            isLoading={isGetLoading}
+          >
+            {rowsPerPageArray.map((row) => (
+              <SelectItem key={row.key}>{row.label}</SelectItem>
+            ))}
+          </Select>
+
           <Select
             label="Select default sort order"
             className="w-full sm:max-w-[240px]"
@@ -397,7 +398,8 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
           color="secondary"
           className="w-full sm:w-auto self-end"
           onPress={onSaveChanges}
-          isDisabled={upsertMutation.isPending || isSaveButtonDisabled}
+          isDisabled={isSaveButtonDisabled}
+          isLoading={upsertMutation.isPending}
         >
           <Save size={16} />
           Save Changes

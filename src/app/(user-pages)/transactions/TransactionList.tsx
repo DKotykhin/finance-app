@@ -72,8 +72,16 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   userSettingsData,
   isUserSettingsLoading,
 }) => {
-  const { accountValue, categoryValue, startDate, endDate, setAccountValue, setCategoryValue, setStartDate, setEndDate } =
-    useTransactionsStore();
+  const {
+    accountValue,
+    categoryValue,
+    startDate,
+    endDate,
+    setAccountValue,
+    setCategoryValue,
+    setStartDate,
+    setEndDate,
+  } = useTransactionsStore();
 
   const [updateTransaction, setUpdateTransaction] = useState<TransactionUpdate | null>(null);
   const [transaction, setTransaction] = useState<ExtendedTransaction | null>(null);
@@ -370,7 +378,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({
               )}
             </div>
             <p className="lg:hidden text-xs italic text-gray-400 mt-1 ml-1">
-              {isToday(valueToDate(dateValue.end)) ? `last ${periodInDays + 1} days selected` : `${periodInDays + 1} days selected`}
+              {isToday(valueToDate(dateValue.end))
+                ? `last ${periodInDays + 1} days selected`
+                : `${periodInDays + 1} days selected`}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
@@ -417,11 +427,13 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           </Select>
         )}
       </div>
-      {!isUserSettingsLoading && (
-        <p className="hidden lg:block text-xs italic text-gray-400 mb-3 ml-1 mt-1">
-          {isToday(valueToDate(dateValue.end)) ? `last ${periodInDays + 1} days selected` : `${periodInDays + 1} days selected`}
-        </p>
-      )}
+      <p className="hidden lg:block text-xs italic text-gray-400 mb-3 ml-1 mt-1">
+        {!isUserSettingsLoading
+          ? isToday(valueToDate(dateValue.end))
+            ? `last ${periodInDays + 1} days selected`
+            : `${periodInDays + 1} days selected`
+          : ''}
+      </p>
     </>
   );
 
