@@ -7,17 +7,16 @@ import dynamic from 'next/dynamic';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useUser } from '@clerk/nextjs';
-import { SubscriptionType } from '@prisma/client';
 
 import { useConfirm } from '@/hooks/use-confirm';
 import { bulkDeleteTransactions, getTodaysTransactions } from '@/actions/Transaction/_index';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { getAccounts } from '@/actions/Account/_index';
+import { getSubscription } from '@/actions/Payment/getSubscription';
 import { freeLimits } from '@/utils/const';
 
 import { SubscriptionModal } from '@/components/SubscriptionModal';
 import { TransactionModal } from './TransactionModal';
-import { getSubscription } from '@/actions/Payment/getSubscription';
 const TransactionList = dynamic(async () => (await import('./TransactionList')).TransactionList, { ssr: false });
 
 export const TransactionCard: React.FC = () => {
@@ -65,7 +64,7 @@ export const TransactionCard: React.FC = () => {
       !!user?.id &&
       !isUserSettingsLoading &&
       !isAccountLoading &&
-      subscriptionData?.type === SubscriptionType.Free,
+      !!subscriptionData?.type,
     queryKey: ['todaysTransactionsData'],
     queryFn: () => getTodaysTransactions({ accountIds: accountData?.map((account) => account.id) ?? [] }),
   });
@@ -143,7 +142,7 @@ export const TransactionCard: React.FC = () => {
                 <Button
                   color="secondary"
                   onPress={
-                    subscriptionData?.type === SubscriptionType.Free &&
+                    subscriptionData &&
                     (todaysTransactionsData?.length ?? 0) >= freeLimits.transactions &&
                     !isTodaysTransactionsLoading
                       ? onSubscriptionOpen

@@ -6,7 +6,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import dynamic from 'next/dynamic';
-import { SubscriptionType } from '@prisma/client';
 
 import { bulkDeleteAccounts, getAccounts } from '@/actions/Account/_index';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
@@ -111,7 +110,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
                 <Button
                   color="secondary"
                   onPress={
-                    subscriptionData?.type === SubscriptionType.Free &&
+                    subscriptionData &&
                     (accountData?.length ?? 0) >= freeLimits.accounts
                       ? onSubscriptionOpen
                       : onAccountOpen

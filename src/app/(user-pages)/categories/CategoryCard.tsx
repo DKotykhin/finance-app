@@ -6,7 +6,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import dynamic from 'next/dynamic';
-import { SubscriptionType } from '@prisma/client';
 
 import { bulkDeleteCategories, getCategories } from '@/actions/Category/_index';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
@@ -121,7 +120,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
                 <Button
                   color="secondary"
                   onPress={
-                    subscriptionData?.type === SubscriptionType.Free &&
+                    subscriptionData &&
                     (categoryData?.length ?? 0) >= freeLimits.categories
                       ? onSubscriptionOpen
                       : onCategoryOpen
