@@ -24,7 +24,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, on
         {(onClose) => (
           <>
             <ModalHeader>
-              <p className="text-center w-full text-gray-500 italic">{title}</p>
+              <p className="text-center w-full text-red-500 italic -mb-4">{title}</p>
             </ModalHeader>
             <ModalBody>
               <PaymentSettings userId={userId} />

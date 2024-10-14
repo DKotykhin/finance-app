@@ -37,7 +37,7 @@ export const createStripeSession = async ({
     mode: 'subscription',
     line_items: lineItems,
     success_url: `${process.env.NEXT_PUBLIC_FRONT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_FRONT_URL}/settings`,
+    cancel_url: `${process.env.NEXT_PUBLIC_FRONT_URL}/payment-intend?status=cancel`,
     payment_method_types: ['card'],
     customer_email: user.emailAddresses[0].emailAddress,
     metadata: {
