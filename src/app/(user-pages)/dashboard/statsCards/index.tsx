@@ -54,39 +54,42 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData }) => {
                   key={index}
                   className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-6 sm:items-center justify-between"
                 >
-                  <div className="flex gap-2 sm:gap-6 items-center justify-between">
-                    {transaction.amount > 0 ? (
-                      <div className="p-1 rounded-md bg-green-500/10">
-                        <TrendingUp color="#22c55e" size={18} />
+                  <p className="sm:hidden italic text-sm text-gray-600">{transaction.notes}</p>
+                  <div className="flex gap-3 sm:gap-6 items-center justify-between">
+                    <div className="flex gap-3 sm:gap-6 items-center">
+                      {transaction.amount > 0 ? (
+                        <div className="p-1 rounded-md bg-green-500/10">
+                          <TrendingUp color="#22c55e" size={18} />
+                        </div>
+                      ) : (
+                        <div className="p-1 rounded-md bg-red-500/10">
+                          <TrendingDown color="#f15922" size={18} />
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1">
+                        <div className="text-gray-400 text-sm">
+                          {currencyMap.get(transaction.account.currency || Currency.USD)?.sign}{' '}
+                        </div>
+                        <p
+                          className={cn(
+                            'font-semibold',
+                            transaction.amount > 0 ? 'text-green-500/90' : 'text-red-500/90'
+                          )}
+                        >
+                          {transaction.account.hideDecimal
+                            ? transaction.amount > 0
+                              ? '+' + Math.round(transaction.amount)
+                              : Math.round(transaction.amount)
+                            : transaction.amount > 0
+                              ? '+' + transaction.amount
+                              : transaction.amount}
+                        </p>
                       </div>
-                    ) : (
-                      <div className="p-1 rounded-md bg-red-500/10">
-                        <TrendingDown color="#f15922" size={18} />
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1">
-                      <div className="text-gray-400 text-sm">
-                        {currencyMap.get(transaction.account.currency || Currency.USD)?.sign}{' '}
-                      </div>
-                      <p
-                        className={cn(
-                          'font-semibold',
-                          transaction.amount > 0 ? 'text-green-500/90' : 'text-red-500/90'
-                        )}
-                      >
-                        {transaction.account.hideDecimal
-                          ? transaction.amount > 0
-                            ? '+' + Math.round(transaction.amount)
-                            : Math.round(transaction.amount)
-                          : transaction.amount > 0
-                            ? '+' + transaction.amount
-                            : transaction.amount}
-                      </p>
                     </div>
                     <Chip color="primary" variant="faded">
                       {transaction.category?.categoryName || 'Uncategorized'}
                     </Chip>
-                    <p className="italic text-sm text-gray-600">{transaction.notes}</p>
+                    <p className="hidden sm:flex italic text-sm text-gray-600">{transaction.notes}</p>
                   </div>
                   <p className="text-gray-400">{format(transaction.date, 'dd MMM, yyyy')}</p>
                 </div>
