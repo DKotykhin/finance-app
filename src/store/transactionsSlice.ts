@@ -1,6 +1,5 @@
-/* eslint-disable no-unused-vars */
 import { create } from 'zustand';
-import { Selection } from '@nextui-org/react';
+import type { Selection } from '@nextui-org/react';
 
 type TransactionsState = {
   accountValue: Selection;

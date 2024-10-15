@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+
+import type {
+  Selection} from '@nextui-org/react';
 import {
   Card,
   CardBody,
@@ -9,14 +12,14 @@ import {
   Radio,
   RadioGroup,
   Select,
-  Selection,
   SelectItem,
 } from '@nextui-org/react';
 import { PieChart, RadarIcon, RadiusIcon } from 'lucide-react';
-import { CategoriesCharts, TransactionType, UserSettings } from '@prisma/client';
+import type { UserSettings } from '@prisma/client';
+import { CategoriesCharts, TransactionType } from '@prisma/client';
 import { format } from 'date-fns';
 
-import { TransactionsByCategory } from '@/actions/Transaction/_index';
+import type { TransactionsByCategory } from '@/actions/Transaction/_index';
 
 import { Period } from '../const';
 import { CategoriesChart } from './CategoriesChart';
@@ -39,9 +42,11 @@ export const CategoriesCard: React.FC<CategoriesCardProps> = ({
   previousPeriod,
 }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>(Period.Current);
+
   const [chartView, setChartView] = useState<Selection>(
     new Set([userSettingsData?.dashboardCategoriesChart || CategoriesCharts.PieChart])
   );
+
   const [selectedFlowType, setSelectedFlowType] = useState<TransactionType>(TransactionType.Income);
 
   return (

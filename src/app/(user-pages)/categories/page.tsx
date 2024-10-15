@@ -1,6 +1,7 @@
 import React from 'react';
+
 import { auth } from '@clerk/nextjs/server';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 
 import { categoriesMetadata } from '@/metadata/metadata';
 import { CategoryCard } from './CategoryCard';

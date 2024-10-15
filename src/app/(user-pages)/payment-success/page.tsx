@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { PaymentContent } from './PaymentContent';
 
 const PaymentSuccessPage: React.FC = () => {

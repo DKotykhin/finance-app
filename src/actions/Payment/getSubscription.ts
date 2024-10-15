@@ -1,8 +1,10 @@
 'use server';
 
+import type { Subscription } from '@prisma/client';
+
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { Subscription } from '@prisma/client';
+
 
 export const getSubscription = async ({ userId }: { userId: string }): Promise<Subscription | null> => {
   if (!userId) return null;
@@ -11,10 +13,7 @@ export const getSubscription = async ({ userId }: { userId: string }): Promise<S
     const subscription = await db.subscription.findFirst({
       where: {
         userId,
-        OR: [
-          { endDate: { gte: new Date() } },
-          { endDate: null }
-        ],
+        OR: [{ endDate: { gte: new Date() } }, { endDate: null }],
       },
     });
 

@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+
+import dynamic from 'next/dynamic';
+
 import { Button, Card, CardBody, CardHeader, Chip, Skeleton, useDisclosure } from '@nextui-org/react';
 import { Plus, Trash2 } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useUser } from '@clerk/nextjs';
@@ -17,6 +19,7 @@ import { freeLimits } from '@/utils/const';
 
 import { SubscriptionModal } from '@/components/SubscriptionModal';
 import { TransactionModal } from './TransactionModal';
+
 const TransactionList = dynamic(async () => (await import('./TransactionList')).TransactionList, { ssr: false });
 
 export const TransactionCard: React.FC = () => {
@@ -27,6 +30,7 @@ export const TransactionCard: React.FC = () => {
   const [transactionListLength, setTransactionListLength] = useState(0);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   const {
     isOpen: isSubscriptionOpen,
     onOpen: onSubscriptionOpen,
@@ -102,6 +106,7 @@ export const TransactionCard: React.FC = () => {
 
   const onDelete = async () => {
     const ok = await confirm();
+
     if (ok) {
       bulkDeleteMutation.mutateAsync(idList);
     }

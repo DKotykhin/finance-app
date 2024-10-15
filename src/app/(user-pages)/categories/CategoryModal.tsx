@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+
 import {
   Button,
   Checkbox,
@@ -12,16 +13,18 @@ import {
   ModalHeader,
   Tooltip,
 } from '@nextui-org/react';
-import { Controller, Mode, Resolver, SubmitHandler, useForm } from 'react-hook-form';
+import type { Mode, Resolver, SubmitHandler} from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Info } from 'lucide-react';
 
-import { CategoryFormTypes, categoryFormValidationSchema } from '@/validation/categoryValidation';
+import type { CategoryFormTypes} from '@/validation/categoryValidation';
+import { categoryFormValidationSchema } from '@/validation/categoryValidation';
 import { createCategory, updateCategory } from '@/actions/Category/_index';
 
-import { CategoryUpdate } from './CategoryList';
+import type { CategoryUpdate } from './CategoryList';
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -57,13 +60,13 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
 
   const createMutation = useMutation({
     mutationFn: ({ categoryData }: { categoryData: CategoryFormTypes }) => createCategory({ categoryData }),
-    onSuccess: (data) => {
+    onSuccess: data => {
       reset();
       onOpenChange();
       toast.success(`Category ${data.categoryName} created successfully`);
       queryClient.invalidateQueries({ queryKey: ['categories'] });
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
@@ -71,7 +74,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
   const updateMutation = useMutation({
     mutationFn: ({ categoryId, categoryData }: { categoryId: string; categoryData: CategoryFormTypes }) =>
       updateCategory({ categoryId, categoryData }),
-    onSuccess: (data) => {
+    onSuccess: data => {
       reset();
       onOpenChange();
       toast.success(`Category ${data.categoryName} updated successfully`);
@@ -87,7 +90,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
         }),
       ]);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
@@ -99,11 +102,13 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
     reset,
   } = useForm<CategoryFormTypes>(CategoryFormValidation);
 
-  const onSubmit: SubmitHandler<CategoryFormTypes> = async (categoryData) => {
+  const onSubmit: SubmitHandler<CategoryFormTypes> = async categoryData => {
     if (category?.categoryName === categoryData.categoryName && category?.hidden === categoryData.hidden) {
       toast.info('No changes detected');
+
       return;
     }
+    
     category?.id
       ? updateMutation.mutateAsync({ categoryId: category?.id as string, categoryData })
       : createMutation.mutateAsync({ categoryData });
@@ -118,7 +123,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
       isDismissable={false}
     >
       <ModalContent>
-        {(onClose) => (
+        {onClose => (
           <>
             <ModalHeader className="flex justify-center">
               {category?.id ? 'Update Category' : 'Create New Category'}

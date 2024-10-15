@@ -1,8 +1,10 @@
 'use server';
 
+import type { UserSettings } from '@prisma/client';
+
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { UserSettings } from '@prisma/client';
+
 
 import { checkAuth } from '../checkAuth';
 

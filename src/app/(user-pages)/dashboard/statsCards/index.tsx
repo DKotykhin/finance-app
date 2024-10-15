@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useMemo } from 'react';
+
 import { Card, CardBody, CardHeader, Chip } from '@nextui-org/react';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 import { format, startOfDay } from 'date-fns';
 import { Currency } from '@prisma/client';
 
-import { TransactionsWithStats } from '@/actions/Transaction/_index';
+import type { TransactionsWithStats } from '@/actions/Transaction/_index';
 import { cn, currencyMap } from '@/utils/_index';
 
 interface StatsCardsProps {
@@ -17,12 +18,14 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData }) => {
   const lastTransactions = useMemo(() => {
     if (!transactionData) return [];
     const sortedData = [...transactionData?.transactions].sort((a, b) => b.date.getTime() - a.date.getTime());
+
     return sortedData.slice(0, 5);
   }, [transactionData]);
 
   const minMaxTransaction = useMemo(() => {
     if (!transactionData) return {};
     const sortedData = [...transactionData?.transactions].sort((a, b) => a.amount - b.amount);
+
     return {
       min: sortedData[0]?.amount < 0 ? sortedData[0] : null,
       max: sortedData[sortedData.length - 1]?.amount > 0 ? sortedData[sortedData.length - 1] : null,
@@ -31,12 +34,15 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ transactionData }) => {
 
   const todaysBallance = useMemo(() => {
     if (!transactionData) return {};
+
     const value = transactionData.transactions
-      .filter((transaction) => transaction.date > startOfDay(new Date()))
+      .filter(transaction => transaction.date > startOfDay(new Date()))
       .reduce((acc, transaction) => acc + transaction.amount, 0);
+
     const currency = transactionData.transactions[0]?.account.currency || Currency.USD;
     const isHideDecimal = transactionData.transactions[0]?.account.hideDecimal;
     const newValue = isHideDecimal ? Math.round(value) : Math.round(value * 100) / 100;
+
     return { value: newValue, currency };
   }, [transactionData]);
 

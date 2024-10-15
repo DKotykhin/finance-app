@@ -2,9 +2,11 @@
 
 import { endOfDay, startOfDay } from 'date-fns';
 
+import type { Transaction } from '@prisma/client';
+
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { Transaction } from '@prisma/client';
+
 
 import { checkAuth } from '../checkAuth';
 

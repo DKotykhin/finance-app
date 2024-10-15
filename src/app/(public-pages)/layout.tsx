@@ -1,4 +1,5 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+
 import type { Metadata } from 'next';
 
 import Footer from '@/components/Footer';
@@ -15,7 +16,7 @@ export default function PublicPagesLayout({
   children: ReactNode;
 }>) {
   return (
-    <div className='flex flex-col h-screen'>
+    <div className="flex flex-col h-screen">
       <Header />
       <main className="px-4 lg:px-8 flex-grow">{children}</main>
       <Footer />

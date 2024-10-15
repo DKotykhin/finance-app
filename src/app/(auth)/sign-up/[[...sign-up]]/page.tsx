@@ -1,5 +1,7 @@
 import React from 'react';
+
 import Image from 'next/image';
+
 import { CircularProgress } from '@nextui-org/react';
 import { ClerkLoaded, ClerkLoading, SignUp } from '@clerk/nextjs';
 

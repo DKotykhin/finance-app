@@ -1,4 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
+
 import { ApiError } from '@/handlers/apiError';
 
 export const checkAuth = () => {
@@ -7,5 +8,6 @@ export const checkAuth = () => {
   if (!userId) {
     throw ApiError.unauthorized('Unauthorized');
   }
+
   return userId;
 };

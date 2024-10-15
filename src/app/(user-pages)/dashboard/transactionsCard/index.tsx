@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardBody, CardHeader, Radio, RadioGroup, Select, Selection, SelectItem } from '@nextui-org/react';
-import { BarChart3, LineChart, AreaChart } from 'lucide-react';
-import { TransactionCharts, UserSettings } from '@prisma/client';
-import { format } from 'date-fns';
 
-import { TransactionsWithStats } from '@/actions/Transaction/_index';
+import type { Selection } from '@nextui-org/react';
+import { Card, CardBody, CardHeader, Radio, RadioGroup, Select, SelectItem } from '@nextui-org/react';
+import { BarChart3, LineChart, AreaChart } from 'lucide-react';
+import { format } from 'date-fns';
+import type { UserSettings } from '@prisma/client';
+import { TransactionCharts } from '@prisma/client';
+
+import type { TransactionsWithStats } from '@/actions/Transaction/_index';
 
 import { TransactionChart } from './TransactionsChart';
 import { Period } from '../const';
@@ -31,6 +34,7 @@ export const TransactionsCard: React.FC<TransactionsCardProps> = ({
   const [chartView, setChartView] = useState<Selection>(
     new Set([userSettingsData?.dashboardTransactionsChart || TransactionCharts.BarChart])
   );
+
   const [selectedPeriod, setSelectedPeriod] = useState<Period>(Period.Current);
 
   return (

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+
 import {
   Button,
   Checkbox,
@@ -14,17 +15,20 @@ import {
   SelectItem,
   Tooltip,
 } from '@nextui-org/react';
-import { Controller, Mode, Resolver, SubmitHandler, useForm } from 'react-hook-form';
+import type { Mode, Resolver, SubmitHandler} from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Info } from 'lucide-react';
 
-import { AccountFormTypes, accountFormValidationSchema } from '@/validation/accountValidation';
-import { createAccount, updateAccount } from '@/actions/Account/_index';
 import { Currency } from '@prisma/client';
 
-import { AccountUpdate } from './AccountList';
+import type { AccountFormTypes} from '@/validation/accountValidation';
+import { accountFormValidationSchema } from '@/validation/accountValidation';
+import { createAccount, updateAccount } from '@/actions/Account/_index';
+
+import type { AccountUpdate } from './AccountList';
 
 interface AccountModalProps {
   isOpen: boolean;
@@ -64,13 +68,13 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
 
   const createMutation = useMutation({
     mutationFn: ({ accountData }: { accountData: AccountFormTypes }) => createAccount({ accountData }),
-    onSuccess: (data) => {
+    onSuccess: data => {
       reset();
       onOpenChange();
       toast.success(`Account ${data.accountName} created successfully`);
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
@@ -78,7 +82,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
   const updateMutation = useMutation({
     mutationFn: ({ accountId, accountData }: { accountId: string; accountData: AccountFormTypes }) =>
       updateAccount({ accountId, accountData }),
-    onSuccess: (data) => {
+    onSuccess: data => {
       reset();
       onOpenChange();
       toast.success(`Account ${data.accountName} updated successfully`);
@@ -95,7 +99,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
         }),
       ]);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
@@ -107,7 +111,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
     reset,
   } = useForm<AccountFormTypes>(AccountFormValidation);
 
-  const onSubmit: SubmitHandler<AccountFormTypes> = async (accountData) => {
+  const onSubmit: SubmitHandler<AccountFormTypes> = async accountData => {
     if (
       account?.accountName === accountData.accountName &&
       account?.currency === accountData.currency &&
@@ -115,8 +119,10 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
       account?.isDefault === accountData.isDefault
     ) {
       toast.info('No changes detected');
+
       return;
     }
+
     account?.id
       ? updateMutation.mutateAsync({ accountId: account?.id as string, accountData })
       : createMutation.mutateAsync({ accountData });
@@ -131,7 +137,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
       isDismissable={false}
     >
       <ModalContent>
-        {(onClose) => (
+        {onClose => (
           <>
             <ModalHeader className="flex justify-center">
               {account?.id ? 'Update Account' : 'Create New Account'}
@@ -167,7 +173,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
                       labelPlacement="outside"
                       defaultSelectedKeys={[account?.currency || Currency.USD]}
                     >
-                      {Object.values(Currency).map((currency) => (
+                      {Object.values(Currency).map(currency => (
                         <SelectItem key={currency}>{currency}</SelectItem>
                       ))}
                     </Select>

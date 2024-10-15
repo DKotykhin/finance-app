@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   CartesianGrid,
   XAxis,
@@ -13,7 +14,8 @@ import {
   AreaChart,
   Area,
 } from 'recharts';
-import { Currency, Transaction, TransactionCharts } from '@prisma/client';
+import type { Currency, Transaction} from '@prisma/client';
+import { TransactionCharts } from '@prisma/client';
 import { format } from 'date-fns';
 
 import { Period } from '../const';
@@ -35,17 +37,15 @@ export const TransactionChart: React.FC<TransactionChartProps> = ({
   selectedPeriod,
   selectedView,
 }) => {
-  const currentData = currentTransactions?.map((transaction) => ({
+  const currentData = currentTransactions?.map(transaction => ({
     date: format(transaction.date, 'dd MMM'),
-    // amount: transaction.amount,
     ...(transaction.amount > 0
       ? { income: transaction.account.hideDecimal ? Math.round(transaction.amount) : transaction.amount }
       : { expenses: transaction.account.hideDecimal ? -Math.round(transaction.amount) : -transaction.amount }),
   }));
 
-  const previousData = previousTransactions?.map((transaction) => ({
+  const previousData = previousTransactions?.map(transaction => ({
     date: format(transaction.date, 'dd MMM'),
-    // amount: transaction.amount,
     ...(transaction.amount > 0
       ? { income: transaction.account.hideDecimal ? Math.round(transaction.amount) : transaction.amount }
       : { expenses: transaction.account.hideDecimal ? -Math.round(transaction.amount) : -transaction.amount }),

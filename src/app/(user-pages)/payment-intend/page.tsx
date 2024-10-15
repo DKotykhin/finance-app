@@ -1,7 +1,9 @@
 import React from 'react';
+
+import Link from 'next/link';
+
 import { currentUser } from '@clerk/nextjs/server';
 import { Button, Skeleton } from '@nextui-org/react';
-import Link from 'next/link';
 
 import { PaymentSettings } from '../settings/PaymentSettings';
 

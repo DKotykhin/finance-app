@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+
+import dynamic from 'next/dynamic';
+
 import { Button, Card, CardBody, CardHeader, Chip, Skeleton, useDisclosure } from '@nextui-org/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import dynamic from 'next/dynamic';
 
 import { bulkDeleteCategories, getCategories } from '@/actions/Category/_index';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
@@ -15,6 +17,7 @@ import { freeLimits } from '@/utils/_index';
 import { SubscriptionModal } from '@/components/SubscriptionModal';
 
 import { CategoryModal } from './CategoryModal';
+
 const CategoryList = dynamic(async () => (await import('./CategoryList')).CategoryList, { ssr: false });
 
 export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) => {
@@ -22,6 +25,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
   const [categoryListLength, setCategoryListLength] = useState(0);
 
   const { isOpen: isCategoryOpen, onOpen: onCategoryOpen, onOpenChange: onCategoryOpenChange } = useDisclosure();
+
   const {
     isOpen: isSubscriptionOpen,
     onOpen: onSubscriptionOpen,
@@ -80,6 +84,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
 
   const onDelete = async () => {
     const ok = await confirm();
+
     if (ok) {
       bulkDeleteMutation.mutateAsync(idList);
     }

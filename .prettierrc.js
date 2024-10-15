@@ -5,4 +5,11 @@ module.exports = {
   singleQuote: true,
   printWidth: 120,
   quoteProps: 'consistent',
+
+  arrowParens: "avoid",
+  bracketSpacing: true,
+  htmlWhitespaceSensitivity: "css",
+  bracketSameLine: false,
+  proseWrap: "preserve",
+  useTabs: false
 };

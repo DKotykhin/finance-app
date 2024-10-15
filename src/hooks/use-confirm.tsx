@@ -10,11 +10,10 @@ export const useConfirm = ({
   title: string;
   message: string;
 }): [() => JSX.Element, () => Promise<unknown>] => {
-  // eslint-disable-next-line no-unused-vars
   const [promise, setPromise] = useState<{ resolve: (value: boolean) => void } | null>(null);
 
   const confirm = () =>
-    new Promise<unknown>((resolve) => {
+    new Promise<unknown>(resolve => {
       setPromise({ resolve });
     });
 
@@ -46,5 +45,6 @@ export const useConfirm = ({
       </ModalContent>
     </Modal>
   );
+
   return [ConfirmModal, confirm];
 };

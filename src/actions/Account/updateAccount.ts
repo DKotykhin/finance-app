@@ -1,9 +1,12 @@
 'use server';
 
+import type { Account } from '@prisma/client';
+
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { Account } from '@prisma/client';
-import { AccountFormTypes, accountValidate } from '@/validation/accountValidation';
+import type { AccountFormTypes} from '@/validation/accountValidation';
+import { accountValidate } from '@/validation/accountValidation';
+
 import { checkAuth } from '../checkAuth';
 
 export const updateAccount = async ({
@@ -19,6 +22,7 @@ export const updateAccount = async ({
   if (!accountId) {
     throw ApiError.badRequest('Account ID is required');
   }
+  
   try {
     if (accountData.isDefault) {
       await db.account.updateMany({

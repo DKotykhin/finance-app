@@ -1,14 +1,18 @@
 'use server';
 
+import type { Account } from '@prisma/client';
+
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { Account } from '@prisma/client';
-import { AccountFormTypes, accountValidate } from '@/validation/accountValidation';
+import { accountValidate } from '@/validation/accountValidation';
+
+import type { AccountFormTypes} from '@/validation/accountValidation';
 
 import { checkAuth } from '../checkAuth';
 
 export const createAccount = async ({ accountData }: { accountData: AccountFormTypes }): Promise<Account> => {
   const userId = checkAuth();
+  
   await accountValidate(accountData);
 
   try {

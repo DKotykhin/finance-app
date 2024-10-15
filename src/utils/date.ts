@@ -1,5 +1,5 @@
 import { getLocalTimeZone, parseDate } from '@internationalized/date';
-import { DateValue } from '@react-types/datepicker';
+import type { DateValue } from '@react-types/datepicker';
 import { format } from 'date-fns';
 
 export const valueToDate = (value: DateValue): Date => {

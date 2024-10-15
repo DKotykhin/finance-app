@@ -1,12 +1,14 @@
 'use client';
 
 import React from 'react';
+
 import { Badge, Button, Chip, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 import { format } from 'date-fns';
 
-import { cn, currencyMap, numberWithSpaces } from '@/utils/_index';
-import { ExtendedTransaction } from '@/actions/Transaction/getTransactions';
 import { TriangleAlert } from 'lucide-react';
+
+import { cn, currencyMap, numberWithSpaces } from '@/utils/_index';
+import type { ExtendedTransaction } from '@/actions/Transaction/getTransactions';
 
 interface ViewModalProps {
   isOpen: boolean;
@@ -18,7 +20,7 @@ export const ViewModal: React.FC<ViewModalProps> = ({ isOpen, onOpenChange, tran
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
-        {(onClose) => (
+        {onClose => (
           <>
             <ModalHeader className="flex justify-center">{'Transaction Details'}</ModalHeader>
             <ModalBody>

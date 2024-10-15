@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Pie,
   PieChart,
@@ -14,7 +15,7 @@ import {
 } from 'recharts';
 import { CategoriesCharts, TransactionType } from '@prisma/client';
 
-import { TransactionsByCategory } from '@/actions/Transaction/_index';
+import type { TransactionsByCategory } from '@/actions/Transaction/_index';
 import { Period } from '../const';
 
 interface CategoriesChartProps {
@@ -32,24 +33,28 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
   selectedView,
   selectedFlow,
 }) => {
-  const incomeCurrentData = currentTransactionByCategory?.income.map((transaction) => ({
+  const incomeCurrentData = currentTransactionByCategory?.income.map(transaction => ({
     name: transaction.categoryName,
     value: transaction.amount,
   }));
-  const expensesCurrentData = currentTransactionByCategory?.expenses.map((transaction) => ({
+
+  const expensesCurrentData = currentTransactionByCategory?.expenses.map(transaction => ({
     name: transaction.categoryName,
     value: transaction.amount,
   }));
-  const incomePreviousData = previousTransactionByCategory?.income.map((transaction) => ({
+
+  const incomePreviousData = previousTransactionByCategory?.income.map(transaction => ({
     name: transaction.categoryName,
     value: transaction.amount,
   }));
-  const expensesPreviousData = previousTransactionByCategory?.expenses.map((transaction) => ({
+
+  const expensesPreviousData = previousTransactionByCategory?.expenses.map(transaction => ({
     name: transaction.categoryName,
     value: transaction.amount,
   }));
 
   const RADIAN = Math.PI / 180;
+
   const customizedLabel = ({
     cx,
     cy,
@@ -85,6 +90,7 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
         </div>
       );
     }
+
     return null;
   };
 
@@ -128,16 +134,16 @@ export const CategoriesChart: React.FC<CategoriesChartProps> = ({
             data={
               selectedFlow === TransactionType.Income
                 ? selectedPeriod === Period.Previous
-                  ? incomePreviousData?.map((data) => ({ ...data, fill: '#2563eb', label: data.name, type: 'Income' }))
-                  : incomeCurrentData?.map((data) => ({ ...data, fill: '#2563eb', label: data.name, type: 'Income' }))
+                  ? incomePreviousData?.map(data => ({ ...data, fill: '#2563eb', label: data.name, type: 'Income' }))
+                  : incomeCurrentData?.map(data => ({ ...data, fill: '#2563eb', label: data.name, type: 'Income' }))
                 : selectedPeriod === Period.Previous
-                  ? expensesPreviousData?.map((data) => ({
+                  ? expensesPreviousData?.map(data => ({
                       ...data,
                       fill: '#ef4444',
                       label: data.name,
                       type: 'Expenses',
                     }))
-                  : expensesCurrentData?.map((data) => ({
+                  : expensesCurrentData?.map(data => ({
                       ...data,
                       fill: '#ef4444',
                       label: data.name,

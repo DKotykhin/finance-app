@@ -1,6 +1,8 @@
 import React from 'react';
+
 import Link from 'next/link';
 import Image from 'next/image';
+
 import { SignInButton, SignedIn, SignedOut, UserButton, ClerkLoaded, ClerkLoading } from '@clerk/nextjs';
 import { Loader2 } from 'lucide-react';
 import { auth } from '@clerk/nextjs/server';

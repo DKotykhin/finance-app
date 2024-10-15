@@ -1,13 +1,17 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
-import { EyeOff, Loader2, Pencil, SearchIcon, Trash2 } from 'lucide-react';
-import { toast } from 'react-toastify';
-import { format } from 'date-fns';
+import type { Selection } from '@nextui-org/react';
 import {
-  Selection,
+  Badge,
+  Button,
+  Input,
+  Pagination,
+  Select,
+  SelectItem,
+  Spinner,
   Table,
   TableHeader,
   TableColumn,
@@ -15,12 +19,19 @@ import {
   TableRow,
   TableCell,
   getKeyValue,
+  useDisclosure,
 } from '@nextui-org/react';
-import { SortOrder, UserSettings } from '@prisma/client';
+import { EyeOff, Loader2, Pencil, SearchIcon, Trash2 } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { format } from 'date-fns';
 
-import { deleteAccount, ExtendedAccount } from '@/actions/Account/_index';
+import type { UserSettings } from '@prisma/client';
+import { SortOrder } from '@prisma/client';
+
+import type { ExtendedAccount } from '@/actions/Account/_index';
+import { deleteAccount } from '@/actions/Account/_index';
 import { useConfirm } from '@/hooks/use-confirm';
-import { AccountFormTypes } from '@/validation/accountValidation';
+import type { AccountFormTypes } from '@/validation/accountValidation';
 import { cn, currencyMap, numberWithSpaces, rowsPerPageArray } from '@/utils/_index';
 
 import { AccountModal } from './AccountModal';
@@ -31,9 +42,7 @@ interface AccountListProps {
   isAccountLoading: boolean;
   userSettingsData?: UserSettings | null;
   isUserSettingsLoading: boolean;
-  // eslint-disable-next-line no-unused-vars
   selectedKeysFn: (keys: any) => void;
-  // eslint-disable-next-line no-unused-vars
   accountListLengthFn: (length: number) => void;
 }
 
@@ -57,10 +66,12 @@ export const AccountList: React.FC<AccountListProps> = ({
   const [account, setAccount] = useState<AccountUpdate | null>(null);
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
+
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: userSettingsData?.accountSortField || 'createdAt',
     direction: userSettingsData?.accountSortOrder || SortOrder.descending,
   });
+
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [accountListLength, setAccountListLength] = useState(0);
@@ -87,13 +98,14 @@ export const AccountList: React.FC<AccountListProps> = ({
       toast.success('Account deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
 
   const handleClick = async (id: string) => {
     const ok = await confirm();
+
     if (ok) {
       deleteMutation.mutateAsync(id);
     }
@@ -125,7 +137,7 @@ export const AccountList: React.FC<AccountListProps> = ({
 
   const onSelectedKeys = (keys: Selection) => {
     setSelectedKeys(keys);
-    selectedKeysFn(keys === 'all' ? tableContent?.map((account) => account.id) : Array.from(keys));
+    selectedKeysFn(keys === 'all' ? tableContent?.map(account => account.id) : Array.from(keys));
   };
 
   const tableContent = useMemo(() => {
@@ -133,13 +145,14 @@ export const AccountList: React.FC<AccountListProps> = ({
     const end = start + +rowsPerPage;
 
     const filteredData =
-      accountData?.filter((account) => account.accountName.toLowerCase().includes(filterValue.toLowerCase())) || [];
+      accountData?.filter(account => account.accountName.toLowerCase().includes(filterValue.toLowerCase())) || [];
 
     const dataToUse = filterValue ? filteredData : accountData || [];
+
     setPages(Math.ceil(dataToUse.length / +rowsPerPage));
     setAccountListLength(dataToUse.length);
 
-    const dataToUseWithBallance = dataToUse.map((account) => ({
+    const dataToUseWithBallance = dataToUse.map(account => ({
       ...account,
       balance: account.transactions.reduce((acc, item) => item.amount + acc, 0),
     }));
@@ -153,7 +166,7 @@ export const AccountList: React.FC<AccountListProps> = ({
         return sortDescriptor.direction === 'descending' ? -cmp : cmp;
       })
       .slice(start, end)
-      .map((account) => ({
+      .map(account => ({
         ...account,
         accountNameValue: account.accountName,
         currencyValue: account.currency,
@@ -215,7 +228,7 @@ export const AccountList: React.FC<AccountListProps> = ({
         onChange={onRowsPerPageChange}
         isLoading={isUserSettingsLoading}
       >
-        {rowsPerPageArray.map((row) => (
+        {rowsPerPageArray.map(row => (
           <SelectItem key={row.key}>{row.label}</SelectItem>
         ))}
       </Select>
@@ -231,7 +244,7 @@ export const AccountList: React.FC<AccountListProps> = ({
         color="secondary"
         page={page}
         total={pages}
-        onChange={(page) => setPage(page)}
+        onChange={page => setPage(page)}
       />
     </div>
   );
@@ -248,12 +261,12 @@ export const AccountList: React.FC<AccountListProps> = ({
         selectedKeys={selectedKeys}
         onSelectionChange={onSelectedKeys}
         sortDescriptor={sortDescriptor}
-        onSortChange={(descriptor) => setSortDescriptor(descriptor as SortDescriptor)}
+        onSortChange={descriptor => setSortDescriptor(descriptor as SortDescriptor)}
         classNames={{ wrapper: pages > 1 ? 'min-h-[370px]' : '' }}
         className="hidden sm:block"
       >
         <TableHeader columns={columns}>
-          {(column) => (
+          {column => (
             <TableColumn
               key={column.key}
               align={column.key === 'accountName' || column.key === 'balance' ? 'start' : 'center'}
@@ -269,8 +282,8 @@ export const AccountList: React.FC<AccountListProps> = ({
           isLoading={isAccountLoading}
           loadingContent={<Spinner label="Loading..." />}
         >
-          {(item) => (
-            <TableRow key={item.id}>{(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}</TableRow>
+          {item => (
+            <TableRow key={item.id}>{columnKey => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}</TableRow>
           )}
         </TableBody>
       </Table>
@@ -284,7 +297,7 @@ export const AccountList: React.FC<AccountListProps> = ({
         <div className="sm:hidden">
           <TopContent />
           {tableContent?.length > 0 ? (
-            tableContent?.map((account) => (
+            tableContent?.map(account => (
               <div key={account.id} className="bg-white shadow-md rounded-lg py-4 px-2 mb-4">
                 <div className="flex gap-2 justify-between items-center">
                   <div>{account.accountName}</div>

@@ -1,7 +1,6 @@
-/* eslint-disable no-unused-vars */
 import { create } from 'zustand';
-import { RangeValue } from '@react-types/shared';
-import { DateValue } from '@react-types/datepicker';
+import type { RangeValue } from '@react-types/shared';
+import type { DateValue } from '@react-types/datepicker';
 
 type DashboardState = {
   accountId: string;

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-import { TransactionCreate } from '../src/actions/Transaction/createTransaction';
+import type { TransactionCreate } from '../src/actions/Transaction/createTransaction';
 import { ApiError } from '../src/handlers/apiError';
 
 import { accountData, categoryData, loremWords, transactionAmount, userId } from './seedConst';
@@ -15,7 +15,7 @@ async function main() {
       prisma.transaction.deleteMany(),
     ]).then(async () => [
       await prisma.category.createMany({
-        data: categoryData.map((category) => {
+        data: categoryData.map(category => {
           return {
             userId,
             ...category,
@@ -24,7 +24,7 @@ async function main() {
         skipDuplicates: true,
       }),
       await prisma.account.createMany({
-        data: accountData.map((account) => {
+        data: accountData.map(account => {
           return {
             userId,
             ...account,
@@ -45,7 +45,7 @@ async function getAccountIds() {
     },
   });
 
-  return accounts.map((account) => account.id);
+  return accounts.map(account => account.id);
 }
 
 async function getCategoryIds() {
@@ -55,7 +55,7 @@ async function getCategoryIds() {
     },
   });
 
-  return categories.map((category) => category.id);
+  return categories.map(category => category.id);
 }
 
 function getRandomValueBetween(min: number, max: number) {
@@ -68,9 +68,11 @@ function getRandomValueBetween(min: number, max: number) {
 function generateRandomDate() {
   const currentDate = new Date();
   const daysAgo60 = new Date();
+
   daysAgo60.setDate(currentDate.getDate() - 60);
   const randomDays = Math.floor(Math.random() * 61);
   const randomDate = new Date();
+
   randomDate.setDate(currentDate.getDate() - randomDays);
 
   return randomDate;
@@ -81,6 +83,7 @@ function generateLoremIpsumText(wordCount: number) {
 
   for (let i = 0; i < wordCount; i++) {
     const randomIndex = Math.floor(Math.random() * loremWords.length);
+    
     loremIpsumText += loremWords[randomIndex] + ' ';
   }
 

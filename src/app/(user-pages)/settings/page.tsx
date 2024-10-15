@@ -1,7 +1,8 @@
 import React from 'react';
+
 import { auth } from '@clerk/nextjs/server';
 import { Card, CardBody, CardHeader } from '@nextui-org/react';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 
 import { settingsMetadata } from '@/metadata/metadata';
 import { PagesSettings } from './PagesSettings';

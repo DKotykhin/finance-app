@@ -1,15 +1,16 @@
 import React from 'react';
+
 import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/react';
 import { format } from 'date-fns';
 import { HandCoins, TrendingDown, TrendingUp } from 'lucide-react';
 import CountUp from 'react-countup';
-import { RangeValue } from '@react-types/shared';
-import { DateValue } from '@react-types/datepicker';
+import type { RangeValue } from '@react-types/shared';
+import type { DateValue } from '@react-types/datepicker';
 import { Currency } from '@prisma/client';
 
 import { valueToDate, currencyMap, cn } from '@/utils/_index';
-import { TransactionsWithStats } from '@/actions/Transaction/_index';
-import { ExtendedAccount } from '@/actions/Account/_index';
+import type { TransactionsWithStats } from '@/actions/Transaction/_index';
+import type { ExtendedAccount } from '@/actions/Account/_index';
 
 import { CompareMessage } from './CompareMessage';
 

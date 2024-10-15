@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { Button, Select, SelectItem } from '@nextui-org/react';
 import { RotateCcw, Save } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CategoriesCharts, SortOrder, TransactionCharts, UserSettings } from '@prisma/client';
+import type { SortOrder, UserSettings } from '@prisma/client';
+import { CategoriesCharts, TransactionCharts } from '@prisma/client';
 
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
 import { upsertUserSettings } from '@/actions/UserSettings/upsertUserSettings';
@@ -19,17 +21,20 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
     sortField: '',
     sortOrder: '',
   });
+
   const [accountSettings, setAccountSettings] = useState({
     rowsPerPage: '',
     sortField: '',
     sortOrder: '',
   });
+
   const [transactionSettings, setTransactionSettings] = useState({
     rowsPerPage: '',
     period: 30,
     sortField: '',
     sortOrder: '',
   });
+
   const [dashboardSettings, setDashboardSettings] = useState({
     period: 30,
     transactionsView: '',
@@ -51,32 +56,32 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
       toast.success(`User Settings updated successfully`);
       queryClient.invalidateQueries({ queryKey: ['userSettings'] });
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
 
   const initialSettings = useCallback(() => {
-    setCategorySettings((prevState) => ({
+    setCategorySettings(prevState => ({
       ...prevState,
       rowsPerPage: userSettingsData?.categoryRowsPerPage || '5',
       sortField: userSettingsData?.categorySortField || categoryFieldArray[0].key,
       sortOrder: userSettingsData?.categorySortOrder || sortOrderArray[0].key,
     }));
-    setAccountSettings((prevState) => ({
+    setAccountSettings(prevState => ({
       ...prevState,
       rowsPerPage: userSettingsData?.accountRowsPerPage || '5',
       sortField: userSettingsData?.accountSortField || accountFieldArray[0].key,
       sortOrder: userSettingsData?.accountSortOrder || sortOrderArray[0].key,
     }));
-    setTransactionSettings((prevState) => ({
+    setTransactionSettings(prevState => ({
       ...prevState,
       rowsPerPage: userSettingsData?.transactionRowsPerPage || '5',
       period: userSettingsData?.transactionPeriod || 30,
       sortField: userSettingsData?.transactionSortField || transactionFieldArray[0].key,
       sortOrder: userSettingsData?.transactionSortOrder || sortOrderArray[0].key,
     }));
-    setDashboardSettings((prevState) => ({
+    setDashboardSettings(prevState => ({
       ...prevState,
       period: userSettingsData?.dashboardPeriod || 30,
       transactionsView: userSettingsData?.dashboardTransactionsChart || TransactionCharts.BarChart,
@@ -151,7 +156,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             label="Select default period"
             className="w-full sm:max-w-[240px]"
             selectedKeys={[dashboardSettings.period.toString()]}
-            onChange={(e) =>
+            onChange={e =>
               setDashboardSettings({
                 ...dashboardSettings,
                 period: +e.target.value,
@@ -159,7 +164,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             }
             isLoading={isGetLoading}
           >
-            {periodArray.map((value) => (
+            {periodArray.map(value => (
               <SelectItem key={value}>{value.toString()}</SelectItem>
             ))}
           </Select>
@@ -168,7 +173,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               label="Select default transactions view"
               className="w-full sm:max-w-[240px]"
               selectedKeys={[dashboardSettings.transactionsView]}
-              onChange={(e) =>
+              onChange={e =>
                 setDashboardSettings({
                   ...dashboardSettings,
                   transactionsView: e.target.value,
@@ -176,7 +181,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               }
               isLoading={isGetLoading}
             >
-              {Object.values(TransactionCharts).map((row) => (
+              {Object.values(TransactionCharts).map(row => (
                 <SelectItem key={row}>{row}</SelectItem>
               ))}
             </Select>
@@ -184,7 +189,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               label="Select default categories view"
               className="w-full sm:max-w-[240px]"
               selectedKeys={[dashboardSettings.categoriesView]}
-              onChange={(e) =>
+              onChange={e =>
                 setDashboardSettings({
                   ...dashboardSettings,
                   categoriesView: e.target.value,
@@ -192,7 +197,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               }
               isLoading={isGetLoading}
             >
-              {Object.values(CategoriesCharts).map((row) => (
+              {Object.values(CategoriesCharts).map(row => (
                 <SelectItem key={row}>{row}</SelectItem>
               ))}
             </Select>
@@ -206,7 +211,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             label="Select default period"
             className="w-full sm:max-w-[240px]"
             selectedKeys={[transactionSettings.period.toString()]}
-            onChange={(e) =>
+            onChange={e =>
               setTransactionSettings({
                 ...transactionSettings,
                 period: +e.target.value,
@@ -214,7 +219,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             }
             isLoading={isGetLoading}
           >
-            {periodArray.map((value) => (
+            {periodArray.map(value => (
               <SelectItem key={value}>{value.toString()}</SelectItem>
             ))}
           </Select>
@@ -222,7 +227,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             label="Select default sort field"
             className="w-full sm:max-w-[240px]"
             selectedKeys={[transactionSettings.sortField]}
-            onChange={(e) =>
+            onChange={e =>
               setTransactionSettings({
                 ...transactionSettings,
                 sortField: e.target.value,
@@ -230,7 +235,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             }
             isLoading={isGetLoading}
           >
-            {transactionFieldArray.map((row) => (
+            {transactionFieldArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
             ))}
           </Select>
@@ -240,7 +245,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             label="Select default rows per page"
             className="w-full sm:max-w-[240px]"
             selectedKeys={[transactionSettings.rowsPerPage]}
-            onChange={(e) =>
+            onChange={e =>
               setTransactionSettings({
                 ...transactionSettings,
                 rowsPerPage: e.target.value,
@@ -248,7 +253,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             }
             isLoading={isGetLoading}
           >
-            {rowsPerPageArray.map((row) => (
+            {rowsPerPageArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
             ))}
           </Select>
@@ -257,7 +262,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             label="Select default sort order"
             className="w-full sm:max-w-[240px]"
             selectedKeys={[transactionSettings.sortOrder]}
-            onChange={(e) =>
+            onChange={e =>
               setTransactionSettings({
                 ...transactionSettings,
                 sortOrder: e.target.value as SortOrder,
@@ -265,7 +270,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             }
             isLoading={isGetLoading}
           >
-            {sortOrderArray.map((row) => (
+            {sortOrderArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
             ))}
           </Select>
@@ -279,7 +284,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             label="Select default rows per page"
             className="w-full sm:max-w-[240px]"
             selectedKeys={[accountSettings.rowsPerPage]}
-            onChange={(e) =>
+            onChange={e =>
               setAccountSettings({
                 ...accountSettings,
                 rowsPerPage: e.target.value,
@@ -287,7 +292,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             }
             isLoading={isGetLoading}
           >
-            {rowsPerPageArray.map((row) => (
+            {rowsPerPageArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
             ))}
           </Select>
@@ -296,7 +301,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               label="Select default sort field"
               className="w-full sm:max-w-[240px]"
               selectedKeys={[accountSettings.sortField]}
-              onChange={(e) =>
+              onChange={e =>
                 setAccountSettings({
                   ...accountSettings,
                   sortField: e.target.value,
@@ -304,7 +309,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               }
               isLoading={isGetLoading}
             >
-              {accountFieldArray.map((row) => (
+              {accountFieldArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
               ))}
             </Select>
@@ -312,7 +317,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               label="Select default sort order"
               className="w-full sm:max-w-[240px]"
               selectedKeys={[accountSettings.sortOrder]}
-              onChange={(e) =>
+              onChange={e =>
                 setAccountSettings({
                   ...accountSettings,
                   sortOrder: e.target.value as SortOrder,
@@ -320,7 +325,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               }
               isLoading={isGetLoading}
             >
-              {sortOrderArray.map((row) => (
+              {sortOrderArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
               ))}
             </Select>
@@ -335,7 +340,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             label="Select default rows per page"
             className="w-full sm:max-w-[240px]"
             selectedKeys={[categorySettings.rowsPerPage]}
-            onChange={(e) =>
+            onChange={e =>
               setCategorySettings({
                 ...categorySettings,
                 rowsPerPage: e.target.value,
@@ -343,7 +348,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
             }
             isLoading={isGetLoading}
           >
-            {rowsPerPageArray.map((row) => (
+            {rowsPerPageArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
             ))}
           </Select>
@@ -352,7 +357,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               label="Select default sort field"
               className="w-full sm:max-w-[240px]"
               selectedKeys={[categorySettings.sortField]}
-              onChange={(e) =>
+              onChange={e =>
                 setCategorySettings({
                   ...categorySettings,
                   sortField: e.target.value,
@@ -360,7 +365,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               }
               isLoading={isGetLoading}
             >
-              {categoryFieldArray.map((row) => (
+              {categoryFieldArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
               ))}
             </Select>
@@ -368,7 +373,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               label="Select default sort order"
               className="w-full sm:max-w-[240px]"
               selectedKeys={[categorySettings.sortOrder]}
-              onChange={(e) =>
+              onChange={e =>
                 setCategorySettings({
                   ...categorySettings,
                   sortOrder: e.target.value as SortOrder,
@@ -376,7 +381,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
               }
               isLoading={isGetLoading}
             >
-              {sortOrderArray.map((row) => (
+              {sortOrderArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
               ))}
             </Select>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Badge,
@@ -12,31 +13,33 @@ import {
   SelectItem,
   Skeleton,
   Spinner,
-  Tooltip,
-  useDisclosure,
-} from '@nextui-org/react';
-import { EyeIcon, Loader2, Pencil, Trash2, TriangleAlert } from 'lucide-react';
-import { toast } from 'react-toastify';
-import { differenceInDays, format, subDays, isToday } from 'date-fns';
-import { useUser } from '@clerk/nextjs';
-import {
-  Selection,
   Table,
   TableHeader,
   TableColumn,
   TableBody,
   TableRow,
   TableCell,
+  Tooltip,
   getKeyValue,
+  useDisclosure,
 } from '@nextui-org/react';
-import { DateValue, parseAbsoluteToLocal } from '@internationalized/date';
-import { SortOrder, UserSettings } from '@prisma/client';
+import { EyeIcon, Loader2, Pencil, Trash2, TriangleAlert } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { differenceInDays, format, subDays, isToday } from 'date-fns';
+import { useUser } from '@clerk/nextjs';
+import type { Selection} from '@nextui-org/react';
 
+import type { DateValue} from '@internationalized/date';
+import { parseAbsoluteToLocal } from '@internationalized/date';
+import type { UserSettings } from '@prisma/client';
+import { SortOrder } from '@prisma/client';
+
+import type {
+  ExtendedTransaction,
+  TransactionCreate} from '@/actions/Transaction/_index';
 import {
   deleteTransaction,
-  ExtendedTransaction,
-  getTransactions,
-  TransactionCreate,
+  getTransactions
 } from '@/actions/Transaction/_index';
 import { getAccounts } from '@/actions/Account/_index';
 import { getCategories } from '@/actions/Category/_index';
@@ -51,9 +54,7 @@ import { ViewModal } from './ViewModal';
 interface TransactionListProps {
   userSettingsData?: UserSettings | null;
   isUserSettingsLoading: boolean;
-  // eslint-disable-next-line no-unused-vars
   selectedKeysFn: (keys: any) => void;
-  // eslint-disable-next-line no-unused-vars
   transactionListLengthFn: (length: number) => void;
 }
 
@@ -86,14 +87,17 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   const [updateTransaction, setUpdateTransaction] = useState<TransactionUpdate | null>(null);
   const [transaction, setTransaction] = useState<ExtendedTransaction | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
+
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: userSettingsData?.transactionSortField || 'date',
     direction: userSettingsData?.transactionSortOrder || SortOrder.descending,
   });
+
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [transactionListLength, setTransactionListLength] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(userSettingsData?.transactionRowsPerPage || '5');
+
   // to do: move to store
   const [dateValue, setDateValue] = useState<{ start: DateValue; end: DateValue }>({
     start: parseAbsoluteToLocal(subDays(new Date(), 30).toISOString()),
@@ -117,6 +121,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         start: parseAbsoluteToLocal(subDays(new Date(), (userSettingsData?.transactionPeriod ?? 30) - 1).toISOString()),
       }));
     }
+
     if (endDate) {
       setDateValue((v) => ({ ...v, end: dateToValue(endDate) }));
     } else {
@@ -198,6 +203,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
 
   const handleClick = async (id: string) => {
     const ok = await confirm();
+
     if (ok) {
       deleteMutation.mutateAsync(id);
     }
@@ -222,6 +228,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     setDateValue((v) => ({ ...v, start: value }));
     setStartDate(valueToDate(value));
   };
+  
   const onChangeEndDateValue = (value: DateValue) => {
     setDateValue((v) => ({ ...v, end: value }));
     setEndDate(valueToDate(value));
@@ -235,12 +242,14 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       ?.filter((transaction) => {
         const accountMatch =
           Array.from(accountValue).toString() === 'all' || new Set(Array.from(accountValue)).has(transaction.accountId);
+
         return accountMatch;
       })
       .filter((transaction) => {
         const categoryMatch =
           Array.from(categoryValue).toString() === 'all' ||
           (transaction.categoryId ? new Set(Array.from(categoryValue)).has(transaction.categoryId) : false);
+
         return categoryMatch;
       });
 
@@ -251,6 +260,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       amountValue: transaction.amount,
       dateValue: transaction.date,
     }));
+
     const dataToUse = coercedTransactionData || [];
 
     setPages(Math.ceil(dataToUse.length / +rowsPerPage));

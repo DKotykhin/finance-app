@@ -1,4 +1,4 @@
-import { SortOrder } from '@prisma/client';
+import type { SortOrder } from '@prisma/client';
 
 export const categoryFieldArray: { key: string; label: string }[] = [
   { key: 'createdAt', label: 'Date Created' },

@@ -1,17 +1,20 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@nextui-org/react';
+
 import { useRouter } from 'next/navigation';
+
+import { Button } from '@nextui-org/react';
 import { toast } from 'react-toastify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BadgeCheck, Check } from 'lucide-react';
 import { SubscriptionStatus, SubscriptionType } from '@prisma/client';
 
+import { format } from 'date-fns';
+
 import { cancelStripeSubscription, createStripeSession } from '@/actions/Payment/stripeSession';
 import { getSubscription } from '@/actions/Payment/getSubscription';
 import { useConfirm } from '@/hooks/use-confirm';
-import { format } from 'date-fns';
 
 export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }) => {
   const router = useRouter();
@@ -34,7 +37,7 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
       toast.success(`Subscription updated successfully`);
       queryClient.invalidateQueries({ queryKey: ['subscription'] });
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
@@ -46,6 +49,7 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
       if (!sessionId) {
         return toast.error('Failed to create checkout session!');
       }
+
       if (sessionUrl) {
         router.push(sessionUrl);
       }
@@ -58,7 +62,9 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
     if (!subscriptionId) {
       return toast.error('Failed to cancel subscription!');
     }
+
     const ok = await confirm();
+
     if (ok) {
       cancelMutation.mutateAsync(subscriptionId);
     }
@@ -72,10 +78,7 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
           <>
             <div className="w-full flex justify-center items-center gap-1">
               <p className="text-gray-500 italic">{`your current plan: ${subscriptionData?.type}`}</p>
-              <BadgeCheck
-                color={subscriptionData?.type === SubscriptionType.PRO ? '#10b981' : '#f0cc01'}
-                size={20}
-              />
+              <BadgeCheck color={subscriptionData?.type === SubscriptionType.PRO ? '#10b981' : '#f0cc01'} size={20} />
             </div>
           </>
         ) : (
@@ -160,8 +163,7 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
               }
               isLoading={cancelMutation.isPending}
             >
-              {subscriptionData?.type === SubscriptionType.PRO &&
-              subscriptionData?.status === SubscriptionStatus.Active
+              {subscriptionData?.type === SubscriptionType.PRO && subscriptionData?.status === SubscriptionStatus.Active
                 ? 'Unsubscribe'
                 : 'Subscribe'}
             </Button>

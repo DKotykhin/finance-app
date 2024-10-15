@@ -1,5 +1,7 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+
 import { Inter } from 'next/font/google';
+
 import type { Metadata, Viewport } from 'next';
 
 import { UIProvider } from '@/providers/UIProvider';

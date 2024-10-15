@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+
+import type {
+  Selection} from '@nextui-org/react';
 import {
   Button,
   Chip,
@@ -12,12 +15,13 @@ import {
   ModalFooter,
   ModalHeader,
   Select,
-  Selection,
   SelectItem,
   Textarea,
 } from '@nextui-org/react';
-import { DateValue, parseAbsoluteToLocal } from '@internationalized/date';
-import { Controller, Mode, Resolver, SubmitHandler, useForm } from 'react-hook-form';
+import type { DateValue} from '@internationalized/date';
+import { parseAbsoluteToLocal } from '@internationalized/date';
+import type { Mode, Resolver, SubmitHandler} from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -25,11 +29,13 @@ import { useUser } from '@clerk/nextjs';
 
 import { getCategories } from '@/actions/Category/_index';
 import { getAccounts } from '@/actions/Account/_index';
-import { createTransaction, TransactionCreate, updateTransaction } from '@/actions/Transaction/_index';
-import { TransactionFormTypes, transactionFormValidationSchema } from '@/validation/transactionValidation';
+import type { TransactionCreate} from '@/actions/Transaction/_index';
+import { createTransaction, updateTransaction } from '@/actions/Transaction/_index';
+import type { TransactionFormTypes} from '@/validation/transactionValidation';
+import { transactionFormValidationSchema } from '@/validation/transactionValidation';
 import { currencyMap, valueToDate } from '@/utils/_index';
 
-import { TransactionUpdate } from './TransactionList';
+import type { TransactionUpdate } from './TransactionList';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -77,6 +83,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   useEffect(() => {
     if (accountData && accountData.length > 0 && !transaction?.id) {
       const defaultAccountId = accountData.find((account) => account.isDefault)?.id;
+
       if (defaultAccountId) {
         setAccountValue(new Set([defaultAccountId]));
         reset({ accountId: defaultAccountId, categoryId: Array.from(categoryValue).toString() });
@@ -102,6 +109,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
 
   const currencySign = useMemo(() => {
     const acc = accountData && accountData.find((account) => account.id === Array.from(accountValue)[0]);
+    
     return acc?.currency ? currencyMap.get(acc.currency)?.sign : '';
   }, [accountData, accountValue]);
 
@@ -178,6 +186,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
     if (!dateValue) return;
     const notes1 = transaction?.notes ? transaction.notes : '';
     const notes2 = transactionData.notes ? transactionData.notes : '';
+
     if (
       notes1 === notes2 &&
       transaction?.amount === parseFloat(transactionData.amount) &&
@@ -186,8 +195,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       transaction?.date.toISOString() === valueToDate(dateValue).toISOString()
     ) {
       toast.info('No changes detected');
+
       return;
     }
+    
     transaction?.id
       ? updateMutation.mutate({
           transactionId: transaction.id,

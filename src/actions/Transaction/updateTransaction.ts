@@ -1,11 +1,12 @@
 'use server';
 
+import type { Transaction } from '@prisma/client';
+
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { Transaction } from '@prisma/client';
 
 import { checkAuth } from '../checkAuth';
-import { TransactionCreate } from './createTransaction';
+import type { TransactionCreate } from './createTransaction';
 
 export const updateTransaction = async ({
   transactionId,

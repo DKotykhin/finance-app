@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 
 import { dashboardMetadata } from '@/metadata/metadata';
 import { Dashboard } from './Dashboard';

@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+
+import dynamic from 'next/dynamic';
+
 import { Button, Card, CardBody, CardHeader, Chip, Skeleton, useDisclosure } from '@nextui-org/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import dynamic from 'next/dynamic';
 
 import { bulkDeleteAccounts, getAccounts } from '@/actions/Account/_index';
 import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
@@ -15,6 +17,7 @@ import { freeLimits } from '@/utils/_index';
 import { SubscriptionModal } from '@/components/SubscriptionModal';
 
 import { AccountModal } from './AccountModal';
+
 const AccountList = dynamic(async () => (await import('./AccountList')).AccountList, { ssr: false });
 
 export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => {
@@ -22,6 +25,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
   const [accountListLength, setAccountListLength] = useState(0);
 
   const { isOpen: isAccountOpen, onOpen: onAccountOpen, onOpenChange: onAccountOpenChange } = useDisclosure();
+
   const {
     isOpen: isSubscriptionOpen,
     onOpen: onSubscriptionOpen,
@@ -63,13 +67,14 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
       toast.success('Accounts deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
 
   const onDelete = async () => {
     const ok = await confirm();
+
     if (ok) {
       bulkDeleteMutation.mutateAsync(idList);
     }
@@ -110,8 +115,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
                 <Button
                   color="secondary"
                   onPress={
-                    !subscriptionData &&
-                    (accountData?.length ?? 0) >= freeLimits.accounts
+                    !subscriptionData && (accountData?.length ?? 0) >= freeLimits.accounts
                       ? onSubscriptionOpen
                       : onAccountOpen
                   }

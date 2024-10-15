@@ -1,12 +1,20 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Chip, Input, Pagination, Select, SelectItem, Spinner, useDisclosure } from '@nextui-org/react';
 import { Loader2, Pencil, SearchIcon, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import type {
+  Selection} from '@nextui-org/react';
 import {
-  Selection,
+  Button,
+  Chip,
+  Input,
+  Pagination,
+  Select,
+  SelectItem,
+  Spinner,
   Table,
   TableHeader,
   TableColumn,
@@ -14,12 +22,15 @@ import {
   TableRow,
   TableCell,
   getKeyValue,
+  useDisclosure,
 } from '@nextui-org/react';
 
+import type { Category, UserSettings } from '@prisma/client';
+import { SortOrder } from '@prisma/client';
+
 import { deleteCategory } from '@/actions/Category/_index';
-import { Category, SortOrder, UserSettings } from '@prisma/client';
 import { useConfirm } from '@/hooks/use-confirm';
-import { CategoryFormTypes } from '@/validation/categoryValidation';
+import type { CategoryFormTypes } from '@/validation/categoryValidation';
 import { cn, rowsPerPageArray } from '@/utils/_index';
 
 import { CategoryModal } from './CategoryModal';
@@ -30,9 +41,7 @@ interface CategoryListProps {
   isCategoryDataLoading: boolean;
   userSettingsData?: UserSettings | null;
   isUserSettingsLoading: boolean;
-  // eslint-disable-next-line no-unused-vars
   selectedKeysFn: (keys: any) => void;
-  // eslint-disable-next-line no-unused-vars
   categoryListLengthFn: (length: number) => void;
 }
 
@@ -56,10 +65,12 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   const [category, setCategory] = useState<CategoryUpdate | null>(null);
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
+
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: userSettingsData?.categorySortField || 'createdAt',
     direction: userSettingsData?.categorySortOrder || SortOrder.descending,
   });
+
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [categoryListLength, setCategoryListLength] = useState(0);
@@ -95,13 +106,14 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         }),
       ]);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
 
   const handleClick = async (id: string) => {
     const ok = await confirm();
+
     if (ok) {
       deleteMutation.mutateAsync(id);
     }
@@ -133,7 +145,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
 
   const onSelectedKeys = (keys: Selection) => {
     setSelectedKeys(keys);
-    selectedKeysFn(keys === 'all' ? tableContent?.map((category) => category.id) : Array.from(keys));
+    selectedKeysFn(keys === 'all' ? tableContent?.map(category => category.id) : Array.from(keys));
   };
 
   const tableContent = useMemo(() => {
@@ -141,9 +153,10 @@ export const CategoryList: React.FC<CategoryListProps> = ({
     const end = start + +rowsPerPage;
 
     const filteredData =
-      categoryData?.filter((category) => category.categoryName.toLowerCase().includes(filterValue.toLowerCase())) || [];
+      categoryData?.filter(category => category.categoryName.toLowerCase().includes(filterValue.toLowerCase())) || [];
 
     const dataToUse = filterValue ? filteredData : categoryData || [];
+
     setPages(Math.ceil(dataToUse.length / +rowsPerPage));
     setCategoryListLength(dataToUse.length);
 
@@ -156,7 +169,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         return sortDescriptor.direction === 'descending' ? -cmp : cmp;
       })
       .slice(start, end)
-      .map((category) => ({
+      .map(category => ({
         id: category.id,
         nameValue: category.categoryName,
         hiddenValue: category.hidden,
@@ -208,7 +221,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         onChange={onRowsPerPageChange}
         isLoading={isUserSettingsLoading}
       >
-        {rowsPerPageArray.map((row) => (
+        {rowsPerPageArray.map(row => (
           <SelectItem key={row.key}>{row.label}</SelectItem>
         ))}
       </Select>
@@ -224,7 +237,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         color="secondary"
         page={page}
         total={pages}
-        onChange={(page) => setPage(page)}
+        onChange={page => setPage(page)}
       />
     </div>
   );
@@ -241,12 +254,12 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         selectedKeys={selectedKeys}
         onSelectionChange={onSelectedKeys}
         sortDescriptor={sortDescriptor}
-        onSortChange={(descriptor) => setSortDescriptor(descriptor as SortDescriptor)}
+        onSortChange={descriptor => setSortDescriptor(descriptor as SortDescriptor)}
         classNames={{ wrapper: pages > 1 ? 'min-h-[370px]' : '' }}
         className="hidden sm:block"
       >
         <TableHeader columns={columns}>
-          {(column) => (
+          {column => (
             <TableColumn
               key={column.key}
               align={column.key === 'name' ? 'start' : 'center'}
@@ -262,8 +275,8 @@ export const CategoryList: React.FC<CategoryListProps> = ({
           isLoading={isCategoryDataLoading}
           loadingContent={<Spinner label="Loading..." />}
         >
-          {(item) => (
-            <TableRow key={item.id}>{(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}</TableRow>
+          {item => (
+            <TableRow key={item.id}>{columnKey => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}</TableRow>
           )}
         </TableBody>
       </Table>
@@ -277,7 +290,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         <div className="sm:hidden">
           <TopContent />
           {tableContent?.length > 0 ? (
-            tableContent?.map((category) => (
+            tableContent?.map(category => (
               <div key={category.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
                 <div className="flex justify-between items-center">
                   <div className="text-lg font-semibold">{category.name}</div>

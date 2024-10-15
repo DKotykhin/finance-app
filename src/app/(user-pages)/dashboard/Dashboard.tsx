@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 import { Autocomplete, AutocompleteItem, DateRangePicker, Skeleton } from '@nextui-org/react';
 import { addDays, differenceInDays, subDays, isToday } from 'date-fns';
@@ -18,18 +19,18 @@ import { StatsCards } from './statsCards';
 
 export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const { accountId, setAccountId, dateValue, setDateValue } = useDashboardStore();
-  
+
   const currentPeriod = useMemo(() => {
     return {
       start: valueToDate(dateValue.start),
       end: valueToDate(dateValue.end),
     };
   }, [dateValue]);
-  
+
   const periodInDays = useMemo(() => {
     return differenceInDays(currentPeriod.end, currentPeriod.start);
   }, [currentPeriod]);
-  
+
   const previousPeriod = useMemo(() => {
     return {
       start: addDays(subDays(currentPeriod.start, periodInDays), -1),
@@ -51,7 +52,8 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
 
   useEffect(() => {
     if (!accountId) {
-      const defaultAccount = accountData?.find((account) => account.isDefault);
+      const defaultAccount = accountData?.find(account => account.isDefault);
+
       defaultAccount && setAccountId(defaultAccount.id);
     }
   }, [accountData, accountId, setAccountId]);
@@ -63,7 +65,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
         end: dateToValue(new Date()),
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userSettingsData?.dashboardPeriod]);
 
   const { data: transactionData, isLoading: isTransactionLoading } = useQuery({
@@ -111,7 +113,7 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   });
 
   const currentAccount = useMemo(() => {
-    return accountData?.find((account) => account.id === accountId);
+    return accountData?.find(account => account.id === accountId);
   }, [accountData, accountId]);
 
   return (
@@ -130,9 +132,9 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
               placeholder="Search an account"
               className="w-full sm:max-w-[220px]"
               selectedKey={accountId}
-              onSelectionChange={(key) => setAccountId(key as string)}
+              onSelectionChange={key => setAccountId(key as string)}
             >
-              {(account) => <AutocompleteItem key={account.id}>{account.accountName}</AutocompleteItem>}
+              {account => <AutocompleteItem key={account.id}>{account.accountName}</AutocompleteItem>}
             </Autocomplete>
             <div>
               <DateRangePicker
@@ -143,7 +145,9 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
                 onChange={setDateValue}
               />
               <p className="text-xs italic text-blue-200 mt-1 ml-1">
-                {isToday(currentPeriod.end) ? `last ${periodInDays + 1} days selected` : `${periodInDays + 1} days selected`}
+                {isToday(currentPeriod.end)
+                  ? `last ${periodInDays + 1} days selected`
+                  : `${periodInDays + 1} days selected`}
               </p>
             </div>
           </div>

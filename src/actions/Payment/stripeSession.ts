@@ -13,22 +13,16 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export type LineItem = Stripe.Checkout.SessionCreateParams.LineItem;
 
-export const createStripeSession = async ({
-  subscriptionType,
-}: {
-  subscriptionType: SubscriptionType;
-}) => {
+export const createStripeSession = async ({ subscriptionType }: { subscriptionType: SubscriptionType }) => {
   const user = await currentUser();
+
   if (!user) {
     throw ApiError.unauthorized('Unauthorized');
   }
 
   const lineItems: LineItem[] = [
     {
-      price:
-        subscriptionType === SubscriptionType.PRO
-          ? process.env.MONTHLY_PRICE_ID
-          : process.env.YEARLY_PRICE_ID,
+      price: subscriptionType === SubscriptionType.PRO ? process.env.MONTHLY_PRICE_ID : process.env.YEARLY_PRICE_ID,
       quantity: 1,
     },
   ];
@@ -53,10 +47,13 @@ export const retrieveStripeSession = async (sessionId: string) => {
   if (!sessionId) {
     throw ApiError.badRequest('Session ID is required');
   }
+
   const user = await currentUser();
+
   if (!user) {
     throw ApiError.unauthorized('Unauthorized');
   }
+
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
@@ -65,6 +62,7 @@ export const retrieveStripeSession = async (sessionId: string) => {
         subscriptionId: session.subscription as string,
       },
     });
+
     if (subscription) {
       return subscription;
     } else {
@@ -92,10 +90,13 @@ export const cancelStripeSubscription = async (subscriptionId: string) => {
   if (!subscriptionId) {
     throw ApiError.badRequest('Subscription ID is required');
   }
+
   const user = await currentUser();
+
   if (!user) {
     throw ApiError.unauthorized('Unauthorized');
   }
+
   try {
     const session = await stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: true,
@@ -106,6 +107,7 @@ export const cancelStripeSubscription = async (subscriptionId: string) => {
         subscriptionId,
       },
     });
+    
     return await db.subscription.update({
       where: {
         id: subscription?.id,
@@ -201,10 +203,6 @@ export const cancelStripeSubscription = async (subscriptionId: string) => {
 //   ui_mode: 'hosted',
 //   url: null
 // }
-
-
-
-
 
 // Example of Stripe session object (cancel subscription):
 

@@ -1,7 +1,7 @@
 import { Currency } from '@prisma/client';
 
-import { CategoryFormTypes } from '../src/validation/categoryValidation';
-import { AccountFormTypes } from '../src/validation/accountValidation';
+import type { CategoryFormTypes } from '../src/validation/categoryValidation';
+import type { AccountFormTypes } from '../src/validation/accountValidation';
 
 export const userId = 'user_2jVYHAZKO3OanLZ3NfsGwvuzXLg';
 export const transactionAmount = 120;

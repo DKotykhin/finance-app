@@ -2,9 +2,11 @@
 
 import { endOfDay, startOfDay, subDays } from 'date-fns';
 
+import type { Currency, Transaction } from '@prisma/client';
+
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { Currency, Transaction } from '@prisma/client';
+
 
 import { checkAuth } from '../checkAuth';
 
@@ -72,6 +74,7 @@ export const getTransactionsWithStats = async ({
     const incomeUniqueCategoriesCount = new Set(
       transactions.filter((transaction) => transaction.amount > 0).map((transaction) => transaction.category?.categoryName)
     ).size;
+    
     const expenseUniqueCategoriesCount = new Set(
       transactions.filter((transaction) => transaction.amount < 0).map((transaction) => transaction.category?.categoryName)
     ).size;

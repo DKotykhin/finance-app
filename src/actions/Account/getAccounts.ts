@@ -1,8 +1,10 @@
 'use server';
 
+import type { Account } from '@prisma/client';
+
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { Account } from '@prisma/client';
+
 
 export interface ExtendedAccount extends Account {
   transactions: { amount: number }[];

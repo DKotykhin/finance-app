@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+
 import { Button, Divider } from '@nextui-org/react';
 import { Menu, X } from 'lucide-react';
 
@@ -43,7 +45,7 @@ const Navigation: React.FC = () => {
   return (
     <>
       <nav className="hidden lg:flex items-center gap-x-2 overflow-x-auto">
-        {routes.map((route) => (
+        {routes.map(route => (
           <div key={route.href}>
             <Button
               size="md"

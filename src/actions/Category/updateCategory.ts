@@ -1,9 +1,11 @@
 'use server';
 
+import type { Category } from '@prisma/client';
+
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { Category } from '@prisma/client';
-import { CategoryFormTypes } from '@/validation/categoryValidation';
+import type { CategoryFormTypes } from '@/validation/categoryValidation';
+
 import { checkAuth } from '../checkAuth';
 
 export const updateCategory = async ({

@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
+
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
+
 import { PaymentSettings } from '@/app/(user-pages)/settings/PaymentSettings';
 
 interface SubscriptionModalProps {
@@ -21,7 +23,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, on
       className="max-h-[500px] overflow-auto"
     >
       <ModalContent>
-        {(onClose) => (
+        {onClose => (
           <>
             <ModalHeader>
               <p className="text-center w-full text-red-500 italic -mb-4">{title}</p>
