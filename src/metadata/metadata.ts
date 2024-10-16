@@ -51,3 +51,13 @@ export const settingsMetadata: Metadata = {
   title: 'Financial App | Settings',
   description: 'Settings page with user settings',
 };
+
+export const paymentIntendMetadata: Metadata = {
+  title: 'Financial App | Payment Intend',
+  description: 'Payment Intend page with payment form',
+};
+
+export const paymentSuccessMetadata: Metadata = {
+  title: 'Financial App | Payment Success',
+  description: 'Payment Success page with payment success message',
+};

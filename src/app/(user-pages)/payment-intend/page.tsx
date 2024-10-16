@@ -2,10 +2,15 @@ import React from 'react';
 
 import Link from 'next/link';
 
+import type { Metadata } from 'next';
+
 import { currentUser } from '@clerk/nextjs/server';
 import { Button, Skeleton } from '@nextui-org/react';
 
 import { PaymentSettings } from '../settings/PaymentSettings';
+import { paymentIntendMetadata } from '@/metadata/metadata';
+
+export const metadata: Metadata = paymentIntendMetadata;
 
 const PaymentIntendPage: React.FC<{ searchParams: { status: string } }> = async ({ searchParams }) => {
   const user = await currentUser();

@@ -4,10 +4,7 @@ import { Inter } from 'next/font/google';
 
 import type { Metadata, Viewport } from 'next';
 
-import { UIProvider } from '@/providers/UIProvider';
-import { AuthProvider } from '@/providers/AuthProvider';
-import { ToastProvider } from '@/providers/ToastProvider';
-import { QueryProvider } from '@/providers/QueryProvider';
+import { UIProvider, AuthProvider, QueryProvider, ToastProvider } from '@/providers/_index';
 import { mainMetadata, mainViewport } from '@/metadata/metadata';
 
 import './globals.css';
