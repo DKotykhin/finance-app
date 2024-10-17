@@ -4,9 +4,9 @@ import type { Account } from '@prisma/client';
 
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { accountValidate } from '@/validation/accountValidation';
-
 import type { AccountFormTypes} from '@/validation/accountValidation';
+import { accountValidate } from '@/validation/accountValidation';
+import { logger } from '@/logger';
 
 import { checkAuth } from '../checkAuth';
 
@@ -27,13 +27,18 @@ export const createAccount = async ({ accountData }: { accountData: AccountFormT
       });
     }
 
-    return await db.account.create({
+    const account = await db.account.create({
       data: {
         userId,
         ...accountData,
       },
     });
+
+    logger.info(`Successfully created account with id ${account.id}`);
+
+    return account;
   } catch (error: any) {
+    logger.error(error);
     throw ApiError.internalError(error.message || 'Failed to create account');
   }
 };

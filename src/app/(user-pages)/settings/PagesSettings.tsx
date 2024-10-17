@@ -46,12 +46,12 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
   const { data: userSettingsData, isLoading: isGetLoading } = useQuery({
     enabled: !!userId,
     queryKey: ['userSettings'],
-    queryFn: () => getUserSettings({ userId: userId as string }),
+    queryFn: () => getUserSettings(),
   });
 
   const upsertMutation = useMutation({
-    mutationFn: ({ userId, userSettingsData }: { userId: string; userSettingsData?: Partial<UserSettings> }) =>
-      upsertUserSettings({ userId, userSettingsData }),
+    mutationFn: (userSettingsData: Partial<UserSettings>) =>
+      upsertUserSettings(userSettingsData),
     onSuccess: () => {
       toast.success(`User Settings updated successfully`);
       queryClient.invalidateQueries({ queryKey: ['userSettings'] });
@@ -128,22 +128,19 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
 
   const onSaveChanges = () => {
     upsertMutation.mutate({
-      userId: userId as string,
-      userSettingsData: {
-        categoryRowsPerPage: categorySettings.rowsPerPage,
-        categorySortField: categorySettings.sortField,
-        categorySortOrder: categorySettings.sortOrder as SortOrder,
-        accountRowsPerPage: accountSettings.rowsPerPage,
-        accountSortField: accountSettings.sortField,
-        accountSortOrder: accountSettings.sortOrder as SortOrder,
-        transactionRowsPerPage: transactionSettings.rowsPerPage,
-        transactionPeriod: transactionSettings.period,
-        transactionSortField: transactionSettings.sortField,
-        transactionSortOrder: transactionSettings.sortOrder as SortOrder,
-        dashboardPeriod: dashboardSettings.period,
-        dashboardTransactionsChart: dashboardSettings.transactionsView as TransactionCharts,
-        dashboardCategoriesChart: dashboardSettings.categoriesView as CategoriesCharts,
-      },
+      categoryRowsPerPage: categorySettings.rowsPerPage,
+      categorySortField: categorySettings.sortField,
+      categorySortOrder: categorySettings.sortOrder as SortOrder,
+      accountRowsPerPage: accountSettings.rowsPerPage,
+      accountSortField: accountSettings.sortField,
+      accountSortOrder: accountSettings.sortOrder as SortOrder,
+      transactionRowsPerPage: transactionSettings.rowsPerPage,
+      transactionPeriod: transactionSettings.period,
+      transactionSortField: transactionSettings.sortField,
+      transactionSortOrder: transactionSettings.sortOrder as SortOrder,
+      dashboardPeriod: dashboardSettings.period,
+      dashboardTransactionsChart: dashboardSettings.transactionsView as TransactionCharts,
+      dashboardCategoriesChart: dashboardSettings.categoriesView as CategoriesCharts,
     });
   };
 

@@ -2,13 +2,15 @@
 
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
-import { idValidate } from '@/validation/accountValidation';
+import { idValidate } from '@/validation/idValidation';
 
 import { checkAuth } from '../checkAuth';
+import { logger } from '@/logger';
 
-export const bulkDeleteAccounts = async (accountIds: string[]): Promise<void> => {
+export const bulkDeleteAccounts = async (ids: string[]): Promise<void> => {
   checkAuth();
-  accountIds.forEach(async (id) => {
+
+  ids.forEach(async (id) => {
     await idValidate({ id });
   });
 
@@ -16,11 +18,14 @@ export const bulkDeleteAccounts = async (accountIds: string[]): Promise<void> =>
     await db.account.deleteMany({
       where: {
         id: {
-          in: accountIds,
+          in: ids,
         },
       },
     });
+
+    logger.info(`Successfully deleted accounts with ids ${ids.toString()}`);
   } catch (error) {
+    logger.error(error);
     throw ApiError.internalError('Failed to delete accounts');
   }
 };

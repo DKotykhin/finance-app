@@ -5,17 +5,10 @@ import type { UserSettings } from '@prisma/client';
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 
-
 import { checkAuth } from '../checkAuth';
 
-export const upsertUserSettings = async ({
-  userId,
-  userSettingsData,
-}: {
-  userId: string;
-  userSettingsData?: Partial<UserSettings>;
-}): Promise<UserSettings> => {
-  checkAuth();
+export const upsertUserSettings = async (userSettingsData?: Partial<UserSettings>): Promise<UserSettings> => {
+  const userId = checkAuth();
 
   try {
     const userSettings = await db.userSettings.upsert({

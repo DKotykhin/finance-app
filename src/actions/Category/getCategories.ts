@@ -4,10 +4,10 @@ import type { Category } from '@prisma/client';
 
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
+import { checkAuth } from '../checkAuth';
 
-
-export const getCategories = async ({ userId, hidden }: { userId: string; hidden?: boolean }): Promise<Category[]> => {
-  if (!userId) return [];
+export const getCategories = async (hidden?: boolean): Promise<Category[]> => {
+  const userId = checkAuth();
 
   try {
     const categories = await db.category.findMany({

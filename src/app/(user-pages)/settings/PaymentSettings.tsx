@@ -28,7 +28,7 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
   const { data: subscriptionData } = useQuery({
     enabled: !!userId,
     queryKey: ['subscription'],
-    queryFn: () => getSubscription({ userId: userId as string }),
+    queryFn: () => getSubscription(),
   });
 
   const cancelMutation = useMutation({

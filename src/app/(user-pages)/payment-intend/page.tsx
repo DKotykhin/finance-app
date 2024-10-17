@@ -7,8 +7,9 @@ import type { Metadata } from 'next';
 import { currentUser } from '@clerk/nextjs/server';
 import { Button, Skeleton } from '@nextui-org/react';
 
-import { PaymentSettings } from '../settings/PaymentSettings';
 import { paymentIntendMetadata } from '@/metadata/metadata';
+
+import { PaymentSettings } from '../settings/PaymentSettings';
 
 export const metadata: Metadata = paymentIntendMetadata;
 

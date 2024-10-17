@@ -41,13 +41,13 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
     enabled: !!userId,
     queryKey: ['userSettings'],
-    queryFn: () => getUserSettings({ userId: userId as string }),
+    queryFn: () => getUserSettings(),
   });
 
   const { data: accountData, isLoading: isAccountLoading } = useQuery({
     enabled: !!userId,
     queryKey: ['accounts'],
-    queryFn: () => getAccounts(userId as string),
+    queryFn: () => getAccounts(),
   });
 
   useEffect(() => {

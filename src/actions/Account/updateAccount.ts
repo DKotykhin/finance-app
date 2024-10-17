@@ -6,6 +6,7 @@ import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 import type { AccountFormTypes} from '@/validation/accountValidation';
 import { accountValidate } from '@/validation/accountValidation';
+import { logger } from '@/logger';
 
 import { checkAuth } from '../checkAuth';
 
@@ -35,7 +36,7 @@ export const updateAccount = async ({
       });
     }
 
-    return await db.account.update({
+    const updatedAccount = await db.account.update({
       where: {
         id: accountId,
       },
@@ -43,7 +44,12 @@ export const updateAccount = async ({
         ...accountData,
       },
     });
+
+    logger.info(`Successfully updated account with id ${accountId}`);
+
+    return updatedAccount;
   } catch (error: any) {
+    logger.error(error);
     throw ApiError.internalError(error.message || 'Failed to update account');
   }
 };

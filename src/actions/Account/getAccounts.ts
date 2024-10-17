@@ -4,14 +4,16 @@ import type { Account } from '@prisma/client';
 
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
+import { logger } from '@/logger';
 
+import { checkAuth } from '../checkAuth';
 
 export interface ExtendedAccount extends Account {
   transactions: { amount: number }[];
 }
 
-export const getAccounts = async (userId: string): Promise<ExtendedAccount[]> => {
-  if (!userId) return [];
+export const getAccounts = async (): Promise<ExtendedAccount[]> => {
+  const userId = checkAuth();
 
   try {
     const accounts = await db.account.findMany({
@@ -30,8 +32,11 @@ export const getAccounts = async (userId: string): Promise<ExtendedAccount[]> =>
       },
     });
 
+    logger.info(`Successfully got accounts for user ${userId}`);
+
     return accounts;
   } catch (error: any) {
+    logger.error(error);
     throw ApiError.internalError(error.message || 'Failed to get account');
   }
 };

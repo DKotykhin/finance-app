@@ -11,10 +11,6 @@ export const accountFormValidationSchema = z.object({
   isDefault: z.boolean(),
 });
 
-export const idValidationSchema = z.object({
-  id: z.string().cuid({ message: 'Id is not a cuid type' }),
-});
-
 export type AccountFormTypes = z.infer<typeof accountFormValidationSchema>;
 
 export const accountValidate = async (validateData: AccountFormTypes) => {
@@ -22,13 +18,5 @@ export const accountValidate = async (validateData: AccountFormTypes) => {
     return await accountFormValidationSchema.parseAsync(validateData);
   } catch (err: any) {
     throw ApiError.unprocessableEntity(err.issues[0]?.message || 'Failed to validate account');
-  }
-};
-
-export const idValidate = async (validateData: { id: string }) => {
-  try {
-    return await idValidationSchema.parseAsync(validateData);
-  } catch (err: any) {
-    throw ApiError.unprocessableEntity(err.issues[0]?.message || 'Failed to validate id');
   }
 };

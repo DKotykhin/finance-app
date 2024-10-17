@@ -4,10 +4,10 @@ import type { Subscription } from '@prisma/client';
 
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
+import { checkAuth } from '../checkAuth';
 
-
-export const getSubscription = async ({ userId }: { userId: string }): Promise<Subscription | null> => {
-  if (!userId) return null;
+export const getSubscription = async (): Promise<Subscription | null> => {
+  const userId = checkAuth();
 
   try {
     const subscription = await db.subscription.findFirst({

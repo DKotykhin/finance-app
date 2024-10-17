@@ -48,19 +48,19 @@ export const TransactionCard: React.FC = () => {
   const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
     enabled: !!user?.id,
     queryKey: ['userSettings'],
-    queryFn: () => getUserSettings({ userId: user?.id as string }),
+    queryFn: () => getUserSettings(),
   });
 
   const { data: accountData, isLoading: isAccountLoading } = useQuery({
     enabled: !!user?.id,
     queryKey: ['accounts'],
-    queryFn: () => getAccounts(user?.id as string),
+    queryFn: () => getAccounts(),
   });
 
   const { data: subscriptionData } = useQuery({
     enabled: !!user?.id,
     queryKey: ['subscription'],
-    queryFn: () => getSubscription({ userId: user?.id as string }),
+    queryFn: () => getSubscription(),
   });
 
   const { data: todaysTransactionsData, isLoading: isTodaysTransactionsLoading } = useQuery({

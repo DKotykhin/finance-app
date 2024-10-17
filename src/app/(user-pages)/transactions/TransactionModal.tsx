@@ -71,13 +71,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   const { data: accountData, isLoading: isAccountLoading } = useQuery({
     enabled: !!user?.id,
     queryKey: ['accounts'],
-    queryFn: () => getAccounts(user?.id as string),
+    queryFn: () => getAccounts(),
   });
 
   const { data: categoryData, isLoading: isCategoryLoading } = useQuery({
     enabled: !!user?.id,
     queryKey: ['categories'],
-    queryFn: () => getCategories({ userId: user?.id as string }),
+    queryFn: () => getCategories(),
   });
 
   useEffect(() => {

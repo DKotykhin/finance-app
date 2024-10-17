@@ -7,6 +7,8 @@ import { SubscriptionStatus, SubscriptionType } from '@prisma/client';
 import { db } from '@/libs/db';
 import { ApiError } from '@/handlers/apiError';
 
+import { checkAuth } from '../checkAuth';
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-06-20',
 });
@@ -37,6 +39,7 @@ export const createStripeSession = async ({ subscriptionType }: { subscriptionTy
     metadata: {
       user_id: user.id,
       subscription_type: subscriptionType,
+      user_name: user.firstName + ' ' + user.lastName,
     },
   });
 
@@ -48,11 +51,7 @@ export const retrieveStripeSession = async (sessionId: string) => {
     throw ApiError.badRequest('Session ID is required');
   }
 
-  const user = await currentUser();
-
-  if (!user) {
-    throw ApiError.unauthorized('Unauthorized');
-  }
+  const userId = checkAuth();
 
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -68,7 +67,7 @@ export const retrieveStripeSession = async (sessionId: string) => {
     } else {
       return await db.subscription.create({
         data: {
-          userId: user.id,
+          userId,
           subscriptionId: session.subscription as string,
           type: session.metadata?.subscription_type as SubscriptionType,
           startDate: new Date(session.created * 1000),
@@ -91,11 +90,7 @@ export const cancelStripeSubscription = async (subscriptionId: string) => {
     throw ApiError.badRequest('Subscription ID is required');
   }
 
-  const user = await currentUser();
-
-  if (!user) {
-    throw ApiError.unauthorized('Unauthorized');
-  }
+  checkAuth();
 
   try {
     const session = await stripe.subscriptions.update(subscriptionId, {
