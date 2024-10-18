@@ -4,14 +4,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button, Select, SelectItem } from '@nextui-org/react';
 import { RotateCcw, Save } from 'lucide-react';
-import { toast } from 'react-toastify';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { SortOrder, UserSettings } from '@prisma/client';
+import type { SortOrder } from '@prisma/client';
 import { CategoriesCharts, TransactionCharts } from '@prisma/client';
 
-import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
-import { upsertUserSettings } from '@/actions/UserSettings/upsertUserSettings';
 import { rowsPerPageArray } from '@/utils/_index';
+import { useSettings } from '@/hooks';
 
 import { accountFieldArray, categoryFieldArray, periodArray, sortOrderArray, transactionFieldArray } from './const';
 
@@ -41,25 +38,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
     categoriesView: '',
   });
 
-  const queryClient = useQueryClient();
-
-  const { data: userSettingsData, isLoading: isGetLoading } = useQuery({
-    enabled: !!userId,
-    queryKey: ['userSettings'],
-    queryFn: () => getUserSettings(),
-  });
-
-  const upsertMutation = useMutation({
-    mutationFn: (userSettingsData: Partial<UserSettings>) =>
-      upsertUserSettings(userSettingsData),
-    onSuccess: () => {
-      toast.success(`User Settings updated successfully`);
-      queryClient.invalidateQueries({ queryKey: ['userSettings'] });
-    },
-    onError: error => {
-      toast.error(error.message);
-    },
-  });
+  const { userSettingsData, isUserSettingsLoading, upsertUserSettings } = useSettings(userId);
 
   const initialSettings = useCallback(() => {
     setCategorySettings(prevState => ({
@@ -127,7 +106,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
   ]);
 
   const onSaveChanges = () => {
-    upsertMutation.mutate({
+    upsertUserSettings.mutate({
       categoryRowsPerPage: categorySettings.rowsPerPage,
       categorySortField: categorySettings.sortField,
       categorySortOrder: categorySettings.sortOrder as SortOrder,
@@ -159,7 +138,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 period: +e.target.value,
               })
             }
-            isLoading={isGetLoading}
+            isLoading={isUserSettingsLoading}
           >
             {periodArray.map(value => (
               <SelectItem key={value}>{value.toString()}</SelectItem>
@@ -176,7 +155,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   transactionsView: e.target.value,
                 })
               }
-              isLoading={isGetLoading}
+              isLoading={isUserSettingsLoading}
             >
               {Object.values(TransactionCharts).map(row => (
                 <SelectItem key={row}>{row}</SelectItem>
@@ -192,7 +171,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   categoriesView: e.target.value,
                 })
               }
-              isLoading={isGetLoading}
+              isLoading={isUserSettingsLoading}
             >
               {Object.values(CategoriesCharts).map(row => (
                 <SelectItem key={row}>{row}</SelectItem>
@@ -214,7 +193,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 period: +e.target.value,
               })
             }
-            isLoading={isGetLoading}
+            isLoading={isUserSettingsLoading}
           >
             {periodArray.map(value => (
               <SelectItem key={value}>{value.toString()}</SelectItem>
@@ -230,7 +209,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 sortField: e.target.value,
               })
             }
-            isLoading={isGetLoading}
+            isLoading={isUserSettingsLoading}
           >
             {transactionFieldArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -248,7 +227,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 rowsPerPage: e.target.value,
               })
             }
-            isLoading={isGetLoading}
+            isLoading={isUserSettingsLoading}
           >
             {rowsPerPageArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -265,7 +244,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 sortOrder: e.target.value as SortOrder,
               })
             }
-            isLoading={isGetLoading}
+            isLoading={isUserSettingsLoading}
           >
             {sortOrderArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -287,7 +266,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 rowsPerPage: e.target.value,
               })
             }
-            isLoading={isGetLoading}
+            isLoading={isUserSettingsLoading}
           >
             {rowsPerPageArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -304,7 +283,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   sortField: e.target.value,
                 })
               }
-              isLoading={isGetLoading}
+              isLoading={isUserSettingsLoading}
             >
               {accountFieldArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -320,7 +299,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   sortOrder: e.target.value as SortOrder,
                 })
               }
-              isLoading={isGetLoading}
+              isLoading={isUserSettingsLoading}
             >
               {sortOrderArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -343,7 +322,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 rowsPerPage: e.target.value,
               })
             }
-            isLoading={isGetLoading}
+            isLoading={isUserSettingsLoading}
           >
             {rowsPerPageArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -360,7 +339,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   sortField: e.target.value,
                 })
               }
-              isLoading={isGetLoading}
+              isLoading={isUserSettingsLoading}
             >
               {categoryFieldArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -376,7 +355,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   sortOrder: e.target.value as SortOrder,
                 })
               }
-              isLoading={isGetLoading}
+              isLoading={isUserSettingsLoading}
             >
               {sortOrderArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -391,7 +370,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
           color="default"
           className="w-full sm:w-auto self-end"
           onPress={initialSettings}
-          isDisabled={upsertMutation.isPending || isSaveButtonDisabled}
+          isDisabled={upsertUserSettings.isPending || isSaveButtonDisabled}
         >
           <RotateCcw size={16} />
           Reset
@@ -401,7 +380,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
           className="w-full sm:w-auto self-end"
           onPress={onSaveChanges}
           isDisabled={isSaveButtonDisabled}
-          isLoading={upsertMutation.isPending}
+          isLoading={upsertUserSettings.isPending}
         >
           <Save size={16} />
           Save Changes

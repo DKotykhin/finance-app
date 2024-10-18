@@ -10,7 +10,7 @@ import { logger } from '@/logger';
 
 import { checkAuth } from '../checkAuth';
 
-export const createAccount = async ({ accountData }: { accountData: AccountFormTypes }): Promise<Account> => {
+export const createAccount = async (accountData: AccountFormTypes): Promise<Account> => {
   const userId = checkAuth();
   
   await accountValidate(accountData);

@@ -10,14 +10,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useUser } from '@clerk/nextjs';
 
-import { useConfirm } from '@/hooks/use-confirm';
 import { bulkDeleteTransactions, getTodaysTransactions } from '@/actions/Transaction/_index';
-import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
-import { getAccounts } from '@/actions/Account/_index';
-import { getSubscription } from '@/actions/Payment/getSubscription';
 import { freeLimits } from '@/utils/const';
-
+import { useConfirm , useAccount, useSettings, useSubscription } from '@/hooks';
 import { SubscriptionModal } from '@/components/SubscriptionModal';
+
 import { TransactionModal } from './TransactionModal';
 
 const TransactionList = dynamic(async () => (await import('./TransactionList')).TransactionList, { ssr: false });
@@ -45,23 +42,9 @@ export const TransactionCard: React.FC = () => {
         : 'Are you sure you want to delete all these transactions?',
   });
 
-  const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
-    enabled: !!user?.id,
-    queryKey: ['userSettings'],
-    queryFn: () => getUserSettings(),
-  });
-
-  const { data: accountData, isLoading: isAccountLoading } = useQuery({
-    enabled: !!user?.id,
-    queryKey: ['accounts'],
-    queryFn: () => getAccounts(),
-  });
-
-  const { data: subscriptionData } = useQuery({
-    enabled: !!user?.id,
-    queryKey: ['subscription'],
-    queryFn: () => getSubscription(),
-  });
+  const { accountData, isAccountLoading } = useAccount(user?.id);
+  const { userSettingsData, isUserSettingsLoading } = useSettings(user?.id);
+  const { subscriptionData } = useSubscription(user?.id);
 
   const { data: todaysTransactionsData, isLoading: isTodaysTransactionsLoading } = useQuery({
     enabled:

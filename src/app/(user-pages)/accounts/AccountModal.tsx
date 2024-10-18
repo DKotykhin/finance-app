@@ -15,18 +15,17 @@ import {
   SelectItem,
   Tooltip,
 } from '@nextui-org/react';
-import type { Mode, Resolver, SubmitHandler} from 'react-hook-form';
+import type { Mode, Resolver, SubmitHandler } from 'react-hook-form';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Info } from 'lucide-react';
 
 import { Currency } from '@prisma/client';
 
-import type { AccountFormTypes} from '@/validation/accountValidation';
+import type { AccountFormTypes } from '@/validation/accountValidation';
 import { accountFormValidationSchema } from '@/validation/accountValidation';
-import { createAccount, updateAccount } from '@/actions/Account/_index';
+import { useAccount } from '@/hooks';
 
 import type { AccountUpdate } from './AccountList';
 
@@ -54,7 +53,7 @@ const AccountFormValidation: AccountFormValidationTypes = {
 };
 
 export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange, account }) => {
-  const queryClient = useQueryClient();
+  const { createAccount, updateAccount } = useAccount();
 
   useEffect(() => {
     reset({
@@ -66,43 +65,21 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  const createMutation = useMutation({
-    mutationFn: ({ accountData }: { accountData: AccountFormTypes }) => createAccount({ accountData }),
-    onSuccess: data => {
-      reset();
+  useEffect(() => {
+    if (createAccount.isSuccess) {
       onOpenChange();
-      toast.success(`Account ${data.accountName} created successfully`);
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-    },
-    onError: error => {
-      toast.error(error.message);
-    },
-  });
+      reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createAccount.isSuccess]);
 
-  const updateMutation = useMutation({
-    mutationFn: ({ accountId, accountData }: { accountId: string; accountData: AccountFormTypes }) =>
-      updateAccount({ accountId, accountData }),
-    onSuccess: data => {
-      reset();
+  useEffect(() => {
+    if (updateAccount.isSuccess) {
       onOpenChange();
-      toast.success(`Account ${data.accountName} updated successfully`);
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['accounts'] }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactions'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsWithStat'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsWithStat'],
-        }),
-      ]);
-    },
-    onError: error => {
-      toast.error(error.message);
-    },
-  });
+      reset();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateAccount.isSuccess]);
 
   const {
     control,
@@ -124,8 +101,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
     }
 
     account?.id
-      ? updateMutation.mutateAsync({ accountId: account?.id as string, accountData })
-      : createMutation.mutateAsync({ accountData });
+      ? updateAccount.mutateAsync({ accountId: account?.id as string, accountData })
+      : createAccount.mutateAsync(accountData);
   };
 
   return (
@@ -232,7 +209,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
                 <Button type="button" color="default" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit" color="primary" isDisabled={createMutation.isPending || updateMutation.isPending}>
+                <Button type="submit" color="primary" isDisabled={createAccount.isPending || updateAccount.isPending}>
                   {account?.id ? 'Update' : 'Create'}
                 </Button>
               </ModalFooter>

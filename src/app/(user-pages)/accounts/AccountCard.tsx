@@ -1,20 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 
 import { Button, Card, CardBody, CardHeader, Chip, Skeleton, useDisclosure } from '@nextui-org/react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
-import { toast } from 'react-toastify';
 
-import { bulkDeleteAccounts, getAccounts } from '@/actions/Account/_index';
-import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
-import { getSubscription } from '@/actions/Payment/getSubscription';
-import { useConfirm } from '@/hooks/use-confirm';
 import { freeLimits } from '@/utils/_index';
 import { SubscriptionModal } from '@/components/SubscriptionModal';
+import { useConfirm, useAccount, useSettings, useSubscription } from '@/hooks';
 
 import { AccountModal } from './AccountModal';
 
@@ -32,8 +27,6 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
     onOpenChange: onSubscriptionOpenChange,
   } = useDisclosure();
 
-  const queryClient = useQueryClient();
-
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Delete Account',
     message:
@@ -42,41 +35,21 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
         : 'Are you sure you want to delete all these accounts?',
   });
 
-  const { data: accountData, isLoading: isAccountLoading } = useQuery({
-    enabled: !!userId,
-    queryKey: ['accounts'],
-    queryFn: () => getAccounts(),
-  });
+  const { accountData, isAccountLoading, bulkDeleteAccounts } = useAccount(userId);
+  const { userSettingsData, isUserSettingsLoading } = useSettings(userId);
+  const { subscriptionData } = useSubscription(userId);
 
-  const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
-    enabled: !!userId,
-    queryKey: ['userSettings'],
-    queryFn: () => getUserSettings(),
-  });
-
-  const { data: subscriptionData } = useQuery({
-    enabled: !!userId,
-    queryKey: ['subscription'],
-    queryFn: () => getSubscription(),
-  });
-
-  const bulkDeleteMutation = useMutation({
-    mutationFn: (idList: string[]) => bulkDeleteAccounts(idList),
-    onSuccess: () => {
+  useEffect(() => {
+    if (bulkDeleteAccounts.isSuccess) {
       setIdList([]);
-      toast.success('Accounts deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-    },
-    onError: error => {
-      toast.error(error.message);
-    },
-  });
+    }
+  }, [bulkDeleteAccounts.isSuccess]);
 
   const onDelete = async () => {
     const ok = await confirm();
 
     if (ok) {
-      bulkDeleteMutation.mutateAsync(idList);
+      bulkDeleteAccounts.mutateAsync(idList);
     }
   };
 
@@ -105,7 +78,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
                     color="warning"
                     variant="bordered"
                     onPress={onDelete}
-                    isDisabled={bulkDeleteMutation.isPending}
+                    isDisabled={bulkDeleteAccounts.isPending}
                     className="w-full sm:w-auto"
                   >
                     <Trash2 size={16} />

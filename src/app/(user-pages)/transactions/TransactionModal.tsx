@@ -24,16 +24,15 @@ import type { Mode, Resolver, SubmitHandler} from 'react-hook-form';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@clerk/nextjs';
 
-import { getCategories } from '@/actions/Category/_index';
-import { getAccounts } from '@/actions/Account/_index';
 import type { TransactionCreate} from '@/actions/Transaction/_index';
 import { createTransaction, updateTransaction } from '@/actions/Transaction/_index';
 import type { TransactionFormTypes} from '@/validation/transactionValidation';
 import { transactionFormValidationSchema } from '@/validation/transactionValidation';
 import { currencyMap, valueToDate } from '@/utils/_index';
+import { useAccount, useCategory } from '@/hooks';
 
 import type { TransactionUpdate } from './TransactionList';
 
@@ -68,17 +67,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   const [accountValue, setAccountValue] = useState<Selection>(new Set([]));
   const [categoryValue, setCategoryValue] = useState<Selection>(new Set([]));
 
-  const { data: accountData, isLoading: isAccountLoading } = useQuery({
-    enabled: !!user?.id,
-    queryKey: ['accounts'],
-    queryFn: () => getAccounts(),
-  });
-
-  const { data: categoryData, isLoading: isCategoryLoading } = useQuery({
-    enabled: !!user?.id,
-    queryKey: ['categories'],
-    queryFn: () => getCategories(),
-  });
+  const { accountData, isAccountLoading } = useAccount(user?.id);
+  const { categoryData, isCategoryLoading } = useCategory(user?.id);
 
   useEffect(() => {
     if (accountData && accountData.length > 0 && !transaction?.id) {

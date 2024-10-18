@@ -1,20 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 
 import { Button, Card, CardBody, CardHeader, Chip, Skeleton, useDisclosure } from '@nextui-org/react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
-import { toast } from 'react-toastify';
 
-import { bulkDeleteCategories, getCategories } from '@/actions/Category/_index';
-import { getUserSettings } from '@/actions/UserSettings/getUserSettings';
-import { getSubscription } from '@/actions/Payment/getSubscription';
-import { useConfirm } from '@/hooks/use-confirm';
 import { freeLimits } from '@/utils/_index';
 import { SubscriptionModal } from '@/components/SubscriptionModal';
+import { useConfirm, useCategory, useSettings, useSubscription } from '@/hooks';
 
 import { CategoryModal } from './CategoryModal';
 
@@ -32,8 +27,6 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
     onOpenChange: onSubscriptionOpenChange,
   } = useDisclosure();
 
-  const queryClient = useQueryClient();
-
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Delete Category',
     message:
@@ -42,51 +35,21 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
         : 'Are you sure you want to delete all these categories?',
   });
 
-  const { data: categoryData, isLoading: isCategoryDataLoading } = useQuery({
-    enabled: !!userId,
-    queryKey: ['categories'],
-    queryFn: () => getCategories(),
-  });
+  const { subscriptionData } = useSubscription(userId);
+  const { userSettingsData, isUserSettingsLoading } = useSettings(userId);
+  const { categoryData, isCategoryLoading, bulkDeleteCategories } = useCategory(userId);
 
-  const { data: userSettingsData, isLoading: isUserSettingsLoading } = useQuery({
-    enabled: !!userId,
-    queryKey: ['userSettings'],
-    queryFn: () => getUserSettings(),
-  });
-
-  const { data: subscriptionData } = useQuery({
-    enabled: !!userId,
-    queryKey: ['subscription'],
-    queryFn: () => getSubscription(),
-  });
-
-  const bulkDeleteMutation = useMutation({
-    mutationFn: (idList: string[]) => bulkDeleteCategories(idList),
-    onSuccess: () => {
+  useEffect(() => {
+    if (bulkDeleteCategories.isSuccess) {
       setIdList([]);
-      toast.success('Categories deleted successfully');
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['categories'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsByCategory'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsByCategory'],
-        }),
-      ]);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+    }
+  }, [bulkDeleteCategories.isSuccess]);
 
   const onDelete = async () => {
     const ok = await confirm();
 
     if (ok) {
-      bulkDeleteMutation.mutateAsync(idList);
+      bulkDeleteCategories.mutateAsync(idList);
     }
   };
 
@@ -94,7 +57,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
     <>
       <Card className="-mt-24 mb-12 p-1 sm:p-4">
         <CardHeader className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          {isCategoryDataLoading ? (
+          {isCategoryLoading ? (
             <>
               <Skeleton className="w-[200px] h-10 rounded-lg bg-slate-100"></Skeleton>
               <Skeleton className="w-[200px] h-10 rounded-lg bg-slate-100"></Skeleton>
@@ -115,7 +78,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
                     color="warning"
                     variant="bordered"
                     onPress={onDelete}
-                    isDisabled={bulkDeleteMutation.isPending}
+                    isDisabled={bulkDeleteCategories.isPending}
                     className="w-full sm:w-auto"
                   >
                     <Trash2 size={16} />
@@ -125,8 +88,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
                 <Button
                   color="secondary"
                   onPress={
-                    !subscriptionData &&
-                    (categoryData?.length ?? 0) >= freeLimits.categories
+                    !subscriptionData && (categoryData?.length ?? 0) >= freeLimits.categories
                       ? onSubscriptionOpen
                       : onCategoryOpen
                   }
@@ -142,7 +104,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
         <CardBody>
           <CategoryList
             categoryData={categoryData}
-            isCategoryDataLoading={isCategoryDataLoading}
+            isCategoryDataLoading={isCategoryLoading}
             userSettingsData={userSettingsData}
             isUserSettingsLoading={isUserSettingsLoading}
             selectedKeysFn={setIdList}

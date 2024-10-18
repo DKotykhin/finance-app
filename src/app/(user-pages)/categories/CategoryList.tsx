@@ -2,11 +2,8 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Pencil, SearchIcon, Trash2 } from 'lucide-react';
-import { toast } from 'react-toastify';
-import type {
-  Selection} from '@nextui-org/react';
+import type { Selection } from '@nextui-org/react';
 import {
   Button,
   Chip,
@@ -28,10 +25,9 @@ import {
 import type { Category, UserSettings } from '@prisma/client';
 import { SortOrder } from '@prisma/client';
 
-import { deleteCategory } from '@/actions/Category/_index';
-import { useConfirm } from '@/hooks/use-confirm';
 import type { CategoryFormTypes } from '@/validation/categoryValidation';
 import { cn, rowsPerPageArray } from '@/utils/_index';
+import { useConfirm, useCategory } from '@/hooks';
 
 import { CategoryModal } from './CategoryModal';
 import { columns } from './const';
@@ -78,44 +74,23 @@ export const CategoryList: React.FC<CategoryListProps> = ({
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  useEffect(() => {
-    categoryListLengthFn(categoryListLength);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryListLength]);
+  const { deleteCategory } = useCategory();
 
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Delete Category',
     message: 'Are you sure you want to delete this category?',
   });
 
-  const queryClient = useQueryClient();
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteCategory(id),
-    onSuccess: () => {
-      toast.success('Category deleted successfully');
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['categories'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsByCategory'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsByCategory'],
-        }),
-      ]);
-    },
-    onError: error => {
-      toast.error(error.message);
-    },
-  });
+  useEffect(() => {
+    categoryListLengthFn(categoryListLength);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryListLength]);
 
   const handleClick = async (id: string) => {
     const ok = await confirm();
 
     if (ok) {
-      deleteMutation.mutateAsync(id);
+      deleteCategory.mutateAsync(id);
     }
   };
 
@@ -188,8 +163,8 @@ export const CategoryList: React.FC<CategoryListProps> = ({
             <Button isIconOnly size="sm" variant="light">
               <Pencil className="cursor-pointer text-orange-300" onClick={() => updateClick(category)} />
             </Button>
-            <Button isIconOnly size="sm" variant="light" disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending && category.id === deleteMutation.variables ? (
+            <Button isIconOnly size="sm" variant="light" disabled={deleteCategory.isPending}>
+              {deleteCategory.isPending && category.id === deleteCategory.variables ? (
                 <Loader2 className="text-slate-400 animate-spin" size={24} />
               ) : (
                 <Trash2 className="cursor-pointer text-red-500" onClick={() => handleClick(category.id)} />
@@ -310,7 +285,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                       size={24}
                       className={cn(
                         'cursor-pointer text-red-500',
-                        deleteMutation.isPending && category.id === deleteMutation.variables ? 'opacity-50' : ''
+                        deleteCategory.isPending && category.id === deleteCategory.variables ? 'opacity-50' : ''
                       )}
                       onClick={() => handleClick(category.id)}
                     />

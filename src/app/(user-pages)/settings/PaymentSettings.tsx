@@ -6,40 +6,20 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@nextui-org/react';
 import { toast } from 'react-toastify';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BadgeCheck, Check } from 'lucide-react';
 import { SubscriptionStatus, SubscriptionType } from '@prisma/client';
-
 import { format } from 'date-fns';
 
-import { cancelStripeSubscription, createStripeSession } from '@/actions/Payment/stripeSession';
-import { getSubscription } from '@/actions/Payment/getSubscription';
-import { useConfirm } from '@/hooks/use-confirm';
+import { createStripeSession } from '@/actions/Payment/stripeSession';
+import { useConfirm, useSubscription } from '@/hooks';
 
 export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }) => {
+  const { subscriptionData, cancelSubscription } = useSubscription(userId);
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Cancel Subscription',
     message: 'Are you sure you want to cancel your subscription?',
-  });
-
-  const { data: subscriptionData } = useQuery({
-    enabled: !!userId,
-    queryKey: ['subscription'],
-    queryFn: () => getSubscription(),
-  });
-
-  const cancelMutation = useMutation({
-    mutationFn: (sessionId: string) => cancelStripeSubscription(sessionId),
-    onSuccess: () => {
-      toast.success(`Subscription updated successfully`);
-      queryClient.invalidateQueries({ queryKey: ['subscription'] });
-    },
-    onError: error => {
-      toast.error(error.message);
-    },
   });
 
   const createPaymentClick = async (subscriptionType: SubscriptionType) => {
@@ -66,7 +46,7 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
     const ok = await confirm();
 
     if (ok) {
-      cancelMutation.mutateAsync(subscriptionId);
+      cancelSubscription.mutateAsync(subscriptionId);
     }
   };
 
@@ -161,7 +141,7 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
                   ? cancelPaymentClick(subscriptionData.subscriptionId)
                   : createPaymentClick(SubscriptionType.PRO)
               }
-              isLoading={cancelMutation.isPending}
+              isLoading={cancelSubscription.isPending}
             >
               {subscriptionData?.type === SubscriptionType.PRO && subscriptionData?.status === SubscriptionStatus.Active
                 ? 'Unsubscribe'
@@ -227,7 +207,7 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
                   ? cancelPaymentClick(subscriptionData.subscriptionId)
                   : createPaymentClick(SubscriptionType.GOLD)
               }
-              isLoading={cancelMutation.isPending}
+              isLoading={cancelSubscription.isPending}
             >
               {subscriptionData?.type === SubscriptionType.GOLD &&
               subscriptionData?.status === SubscriptionStatus.Active

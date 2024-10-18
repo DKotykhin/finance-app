@@ -17,12 +17,11 @@ import type { Mode, Resolver, SubmitHandler} from 'react-hook-form';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Info } from 'lucide-react';
 
 import type { CategoryFormTypes} from '@/validation/categoryValidation';
 import { categoryFormValidationSchema } from '@/validation/categoryValidation';
-import { createCategory, updateCategory } from '@/actions/Category/_index';
+import { useCategory } from '@/hooks';
 
 import type { CategoryUpdate } from './CategoryList';
 
@@ -48,7 +47,7 @@ const CategoryFormValidation: CategoryFormValidationTypes = {
 };
 
 export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChange, category }) => {
-  const queryClient = useQueryClient();
+  const { createCategory, updateCategory } = useCategory();
 
   useEffect(() => {
     reset({
@@ -58,42 +57,21 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category?.categoryName, category?.hidden]);
 
-  const createMutation = useMutation({
-    mutationFn: ({ categoryData }: { categoryData: CategoryFormTypes }) => createCategory({ categoryData }),
-    onSuccess: data => {
-      reset();
+  useEffect(() => {
+    if (createCategory.isSuccess) {
       onOpenChange();
-      toast.success(`Category ${data.categoryName} created successfully`);
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-    },
-    onError: error => {
-      toast.error(error.message);
-    },
-  });
+      reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createCategory.isSuccess]);
 
-  const updateMutation = useMutation({
-    mutationFn: ({ categoryId, categoryData }: { categoryId: string; categoryData: CategoryFormTypes }) =>
-      updateCategory({ categoryId, categoryData }),
-    onSuccess: data => {
-      reset();
+  useEffect(() => {
+    if (updateCategory.isSuccess) {
       onOpenChange();
-      toast.success(`Category ${data.categoryName} updated successfully`);
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['categories'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsByCategory'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsByCategory'],
-        }),
-      ]);
-    },
-    onError: error => {
-      toast.error(error.message);
-    },
-  });
+      reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateCategory.isSuccess]);
 
   const {
     control,
@@ -110,8 +88,8 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
     }
     
     category?.id
-      ? updateMutation.mutateAsync({ categoryId: category?.id as string, categoryData })
-      : createMutation.mutateAsync({ categoryData });
+      ? updateCategory.mutateAsync({ categoryId: category?.id as string, categoryData })
+      : createCategory.mutateAsync(categoryData);
   };
 
   return (
@@ -178,7 +156,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
                 <Button type="button" color="default" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit" color="primary" isDisabled={createMutation.isPending || updateMutation.isPending}>
+                <Button type="submit" color="primary" isDisabled={createCategory.isPending || updateCategory.isPending}>
                   {category?.id ? 'Update' : 'Create'}
                 </Button>
               </ModalFooter>

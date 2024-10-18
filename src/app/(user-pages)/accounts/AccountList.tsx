@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Selection } from '@nextui-org/react';
 import {
   Badge,
@@ -22,17 +21,15 @@ import {
   useDisclosure,
 } from '@nextui-org/react';
 import { EyeOff, Loader2, Pencil, SearchIcon, Trash2 } from 'lucide-react';
-import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 
 import type { UserSettings } from '@prisma/client';
 import { SortOrder } from '@prisma/client';
 
 import type { ExtendedAccount } from '@/actions/Account/_index';
-import { deleteAccount } from '@/actions/Account/_index';
-import { useConfirm } from '@/hooks/use-confirm';
 import type { AccountFormTypes } from '@/validation/accountValidation';
 import { cn, currencyMap, numberWithSpaces, rowsPerPageArray } from '@/utils/_index';
+import { useAccount, useConfirm } from '@/hooks';
 
 import { AccountModal } from './AccountModal';
 import { columns } from './const';
@@ -79,6 +76,8 @@ export const AccountList: React.FC<AccountListProps> = ({
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+  const { deleteAccount } = useAccount();
+
   useEffect(() => {
     accountListLengthFn(accountListLength);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,24 +89,11 @@ export const AccountList: React.FC<AccountListProps> = ({
       'Are you sure you want to delete this account? All transactions associated with this account will be deleted.',
   });
 
-  const queryClient = useQueryClient();
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteAccount(id),
-    onSuccess: () => {
-      toast.success('Account deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-    },
-    onError: error => {
-      toast.error(error.message);
-    },
-  });
-
   const handleClick = async (id: string) => {
     const ok = await confirm();
 
     if (ok) {
-      deleteMutation.mutateAsync(id);
+      deleteAccount.mutateAsync(id);
     }
   };
 
@@ -195,8 +181,8 @@ export const AccountList: React.FC<AccountListProps> = ({
             <Button isIconOnly size="sm" variant="light">
               <Pencil className="cursor-pointer text-orange-300" onClick={() => updateClick(account)} />
             </Button>
-            <Button isIconOnly size="sm" variant="light" disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending && account.id === deleteMutation.variables ? (
+            <Button isIconOnly size="sm" variant="light" disabled={deleteAccount.isPending}>
+              {deleteAccount.isPending && account.id === deleteAccount.variables ? (
                 <Loader2 className="text-slate-400 animate-spin" size={24} />
               ) : (
                 <Trash2 className="cursor-pointer text-red-500" onClick={() => handleClick(account.id)} />
@@ -319,7 +305,7 @@ export const AccountList: React.FC<AccountListProps> = ({
                       size={24}
                       className={cn(
                         'cursor-pointer text-red-500',
-                        deleteMutation.isPending && account.id === deleteMutation.variables ? 'opacity-50' : ''
+                        deleteAccount.isPending && account.id === deleteAccount.variables ? 'opacity-50' : ''
                       )}
                       onClick={() => handleClick(account.id)}
                     />

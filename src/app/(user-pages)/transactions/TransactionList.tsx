@@ -41,11 +41,9 @@ import {
   deleteTransaction,
   getTransactions
 } from '@/actions/Transaction/_index';
-import { getAccounts } from '@/actions/Account/_index';
-import { getCategories } from '@/actions/Category/_index';
-import { useConfirm } from '@/hooks/use-confirm';
 import { cn, currencyMap, dateToValue, numberWithSpaces, rowsPerPageArray, valueToDate } from '@/utils/_index';
 import { useTransactionsStore } from '@/store/transactionsSlice';
+import { useConfirm, useAccount, useCategory } from '@/hooks';
 
 import { TransactionModal } from './TransactionModal';
 import { columns } from './const';
@@ -148,17 +146,8 @@ export const TransactionList: React.FC<TransactionListProps> = ({
 
   const queryClient = useQueryClient();
 
-  const { data: accountData, isLoading: isAccountLoading } = useQuery({
-    enabled: !!user?.id,
-    queryKey: ['accounts'],
-    queryFn: () => getAccounts(),
-  });
-
-  const { data: categoryData, isLoading: isCategoryLoading } = useQuery({
-    enabled: !!user?.id,
-    queryKey: ['categories'],
-    queryFn: () => getCategories(),
-  });
+  const { accountData, isAccountLoading } = useAccount(user?.id);
+  const { categoryData, isCategoryLoading } = useCategory(user?.id);
 
   const { data: transactionData, isLoading: isTransactionLoading } = useQuery({
     enabled: !!accountData,

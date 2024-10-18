@@ -8,7 +8,7 @@ import { ApiError } from '@/handlers/apiError';
 import { categoryValidate, type CategoryFormTypes } from '@/validation/categoryValidation';
 import { checkAuth } from '../checkAuth';
 
-export const createCategory = async ({ categoryData }: { categoryData: CategoryFormTypes }): Promise<Category> => {
+export const createCategory = async (categoryData: CategoryFormTypes): Promise<Category> => {
   const userId = checkAuth();
 
   await categoryValidate(categoryData);

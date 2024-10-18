@@ -2,6 +2,8 @@
 
 import Stripe from 'stripe';
 import { currentUser } from '@clerk/nextjs/server';
+
+import type { Subscription } from '@prisma/client';
 import { SubscriptionStatus, SubscriptionType } from '@prisma/client';
 
 import { db } from '@/libs/db';
@@ -13,9 +15,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-06-20',
 });
 
-export type LineItem = Stripe.Checkout.SessionCreateParams.LineItem;
+type LineItem = Stripe.Checkout.SessionCreateParams.LineItem;
 
-export const createStripeSession = async ({ subscriptionType }: { subscriptionType: SubscriptionType }) => {
+export const createStripeSession = async ({
+  subscriptionType,
+}: {
+  subscriptionType: SubscriptionType;
+}): Promise<{ sessionId: string; sessionUrl: string | null }> => {
   const user = await currentUser();
 
   if (!user) {
@@ -46,7 +52,7 @@ export const createStripeSession = async ({ subscriptionType }: { subscriptionTy
   return { sessionId: session.id, sessionUrl: session.url };
 };
 
-export const retrieveStripeSession = async (sessionId: string) => {
+export const retrieveStripeSession = async (sessionId: string): Promise<Subscription> => {
   if (!sessionId) {
     throw ApiError.badRequest('Session ID is required');
   }
@@ -85,7 +91,7 @@ export const retrieveStripeSession = async (sessionId: string) => {
   }
 };
 
-export const cancelStripeSubscription = async (subscriptionId: string) => {
+export const cancelStripeSubscription = async (subscriptionId: string): Promise<Subscription> => {
   if (!subscriptionId) {
     throw ApiError.badRequest('Subscription ID is required');
   }
@@ -102,7 +108,7 @@ export const cancelStripeSubscription = async (subscriptionId: string) => {
         subscriptionId,
       },
     });
-    
+
     return await db.subscription.update({
       where: {
         id: subscription?.id,
