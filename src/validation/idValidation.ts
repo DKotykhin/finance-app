@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ApiError } from '@/handlers/apiError';
+import { ApiError } from '@/handlers';
 
 export const idValidationSchema = z.object({
   id: z.string().cuid({ message: 'Id is not a cuid type' }),

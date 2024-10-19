@@ -2,9 +2,9 @@
 
 import type { Category } from '@prisma/client';
 
-import { db } from '@/libs/db';
-import { ApiError } from '@/handlers/apiError';
-import { categoryValidate, type CategoryFormTypes } from '@/validation/categoryValidation';
+import { db } from '@/libs';
+import { ApiError } from '@/handlers';
+import { categoryValidate, type CategoryFormTypes } from '@/validation';
 
 import { checkAuth } from '../checkAuth';
 

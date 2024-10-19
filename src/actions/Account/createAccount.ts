@@ -2,10 +2,10 @@
 
 import type { Account } from '@prisma/client';
 
-import { db } from '@/libs/db';
-import { ApiError } from '@/handlers/apiError';
-import type { AccountFormTypes} from '@/validation/accountValidation';
-import { accountValidate } from '@/validation/accountValidation';
+import { db } from '@/libs';
+import { ApiError } from '@/handlers';
+import type { AccountFormTypes} from '@/validation';
+import { accountValidate } from '@/validation';
 import { logger } from '@/logger';
 
 import { checkAuth } from '../checkAuth';

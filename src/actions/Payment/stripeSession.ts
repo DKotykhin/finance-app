@@ -6,8 +6,8 @@ import { currentUser } from '@clerk/nextjs/server';
 import type { Subscription } from '@prisma/client';
 import { SubscriptionStatus, SubscriptionType } from '@prisma/client';
 
-import { db } from '@/libs/db';
-import { ApiError } from '@/handlers/apiError';
+import { db } from '@/libs';
+import { ApiError } from '@/handlers';
 
 import { checkAuth } from '../checkAuth';
 

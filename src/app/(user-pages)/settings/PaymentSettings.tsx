@@ -10,11 +10,11 @@ import { BadgeCheck, Check } from 'lucide-react';
 import { SubscriptionStatus, SubscriptionType } from '@prisma/client';
 import { format } from 'date-fns';
 
-import { createStripeSession } from '@/actions/Payment/stripeSession';
-import { useConfirm, useSubscription } from '@/hooks';
+import { createStripeSession } from '@/actions';
+import { useConfirm, useFetchSubscription } from '@/hooks';
 
 export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }) => {
-  const { subscriptionData, cancelSubscription } = useSubscription(userId);
+  const { subscriptionData, cancelSubscription } = useFetchSubscription(!!userId);
   const router = useRouter();
 
   const [ConfirmModal, confirm] = useConfirm({

@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
-import { areaTextField } from '@/validation/_fields';
-import { ApiError } from '@/handlers/apiError';
+import { ApiError } from '@/handlers';
+
+import { areaTextField } from './_fields';
 
 export const transactionFormValidationSchema = z.object({
   amount: z

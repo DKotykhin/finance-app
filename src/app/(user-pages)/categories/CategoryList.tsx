@@ -25,9 +25,9 @@ import {
 import type { Category, UserSettings } from '@prisma/client';
 import { SortOrder } from '@prisma/client';
 
-import type { CategoryFormTypes } from '@/validation/categoryValidation';
-import { cn, rowsPerPageArray } from '@/utils/_index';
-import { useConfirm, useCategory } from '@/hooks';
+import type { CategoryFormTypes } from '@/validation';
+import { cn, rowsPerPageArray } from '@/utils';
+import { useConfirm, useFetchCategory } from '@/hooks';
 
 import { CategoryModal } from './CategoryModal';
 import { columns } from './const';
@@ -74,7 +74,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const { deleteCategory } = useCategory();
+  const { deleteCategory } = useFetchCategory();
 
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Delete Category',

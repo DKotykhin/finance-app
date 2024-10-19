@@ -2,8 +2,8 @@
 
 import type { Category } from '@prisma/client';
 
-import { db } from '@/libs/db';
-import { ApiError } from '@/handlers/apiError';
+import { db } from '@/libs';
+import { ApiError } from '@/handlers';
 import { checkAuth } from '../checkAuth';
 
 export const getCategories = async (hidden?: boolean): Promise<Category[]> => {

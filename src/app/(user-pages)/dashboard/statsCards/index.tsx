@@ -7,8 +7,8 @@ import { TrendingDown, TrendingUp } from 'lucide-react';
 import { format, startOfDay } from 'date-fns';
 import { Currency } from '@prisma/client';
 
-import type { TransactionsWithStats } from '@/actions/Transaction/_index';
-import { cn, currencyMap } from '@/utils/_index';
+import type { TransactionsWithStats } from '@/actions';
+import { cn, currencyMap } from '@/utils';
 
 interface StatsCardsProps {
   transactionData?: TransactionsWithStats;

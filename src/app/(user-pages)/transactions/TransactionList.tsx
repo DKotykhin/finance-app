@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Badge,
   Button,
@@ -24,26 +23,19 @@ import {
   useDisclosure,
 } from '@nextui-org/react';
 import { EyeIcon, Loader2, Pencil, Trash2, TriangleAlert } from 'lucide-react';
-import { toast } from 'react-toastify';
 import { differenceInDays, format, subDays, isToday } from 'date-fns';
 import { useUser } from '@clerk/nextjs';
-import type { Selection} from '@nextui-org/react';
+import type { Selection } from '@nextui-org/react';
 
-import type { DateValue} from '@internationalized/date';
+import type { DateValue } from '@internationalized/date';
 import { parseAbsoluteToLocal } from '@internationalized/date';
 import type { UserSettings } from '@prisma/client';
 import { SortOrder } from '@prisma/client';
 
-import type {
-  ExtendedTransaction,
-  TransactionCreate} from '@/actions/Transaction/_index';
-import {
-  deleteTransaction,
-  getTransactions
-} from '@/actions/Transaction/_index';
-import { cn, currencyMap, dateToValue, numberWithSpaces, rowsPerPageArray, valueToDate } from '@/utils/_index';
-import { useTransactionsStore } from '@/store/transactionsSlice';
-import { useConfirm, useAccount, useCategory } from '@/hooks';
+import type { ExtendedTransaction, TransactionCreate } from '@/actions';
+import { cn, currencyMap, dateToValue, numberWithSpaces, rowsPerPageArray, valueToDate } from '@/utils';
+import { useTransactionsStore } from '@/store';
+import { useConfirm, useFetchAccount, useFetchCategory, useFetchTransaction } from '@/hooks';
 
 import { TransactionModal } from './TransactionModal';
 import { columns } from './const';
@@ -110,20 +102,34 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     return differenceInDays(valueToDate(dateValue.end), valueToDate(dateValue.start));
   }, [dateValue]);
 
+  const [ConfirmModal, confirm] = useConfirm({
+    title: 'Delete Transaction',
+    message: 'Are you sure you want to delete this transaction?',
+  });
+
+  const { accountData, isAccountLoading } = useFetchAccount(!!user?.id);
+  const { categoryData, isCategoryLoading } = useFetchCategory(!!user?.id);
+
+  const { transactionData, isTransactionLoading, deleteTransaction } = useFetchTransaction({
+    enabled: !!accountData,
+    accountData,
+    dateValue,
+  });
+
   useEffect(() => {
     if (startDate) {
-      setDateValue((v) => ({ ...v, start: dateToValue(startDate) }));
+      setDateValue(v => ({ ...v, start: dateToValue(startDate) }));
     } else {
-      setDateValue((v) => ({
+      setDateValue(v => ({
         ...v,
         start: parseAbsoluteToLocal(subDays(new Date(), (userSettingsData?.transactionPeriod ?? 30) - 1).toISOString()),
       }));
     }
 
     if (endDate) {
-      setDateValue((v) => ({ ...v, end: dateToValue(endDate) }));
+      setDateValue(v => ({ ...v, end: dateToValue(endDate) }));
     } else {
-      setDateValue((v) => ({ ...v, end: parseAbsoluteToLocal(new Date().toISOString()) }));
+      setDateValue(v => ({ ...v, end: parseAbsoluteToLocal(new Date().toISOString()) }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userSettingsData?.transactionPeriod]);
@@ -139,62 +145,11 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactionListLength]);
 
-  const [ConfirmModal, confirm] = useConfirm({
-    title: 'Delete Transaction',
-    message: 'Are you sure you want to delete this transaction?',
-  });
-
-  const queryClient = useQueryClient();
-
-  const { accountData, isAccountLoading } = useAccount(user?.id);
-  const { categoryData, isCategoryLoading } = useCategory(user?.id);
-
-  const { data: transactionData, isLoading: isTransactionLoading } = useQuery({
-    enabled: !!accountData,
-    queryKey: ['transactions', dateValue],
-    queryFn: () =>
-      getTransactions({
-        accountIds: accountData?.map((account) => account.id) ?? [],
-        from: valueToDate(dateValue.start),
-        to: valueToDate(dateValue.end),
-      }),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteTransaction(id),
-    onSuccess: () => {
-      toast.success('Transaction deleted successfully');
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['transactions'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsWithStat'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsWithStat'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsByCategory'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsByCategory'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['todaysTransactionsData'],
-        }),
-      ]);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
   const handleClick = async (id: string) => {
     const ok = await confirm();
 
     if (ok) {
-      deleteMutation.mutateAsync(id);
+      deleteTransaction.mutateAsync(id);
     }
   };
 
@@ -210,16 +165,16 @@ export const TransactionList: React.FC<TransactionListProps> = ({
 
   const onSelectedKeys = (keys: Selection) => {
     setSelectedKeys(keys);
-    selectedKeysFn(keys === 'all' ? tableContent?.map((transaction) => transaction.id) : Array.from(keys));
+    selectedKeysFn(keys === 'all' ? tableContent?.map(transaction => transaction.id) : Array.from(keys));
   };
 
   const onChangeStartDateValue = (value: DateValue) => {
-    setDateValue((v) => ({ ...v, start: value }));
+    setDateValue(v => ({ ...v, start: value }));
     setStartDate(valueToDate(value));
   };
-  
+
   const onChangeEndDateValue = (value: DateValue) => {
-    setDateValue((v) => ({ ...v, end: value }));
+    setDateValue(v => ({ ...v, end: value }));
     setEndDate(valueToDate(value));
   };
 
@@ -228,13 +183,13 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     const end = start + +rowsPerPage;
 
     const filteredData = transactionData
-      ?.filter((transaction) => {
+      ?.filter(transaction => {
         const accountMatch =
           Array.from(accountValue).toString() === 'all' || new Set(Array.from(accountValue)).has(transaction.accountId);
 
         return accountMatch;
       })
-      .filter((transaction) => {
+      .filter(transaction => {
         const categoryMatch =
           Array.from(categoryValue).toString() === 'all' ||
           (transaction.categoryId ? new Set(Array.from(categoryValue)).has(transaction.categoryId) : false);
@@ -242,7 +197,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         return categoryMatch;
       });
 
-    const coercedTransactionData = filteredData?.map((transaction) => ({
+    const coercedTransactionData = filteredData?.map(transaction => ({
       ...transaction,
       accountName: transaction.account.accountName,
       categoryName: transaction.category?.categoryName,
@@ -264,7 +219,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         return sortDescriptor.direction === 'descending' ? -cmp : cmp;
       })
       .slice(start, end)
-      .map((transaction) => ({
+      .map(transaction => ({
         ...transaction,
         rawTransaction: transaction,
         date: <p className="text-xs lg:text-sm font-semibold">{format(new Date(transaction.date), 'dd MMM, yyyy')}</p>,
@@ -331,8 +286,8 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                 }
               />
             </Button>
-            <Button isIconOnly size="sm" variant="light" disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending && transaction.id === deleteMutation.variables ? (
+            <Button isIconOnly size="sm" variant="light" disabled={deleteTransaction.isPending}>
+              {deleteTransaction.isPending && transaction.id === deleteTransaction.variables ? (
                 <Loader2 className="text-slate-400 animate-spin" size={24} />
               ) : (
                 <Trash2 className="cursor-pointer text-red-500" onClick={() => handleClick(transaction.id)} />
@@ -393,7 +348,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                 onSelectionChange={setCategoryValue}
                 className="w-full lg:w-[160px]"
               >
-                {(category) => <SelectItem key={category.id}>{category.categoryName}</SelectItem>}
+                {category => <SelectItem key={category.id}>{category.categoryName}</SelectItem>}
               </Select>
             )}
             {accountData && accountData.length > 0 && (
@@ -406,7 +361,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                 onSelectionChange={setAccountValue}
                 className="w-full lg:w-[160px]"
               >
-                {(account) => <SelectItem key={account.id}>{account.accountName}</SelectItem>}
+                {account => <SelectItem key={account.id}>{account.accountName}</SelectItem>}
               </Select>
             )}
           </div>
@@ -420,7 +375,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
             selectedKeys={[rowsPerPage]}
             onChange={onRowsPerPageChange}
           >
-            {rowsPerPageArray.map((row) => (
+            {rowsPerPageArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
             ))}
           </Select>
@@ -445,7 +400,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         color="secondary"
         page={page}
         total={pages}
-        onChange={(page) => setPage(page)}
+        onChange={page => setPage(page)}
       />
     </div>
   );
@@ -462,12 +417,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         selectedKeys={selectedKeys}
         onSelectionChange={onSelectedKeys}
         sortDescriptor={sortDescriptor}
-        onSortChange={(descriptor) => setSortDescriptor(descriptor as SortDescriptor)}
+        onSortChange={descriptor => setSortDescriptor(descriptor as SortDescriptor)}
         classNames={{ wrapper: pages > 1 ? 'min-h-[370px]' : '' }}
         className="hidden md:block"
       >
         <TableHeader columns={columns}>
-          {(column) => (
+          {column => (
             <TableColumn
               key={column.key}
               align={column.key === 'date' || column.key === 'amount' || column.key === 'notes' ? 'start' : 'center'}
@@ -483,8 +438,8 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           isLoading={isTransactionLoading}
           loadingContent={<Spinner label="Loading..." />}
         >
-          {(item) => (
-            <TableRow key={item.id}>{(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}</TableRow>
+          {item => (
+            <TableRow key={item.id}>{columnKey => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}</TableRow>
           )}
         </TableBody>
       </Table>
@@ -498,7 +453,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         <div className="md:hidden">
           <TopContent />
           {tableContent?.length > 0 ? (
-            tableContent?.map((transaction) => (
+            tableContent?.map(transaction => (
               <div key={transaction.id} className="bg-white shadow-md rounded-lg p-4 mb-4">
                 <div className="text-sm text-gray-500 mb-4">{transaction.date}</div>
                 <div className="flex justify-between items-center">
@@ -529,7 +484,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                       size={24}
                       className={cn(
                         'cursor-pointer text-red-500',
-                        deleteMutation.isPending && transaction.id === deleteMutation.variables ? 'opacity-50' : ''
+                        deleteTransaction.isPending && transaction.id === deleteTransaction.variables
+                          ? 'opacity-50'
+                          : ''
                       )}
                       onClick={() => handleClick(transaction.id)}
                     />

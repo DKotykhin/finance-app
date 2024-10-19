@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
-import { textFieldRequired } from '@/validation/_fields';
-import { ApiError } from '@/handlers/apiError';
+import { ApiError } from '@/handlers';
+
+import { textFieldRequired } from './_fields';
 
 export const categoryFormValidationSchema = z.object({
   categoryName: textFieldRequired,

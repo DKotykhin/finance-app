@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 
-import { ApiError } from '@/handlers/apiError';
+import { ApiError } from '@/handlers';
 import { logger } from '@/logger';
 
 export const checkAuth = () => {

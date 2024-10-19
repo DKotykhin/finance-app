@@ -4,17 +4,17 @@ import { toast } from 'react-toastify';
 
 import type { Subscription } from '@prisma/client';
 
-import { cancelStripeSubscription, getSubscription } from '@/actions/Payment/_index';
+import { cancelStripeSubscription, getSubscription } from '@/actions';
 
-export const useSubscription = (
-  userId?: string | null
+export const useFetchSubscription = (
+  enabled = true
 ): {
   subscriptionData?: Subscription | null;
   isSubscriptionLoading: boolean;
   cancelSubscription: UseMutationResult<Subscription, Error, string, unknown>;
 } => {
   const { data, isLoading } = useQuery({
-    enabled: !!userId,
+    enabled,
     queryKey: ['subscription'],
     queryFn: () => getSubscription(),
   });

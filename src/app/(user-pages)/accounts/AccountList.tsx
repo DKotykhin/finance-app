@@ -26,10 +26,10 @@ import { format } from 'date-fns';
 import type { UserSettings } from '@prisma/client';
 import { SortOrder } from '@prisma/client';
 
-import type { ExtendedAccount } from '@/actions/Account/_index';
-import type { AccountFormTypes } from '@/validation/accountValidation';
-import { cn, currencyMap, numberWithSpaces, rowsPerPageArray } from '@/utils/_index';
-import { useAccount, useConfirm } from '@/hooks';
+import type { ExtendedAccount } from '@/actions';
+import type { AccountFormTypes } from '@/validation';
+import { cn, currencyMap, numberWithSpaces, rowsPerPageArray } from '@/utils';
+import { useFetchAccount, useConfirm } from '@/hooks';
 
 import { AccountModal } from './AccountModal';
 import { columns } from './const';
@@ -76,7 +76,7 @@ export const AccountList: React.FC<AccountListProps> = ({
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const { deleteAccount } = useAccount();
+  const { deleteAccount } = useFetchAccount();
 
   useEffect(() => {
     accountListLengthFn(accountListLength);

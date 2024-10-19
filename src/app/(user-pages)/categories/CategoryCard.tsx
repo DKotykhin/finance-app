@@ -7,9 +7,9 @@ import dynamic from 'next/dynamic';
 import { Button, Card, CardBody, CardHeader, Chip, Skeleton, useDisclosure } from '@nextui-org/react';
 import { Plus, Trash2 } from 'lucide-react';
 
-import { freeLimits } from '@/utils/_index';
+import { freeLimits } from '@/utils';
 import { SubscriptionModal } from '@/components/SubscriptionModal';
-import { useConfirm, useCategory, useSettings, useSubscription } from '@/hooks';
+import { useConfirm, useFetchCategory, useFetchSettings, useFetchSubscription } from '@/hooks';
 
 import { CategoryModal } from './CategoryModal';
 
@@ -35,9 +35,9 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
         : 'Are you sure you want to delete all these categories?',
   });
 
-  const { subscriptionData } = useSubscription(userId);
-  const { userSettingsData, isUserSettingsLoading } = useSettings(userId);
-  const { categoryData, isCategoryLoading, bulkDeleteCategories } = useCategory(userId);
+  const { subscriptionData } = useFetchSubscription(!!userId);
+  const { userSettingsData, isUserSettingsLoading } = useFetchSettings(!!userId);
+  const { categoryData, isCategoryLoading, bulkDeleteCategories } = useFetchCategory(!!userId);
 
   useEffect(() => {
     if (bulkDeleteCategories.isSuccess) {

@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { Currency } from '@prisma/client';
 
-import { textFieldRequired } from '@/validation/_fields';
-import { ApiError } from '@/handlers/apiError';
+import { ApiError } from '@/handlers';
+
+import { textFieldRequired } from './_fields';
 
 export const accountFormValidationSchema = z.object({
   accountName: textFieldRequired,

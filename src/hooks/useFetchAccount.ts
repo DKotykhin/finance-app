@@ -4,12 +4,12 @@ import { toast } from 'react-toastify';
 
 import type { Account } from '@prisma/client';
 
-import type { AccountFormTypes } from '@/validation/accountValidation';
-import type { ExtendedAccount } from '@/actions/Account/_index';
-import { bulkDeleteAccounts, createAccount, deleteAccount, getAccounts, updateAccount } from '@/actions/Account/_index';
+import type { AccountFormTypes } from '@/validation';
+import type { ExtendedAccount } from '@/actions';
+import { bulkDeleteAccounts, createAccount, deleteAccount, getAccounts, updateAccount } from '@/actions';
 
-export const useAccount = (
-  userId?: string | null
+export const useFetchAccount = (
+  enabled = true
 ): {
   accountData?: ExtendedAccount[];
   isAccountLoading: boolean;
@@ -19,7 +19,7 @@ export const useAccount = (
   bulkDeleteAccounts: UseMutationResult<void, Error, string[], unknown>;
 } => {
   const { data, isLoading } = useQuery({
-    enabled: !!userId,
+    enabled,
     queryKey: ['accounts'],
     queryFn: () => getAccounts(),
   });

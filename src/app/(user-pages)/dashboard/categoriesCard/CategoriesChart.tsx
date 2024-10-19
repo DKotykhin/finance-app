@@ -15,7 +15,7 @@ import {
 } from 'recharts';
 import { CategoriesCharts, TransactionType } from '@prisma/client';
 
-import type { TransactionsByCategory } from '@/actions/Transaction/_index';
+import type { TransactionsByCategory } from '@/actions';
 import { Period } from '../const';
 
 interface CategoriesChartProps {

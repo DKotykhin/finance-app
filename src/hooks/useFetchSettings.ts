@@ -4,17 +4,17 @@ import { toast } from 'react-toastify';
 
 import type { UserSettings } from '@prisma/client';
 
-import { getUserSettings, upsertUserSettings } from '@/actions/UserSettings/_index';
+import { getUserSettings, upsertUserSettings } from '@/actions';
 
-export const useSettings = (
-  userId?: string | null
+export const useFetchSettings = (
+  enabled = true
 ): {
   userSettingsData?: UserSettings | null;
   isUserSettingsLoading: boolean;
   upsertUserSettings: UseMutationResult<UserSettings, Error, Partial<UserSettings>, unknown>;
 } => {
   const { data, isLoading } = useQuery({
-    enabled: !!userId,
+    enabled,
     queryKey: ['userSettings'],
     queryFn: () => getUserSettings(),
   });

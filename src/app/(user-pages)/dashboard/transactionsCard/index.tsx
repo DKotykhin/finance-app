@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import type { UserSettings } from '@prisma/client';
 import { TransactionCharts } from '@prisma/client';
 
-import type { TransactionsWithStats } from '@/actions/Transaction/_index';
+import type { TransactionsWithStats } from '@/actions';
 
 import { TransactionChart } from './TransactionsChart';
 import { Period } from '../const';

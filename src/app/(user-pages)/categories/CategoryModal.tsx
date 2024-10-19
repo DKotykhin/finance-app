@@ -13,15 +13,15 @@ import {
   ModalHeader,
   Tooltip,
 } from '@nextui-org/react';
-import type { Mode, Resolver, SubmitHandler} from 'react-hook-form';
+import type { Mode, Resolver, SubmitHandler } from 'react-hook-form';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
 import { Info } from 'lucide-react';
 
-import type { CategoryFormTypes} from '@/validation/categoryValidation';
-import { categoryFormValidationSchema } from '@/validation/categoryValidation';
-import { useCategory } from '@/hooks';
+import type { CategoryFormTypes } from '@/validation';
+import { categoryFormValidationSchema } from '@/validation';
+import { useFetchCategory } from '@/hooks';
 
 import type { CategoryUpdate } from './CategoryList';
 
@@ -47,7 +47,7 @@ const CategoryFormValidation: CategoryFormValidationTypes = {
 };
 
 export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChange, category }) => {
-  const { createCategory, updateCategory } = useCategory();
+  const { createCategory, updateCategory } = useFetchCategory();
 
   useEffect(() => {
     reset({
@@ -58,20 +58,12 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
   }, [category?.categoryName, category?.hidden]);
 
   useEffect(() => {
-    if (createCategory.isSuccess) {
+    if (createCategory.isSuccess || updateCategory.isSuccess) {
       onOpenChange();
       reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createCategory.isSuccess]);
-
-  useEffect(() => {
-    if (updateCategory.isSuccess) {
-      onOpenChange();
-      reset();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [updateCategory.isSuccess]);
+  }, [createCategory.isSuccess, updateCategory.isSuccess]);
 
   const {
     control,
@@ -86,7 +78,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
 
       return;
     }
-    
+
     category?.id
       ? updateCategory.mutateAsync({ categoryId: category?.id as string, categoryData })
       : createCategory.mutateAsync(categoryData);

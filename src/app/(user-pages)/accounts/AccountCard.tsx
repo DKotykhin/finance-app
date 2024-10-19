@@ -7,9 +7,9 @@ import dynamic from 'next/dynamic';
 import { Button, Card, CardBody, CardHeader, Chip, Skeleton, useDisclosure } from '@nextui-org/react';
 import { Plus, Trash2 } from 'lucide-react';
 
-import { freeLimits } from '@/utils/_index';
+import { freeLimits } from '@/utils';
 import { SubscriptionModal } from '@/components/SubscriptionModal';
-import { useConfirm, useAccount, useSettings, useSubscription } from '@/hooks';
+import { useConfirm, useFetchAccount, useFetchSettings, useFetchSubscription } from '@/hooks';
 
 import { AccountModal } from './AccountModal';
 
@@ -35,9 +35,9 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
         : 'Are you sure you want to delete all these accounts?',
   });
 
-  const { accountData, isAccountLoading, bulkDeleteAccounts } = useAccount(userId);
-  const { userSettingsData, isUserSettingsLoading } = useSettings(userId);
-  const { subscriptionData } = useSubscription(userId);
+  const { accountData, isAccountLoading, bulkDeleteAccounts } = useFetchAccount(!!userId);
+  const { userSettingsData, isUserSettingsLoading } = useFetchSettings(!!userId);
+  const { subscriptionData } = useFetchSubscription(!!userId);
 
   useEffect(() => {
     if (bulkDeleteAccounts.isSuccess) {

@@ -2,8 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import type {
-  Selection} from '@nextui-org/react';
+import type { Selection } from '@nextui-org/react';
 import {
   Button,
   Chip,
@@ -18,21 +17,18 @@ import {
   SelectItem,
   Textarea,
 } from '@nextui-org/react';
-import type { DateValue} from '@internationalized/date';
+import type { DateValue } from '@internationalized/date';
 import { parseAbsoluteToLocal } from '@internationalized/date';
-import type { Mode, Resolver, SubmitHandler} from 'react-hook-form';
+import type { Mode, Resolver, SubmitHandler } from 'react-hook-form';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@clerk/nextjs';
 
-import type { TransactionCreate} from '@/actions/Transaction/_index';
-import { createTransaction, updateTransaction } from '@/actions/Transaction/_index';
-import type { TransactionFormTypes} from '@/validation/transactionValidation';
-import { transactionFormValidationSchema } from '@/validation/transactionValidation';
-import { currencyMap, valueToDate } from '@/utils/_index';
-import { useAccount, useCategory } from '@/hooks';
+import type { TransactionFormTypes } from '@/validation';
+import { transactionFormValidationSchema } from '@/validation';
+import { currencyMap, valueToDate } from '@/utils';
+import { useFetchAccount, useFetchCategory, useFetchTransaction } from '@/hooks';
 
 import type { TransactionUpdate } from './TransactionList';
 
@@ -61,18 +57,18 @@ const TransactionFormValidation: TransactionFormValidationTypes = {
 
 export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOpenChange, transaction }) => {
   const { user } = useUser();
-  const queryClient = useQueryClient();
 
   const [dateValue, setDateValue] = useState<DateValue>(parseAbsoluteToLocal(new Date().toISOString()));
   const [accountValue, setAccountValue] = useState<Selection>(new Set([]));
   const [categoryValue, setCategoryValue] = useState<Selection>(new Set([]));
 
-  const { accountData, isAccountLoading } = useAccount(user?.id);
-  const { categoryData, isCategoryLoading } = useCategory(user?.id);
+  const { accountData, isAccountLoading } = useFetchAccount(!!user?.id);
+  const { categoryData, isCategoryLoading } = useFetchCategory(!!user?.id);  
+  const { createTransaction, updateTransaction } = useFetchTransaction();
 
   useEffect(() => {
     if (accountData && accountData.length > 0 && !transaction?.id) {
-      const defaultAccountId = accountData.find((account) => account.isDefault)?.id;
+      const defaultAccountId = accountData.find(account => account.isDefault)?.id;
 
       if (defaultAccountId) {
         setAccountValue(new Set([defaultAccountId]));
@@ -97,73 +93,19 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transaction]);
 
+  useEffect(() => {
+    if (createTransaction.isSuccess || updateTransaction.isSuccess) {
+      onOpenChange();
+      reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createTransaction.isSuccess, updateTransaction.isSuccess]);
+
   const currencySign = useMemo(() => {
-    const acc = accountData && accountData.find((account) => account.id === Array.from(accountValue)[0]);
-    
+    const acc = accountData && accountData.find(account => account.id === Array.from(accountValue)[0]);
+
     return acc?.currency ? currencyMap.get(acc.currency)?.sign : '';
   }, [accountData, accountValue]);
-
-  const createMutation = useMutation({
-    mutationFn: ({ transactionData }: { transactionData: TransactionCreate }) => createTransaction(transactionData),
-    onSuccess: () => {
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['transactions'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsWithStat'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsWithStat'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsByCategory'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsByCategory'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['todaysTransactionsData'],
-        }),
-      ]);
-      reset();
-      onOpenChange();
-      toast.success(`Transaction created successfully`);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ transactionId, transactionData }: { transactionId: string; transactionData: TransactionCreate }) =>
-      updateTransaction({ transactionId, transactionData }),
-    onSuccess: () => {
-      reset();
-      onOpenChange();
-      toast.success(`Transaction updated successfully`);
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['transactions'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsWithStat'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsWithStat'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsByCategory'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsByCategory'],
-        }),
-      ]);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
 
   const {
     control,
@@ -172,7 +114,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
     reset,
   } = useForm<TransactionFormTypes>(TransactionFormValidation);
 
-  const onSubmit: SubmitHandler<TransactionFormTypes> = async (transactionData) => {
+  const onSubmit: SubmitHandler<TransactionFormTypes> = async transactionData => {
     if (!dateValue) return;
     const notes1 = transaction?.notes ? transaction.notes : '';
     const notes2 = transactionData.notes ? transactionData.notes : '';
@@ -188,9 +130,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
 
       return;
     }
-    
+
     transaction?.id
-      ? updateMutation.mutate({
+      ? updateTransaction.mutate({
           transactionId: transaction.id,
           transactionData: {
             ...transactionData,
@@ -199,13 +141,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
             notes: transactionData.notes || null,
           },
         })
-      : createMutation.mutate({
-          transactionData: {
-            ...transactionData,
-            date: valueToDate(dateValue),
-            amount: Math.round(parseFloat(transactionData.amount) * 100) / 100,
-            notes: transactionData.notes || null,
-          },
+      : createTransaction.mutate({
+          ...transactionData,
+          date: valueToDate(dateValue),
+          amount: Math.round(parseFloat(transactionData.amount) * 100) / 100,
+          notes: transactionData.notes || null,
         });
   };
 
@@ -218,7 +158,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       isDismissable={false}
     >
       <ModalContent>
-        {(onClose) => (
+        {onClose => (
           <>
             <ModalHeader className="flex justify-center">
               {transaction?.id ? 'Update Transaction' : 'Create New Transaction'}
@@ -279,7 +219,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                         selectedKeys={accountValue}
                         onSelectionChange={setAccountValue}
                       >
-                        {(account) => <SelectItem key={account.id}>{account.accountName}</SelectItem>}
+                        {account => <SelectItem key={account.id}>{account.accountName}</SelectItem>}
                       </Select>
                     )}
                   />
@@ -291,7 +231,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                     render={({ field }) => (
                       <Select
                         {...field}
-                        items={categoryData.filter((category) => category.hidden === false)}
+                        items={categoryData.filter(category => category.hidden === false)}
                         label="Select a category"
                         isLoading={isCategoryLoading}
                         isDisabled={isCategoryLoading}
@@ -300,7 +240,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                         selectedKeys={categoryValue}
                         onSelectionChange={setCategoryValue}
                       >
-                        {(category) => <SelectItem key={category.id}>{category.categoryName}</SelectItem>}
+                        {category => <SelectItem key={category.id}>{category.categoryName}</SelectItem>}
                       </Select>
                     )}
                   />
@@ -324,7 +264,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                 <Button type="button" color="default" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit" color="primary" disabled={createMutation.isPending || updateMutation.isPending}>
+                <Button type="submit" color="primary" disabled={createTransaction.isPending || updateTransaction.isPending}>
                   {transaction?.id ? 'Update' : 'Create'}
                 </Button>
               </ModalFooter>

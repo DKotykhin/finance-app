@@ -7,8 +7,8 @@ import { RotateCcw, Save } from 'lucide-react';
 import type { SortOrder } from '@prisma/client';
 import { CategoriesCharts, TransactionCharts } from '@prisma/client';
 
-import { rowsPerPageArray } from '@/utils/_index';
-import { useSettings } from '@/hooks';
+import { rowsPerPageArray } from '@/utils';
+import { useFetchSettings } from '@/hooks';
 
 import { accountFieldArray, categoryFieldArray, periodArray, sortOrderArray, transactionFieldArray } from './const';
 
@@ -38,7 +38,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
     categoriesView: '',
   });
 
-  const { userSettingsData, isUserSettingsLoading, upsertUserSettings } = useSettings(userId);
+  const { userSettingsData, isUserSettingsLoading, upsertUserSettings } = useFetchSettings(!!userId);
 
   const initialSettings = useCallback(() => {
     setCategorySettings(prevState => ({

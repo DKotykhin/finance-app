@@ -10,11 +10,11 @@ import {
   deleteCategory,
   getCategories,
   updateCategory,
-} from '@/actions/Category/_index';
-import type { CategoryFormTypes } from '@/validation/categoryValidation';
+} from '@/actions';
+import type { CategoryFormTypes } from '@/validation';
 
-export const useCategory = (
-  userId?: string | null
+export const useFetchCategory = (
+  enabled = true
 ): {
   categoryData?: Category[];
   isCategoryLoading: boolean;
@@ -24,7 +24,7 @@ export const useCategory = (
   bulkDeleteCategories: UseMutationResult<void, Error, string[], unknown>;
 } => {
   const { data, isLoading } = useQuery({
-    enabled: !!userId,
+    enabled,
     queryKey: ['categories'],
     queryFn: () => getCategories(),
   });

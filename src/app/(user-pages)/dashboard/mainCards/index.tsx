@@ -8,9 +8,8 @@ import type { RangeValue } from '@react-types/shared';
 import type { DateValue } from '@react-types/datepicker';
 import { Currency } from '@prisma/client';
 
-import { valueToDate, currencyMap, cn } from '@/utils/_index';
-import type { TransactionsWithStats } from '@/actions/Transaction/_index';
-import type { ExtendedAccount } from '@/actions/Account/_index';
+import { valueToDate, currencyMap, cn } from '@/utils';
+import type { TransactionsWithStats, ExtendedAccount } from '@/actions';
 
 import { CompareMessage } from './CompareMessage';
 

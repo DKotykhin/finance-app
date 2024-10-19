@@ -1,8 +1,8 @@
 'use server';
 
-import { db } from '@/libs/db';
-import { ApiError } from '@/handlers/apiError';
-import { idValidate } from '@/validation/idValidation';
+import { db } from '@/libs';
+import { ApiError } from '@/handlers';
+import { idValidate } from '@/validation';
 
 import { checkAuth } from '../checkAuth';
 

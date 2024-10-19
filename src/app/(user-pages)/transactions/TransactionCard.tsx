@@ -1,18 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 
 import { Button, Card, CardBody, CardHeader, Chip, Skeleton, useDisclosure } from '@nextui-org/react';
 import { Plus, Trash2 } from 'lucide-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'react-toastify';
 import { useUser } from '@clerk/nextjs';
 
-import { bulkDeleteTransactions, getTodaysTransactions } from '@/actions/Transaction/_index';
-import { freeLimits } from '@/utils/const';
-import { useConfirm , useAccount, useSettings, useSubscription } from '@/hooks';
+import { freeLimits } from '@/utils';
+import { useConfirm, useFetchAccount, useFetchSettings, useFetchSubscription, useFetchTransaction } from '@/hooks';
 import { SubscriptionModal } from '@/components/SubscriptionModal';
 
 import { TransactionModal } from './TransactionModal';
@@ -20,7 +17,6 @@ import { TransactionModal } from './TransactionModal';
 const TransactionList = dynamic(async () => (await import('./TransactionList')).TransactionList, { ssr: false });
 
 export const TransactionCard: React.FC = () => {
-  const queryClient = useQueryClient();
   const { user } = useUser();
 
   const [idList, setIdList] = useState<string[]>([]);
@@ -42,56 +38,26 @@ export const TransactionCard: React.FC = () => {
         : 'Are you sure you want to delete all these transactions?',
   });
 
-  const { accountData, isAccountLoading } = useAccount(user?.id);
-  const { userSettingsData, isUserSettingsLoading } = useSettings(user?.id);
-  const { subscriptionData } = useSubscription(user?.id);
+  const { accountData, isAccountLoading } = useFetchAccount(!!user?.id);
+  const { userSettingsData, isUserSettingsLoading } = useFetchSettings(!!user?.id);
+  const { subscriptionData } = useFetchSubscription(!!user?.id);
 
-  const { data: todaysTransactionsData, isLoading: isTodaysTransactionsLoading } = useQuery({
-    enabled:
-      !!user?.id &&
-      !isUserSettingsLoading &&
-      !isAccountLoading &&
-      !!subscriptionData?.type,
-    queryKey: ['todaysTransactionsData'],
-    queryFn: () => getTodaysTransactions({ accountIds: accountData?.map((account) => account.id) ?? [] }),
+  const { todaysTransactionsData, isTodaysTransactionsLoading, bulkDeleteTransaction } = useFetchTransaction({
+    accountData,
+    enabled: !!user?.id && !isUserSettingsLoading && !isAccountLoading && !!subscriptionData?.type,
   });
 
-  const bulkDeleteMutation = useMutation({
-    mutationFn: (idList: string[]) => bulkDeleteTransactions(idList),
-    onSuccess: () => {
+  useEffect(() => {
+    if (bulkDeleteTransaction.isSuccess) {
       setIdList([]);
-      toast.success('Transactions deleted successfully');
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['transactions'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsWithStat'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsWithStat'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['transactionsByCategory'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['previousTransactionsByCategory'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['todaysTransactionsData'],
-        }),
-      ]);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+    }
+  }, [bulkDeleteTransaction.isSuccess]);
 
   const onDelete = async () => {
     const ok = await confirm();
 
     if (ok) {
-      bulkDeleteMutation.mutateAsync(idList);
+      bulkDeleteTransaction.mutateAsync(idList);
     }
   };
 
@@ -120,7 +86,7 @@ export const TransactionCard: React.FC = () => {
                     color="warning"
                     variant="bordered"
                     onPress={onDelete}
-                    isDisabled={bulkDeleteMutation.isPending}
+                    isDisabled={bulkDeleteTransaction.isPending}
                     className="w-full sm:w-auto"
                   >
                     <Trash2 size={16} />

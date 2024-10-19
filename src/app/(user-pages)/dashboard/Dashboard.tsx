@@ -6,10 +6,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Autocomplete, AutocompleteItem, DateRangePicker, Skeleton } from '@nextui-org/react';
 import { addDays, differenceInDays, subDays, isToday } from 'date-fns';
 
-import { getTransactionsByCategory, getTransactionsWithStats } from '@/actions/Transaction/_index';
-import { valueToDate, dateToValue } from '@/utils/_index';
-import { useDashboardStore } from '@/store/dashboardSlice';
-import { useAccount, useSettings } from '@/hooks';
+import { getTransactionsByCategory, getTransactionsWithStats } from '@/actions';
+import { valueToDate, dateToValue } from '@/utils';
+import { useDashboardStore } from '@/store';
+import { useFetchAccount, useFetchSettings } from '@/hooks';
 
 import { MainCards } from './mainCards';
 import { TransactionsCard } from './transactionsCard';
@@ -37,8 +37,8 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
     };
   }, [currentPeriod, periodInDays]);
 
-  const { accountData, isAccountLoading } = useAccount(userId);
-  const { userSettingsData, isUserSettingsLoading } = useSettings(userId);
+  const { accountData, isAccountLoading } = useFetchAccount(!!userId);
+  const { userSettingsData, isUserSettingsLoading } = useFetchSettings(!!userId);
 
   useEffect(() => {
     if (!accountId) {

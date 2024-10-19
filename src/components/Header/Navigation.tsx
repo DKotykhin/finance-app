@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { Button, Divider } from '@nextui-org/react';
 import { Menu, X } from 'lucide-react';
 
-import { cn } from '@/utils/cn';
+import { cn } from '@/utils';
 
 const routes = [
   {

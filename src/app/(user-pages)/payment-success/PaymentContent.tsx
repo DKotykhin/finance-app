@@ -8,7 +8,7 @@ import { Button, Card, CardBody, CardHeader, Skeleton } from '@nextui-org/react'
 import { CircleCheckBig, CircleX } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
-import { retrieveStripeSession } from '@/actions/Payment/stripeSession';
+import { retrieveStripeSession } from '@/actions';
 
 export const PaymentContent: React.FC = () => {
   const router = useRouter();

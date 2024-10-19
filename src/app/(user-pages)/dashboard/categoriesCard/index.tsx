@@ -19,7 +19,7 @@ import type { UserSettings } from '@prisma/client';
 import { CategoriesCharts, TransactionType } from '@prisma/client';
 import { format } from 'date-fns';
 
-import type { TransactionsByCategory } from '@/actions/Transaction/_index';
+import type { TransactionsByCategory } from '@/actions';
 
 import { Period } from '../const';
 import { CategoriesChart } from './CategoriesChart';

@@ -23,9 +23,9 @@ import { Info } from 'lucide-react';
 
 import { Currency } from '@prisma/client';
 
-import type { AccountFormTypes } from '@/validation/accountValidation';
-import { accountFormValidationSchema } from '@/validation/accountValidation';
-import { useAccount } from '@/hooks';
+import type { AccountFormTypes } from '@/validation';
+import { accountFormValidationSchema } from '@/validation';
+import { useFetchAccount } from '@/hooks';
 
 import type { AccountUpdate } from './AccountList';
 
@@ -53,7 +53,7 @@ const AccountFormValidation: AccountFormValidationTypes = {
 };
 
 export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange, account }) => {
-  const { createAccount, updateAccount } = useAccount();
+  const { createAccount, updateAccount } = useFetchAccount();
 
   useEffect(() => {
     reset({
@@ -66,20 +66,12 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
   }, [isOpen]);
 
   useEffect(() => {
-    if (createAccount.isSuccess) {
+    if (createAccount.isSuccess || updateAccount.isSuccess) {
       onOpenChange();
       reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createAccount.isSuccess]);
-
-  useEffect(() => {
-    if (updateAccount.isSuccess) {
-      onOpenChange();
-      reset();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [updateAccount.isSuccess]);
+  }, [createAccount.isSuccess, updateAccount.isSuccess]);
 
   const {
     control,

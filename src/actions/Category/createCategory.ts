@@ -2,10 +2,10 @@
 
 import type { Category } from '@prisma/client';
 
-import { db } from '@/libs/db';
-import { ApiError } from '@/handlers/apiError';
+import { db } from '@/libs';
+import { ApiError } from '@/handlers';
+import { categoryValidate, type CategoryFormTypes } from '@/validation';
 
-import { categoryValidate, type CategoryFormTypes } from '@/validation/categoryValidation';
 import { checkAuth } from '../checkAuth';
 
 export const createCategory = async (categoryData: CategoryFormTypes): Promise<Category> => {

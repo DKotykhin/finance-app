@@ -7,8 +7,8 @@ import { format } from 'date-fns';
 
 import { TriangleAlert } from 'lucide-react';
 
-import { cn, currencyMap, numberWithSpaces } from '@/utils/_index';
-import type { ExtendedTransaction } from '@/actions/Transaction/getTransactions';
+import { cn, currencyMap, numberWithSpaces } from '@/utils';
+import type { ExtendedTransaction } from '@/actions';
 
 interface ViewModalProps {
   isOpen: boolean;

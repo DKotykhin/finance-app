@@ -2,8 +2,8 @@
 
 import type { Transaction } from '@prisma/client';
 
-import { db } from '@/libs/db';
-import { ApiError } from '@/handlers/apiError';
+import { db } from '@/libs';
+import { ApiError } from '@/handlers';
 
 import { checkAuth } from '../checkAuth';
 
