@@ -192,7 +192,7 @@ export const AccountList: React.FC<AccountListProps> = ({
         ),
       }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, accountData, filterValue, rowsPerPage, sortDescriptor]);
+  }, [page, accountData, filterValue, rowsPerPage, sortDescriptor, deleteAccount.isPending]);
 
   const TopContent = () => (
     <div className="flex gap-6 sm:items-center sm:justify-between mb-6 flex-col sm:flex-row">

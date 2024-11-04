@@ -37,26 +37,26 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
     };
   }, [currentPeriod, periodInDays]);
 
-  const { accountData, isAccountLoading } = useFetchAccount(!!userId);
-  const { userSettingsData, isUserSettingsLoading } = useFetchSettings(!!userId);
+  const { accounts } = useFetchAccount(!!userId);
+  const { userSettings } = useFetchSettings(!!userId);
 
   useEffect(() => {
     if (!accountId) {
-      const defaultAccount = accountData?.find(account => account.isDefault);
+      const defaultAccount = accounts.data?.find(account => account.isDefault);
 
       defaultAccount && setAccountId(defaultAccount.id);
     }
-  }, [accountData, accountId, setAccountId]);
+  }, [accounts.data, accountId, setAccountId]);
 
   useEffect(() => {
-    if (!dateValue.start && !dateValue.end && !isUserSettingsLoading) {
+    if (!dateValue.start && !dateValue.end && !userSettings.isLoading) {
       setDateValue({
-        start: dateToValue(subDays(new Date(), (userSettingsData?.dashboardPeriod ?? 30) - 1)),
+        start: dateToValue(subDays(new Date(), (userSettings.data?.dashboardPeriod ?? 30) - 1)),
         end: dateToValue(new Date()),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userSettingsData?.dashboardPeriod]);
+  }, [userSettings.data?.dashboardPeriod]);
 
   const { data: transactionData, isLoading: isTransactionLoading } = useQuery({
     enabled: !!accountId,
@@ -103,21 +103,21 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
   });
 
   const currentAccount = useMemo(() => {
-    return accountData?.find(account => account.id === accountId);
-  }, [accountData, accountId]);
+    return accounts.data?.find(account => account.id === accountId);
+  }, [accounts.data, accountId]);
 
   return (
     <div className="-mt-44">
-      {isAccountLoading ? (
+      {accounts.isLoading ? (
         <div className="flex flex-col md:flex-row gap-4">
           <Skeleton className="w-full sm:w-[220px] h-14 rounded-lg bg-slate-100" />
           <Skeleton className="w-full sm:w-[280px] h-14 rounded-lg bg-slate-100" />
         </div>
-      ) : accountData && accountData.length > 0 ? (
+      ) : accounts.data && accounts.data.length > 0 ? (
         <>
           <div className="flex flex-col md:flex-row gap-4">
             <Autocomplete
-              defaultItems={accountData}
+              defaultItems={accounts.data}
               label="Your accounts"
               placeholder="Search an account"
               className="w-full sm:max-w-[220px]"
@@ -160,16 +160,16 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
                 <TransactionsCard
                   transactionData={transactionData}
                   previousTransactionData={previousTransactionData}
-                  userSettingsData={userSettingsData}
-                  isUserSettingsLoading={isUserSettingsLoading}
+                  userSettingsData={userSettings.data}
+                  isUserSettingsLoading={userSettings.isLoading}
                   currentPeriod={currentPeriod}
                   previousPeriod={previousPeriod}
                 />
                 <CategoriesCard
                   transactionByCategoryData={transactionByCategoryData}
                   previousTransactionByCategoryData={previousTransactionByCategoryData}
-                  userSettingsData={userSettingsData}
-                  isUserSettingsLoading={isUserSettingsLoading}
+                  userSettingsData={userSettings.data}
+                  isUserSettingsLoading={userSettings.isLoading}
                   currentPeriod={currentPeriod}
                   previousPeriod={previousPeriod}
                 />

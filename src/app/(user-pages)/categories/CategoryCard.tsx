@@ -35,9 +35,9 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
         : 'Are you sure you want to delete all these categories?',
   });
 
-  const { subscriptionData } = useFetchSubscription(!!userId);
-  const { userSettingsData, isUserSettingsLoading } = useFetchSettings(!!userId);
-  const { categoryData, isCategoryLoading, bulkDeleteCategories } = useFetchCategory(!!userId);
+  const { subscription } = useFetchSubscription(!!userId);
+  const { userSettings } = useFetchSettings(!!userId);
+  const { categories, bulkDeleteCategories } = useFetchCategory(!!userId);
 
   useEffect(() => {
     if (bulkDeleteCategories.isSuccess) {
@@ -57,7 +57,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
     <>
       <Card className="-mt-24 mb-12 p-1 sm:p-4">
         <CardHeader className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          {isCategoryLoading ? (
+          {categories.isLoading ? (
             <>
               <Skeleton className="w-[200px] h-10 rounded-lg bg-slate-100"></Skeleton>
               <Skeleton className="w-[200px] h-10 rounded-lg bg-slate-100"></Skeleton>
@@ -78,7 +78,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
                     color="warning"
                     variant="bordered"
                     onPress={onDelete}
-                    isDisabled={bulkDeleteCategories.isPending}
+                    isLoading={bulkDeleteCategories.isPending}
                     className="w-full sm:w-auto"
                   >
                     <Trash2 size={16} />
@@ -88,7 +88,7 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
                 <Button
                   color="secondary"
                   onPress={
-                    !subscriptionData && (categoryData?.length ?? 0) >= freeLimits.categories
+                    !subscription.data && (categories.data?.length ?? 0) >= freeLimits.categories
                       ? onSubscriptionOpen
                       : onCategoryOpen
                   }
@@ -103,10 +103,10 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
         </CardHeader>
         <CardBody>
           <CategoryList
-            categoryData={categoryData}
-            isCategoryDataLoading={isCategoryLoading}
-            userSettingsData={userSettingsData}
-            isUserSettingsLoading={isUserSettingsLoading}
+            categoryData={categories.data}
+            isCategoryDataLoading={categories.isLoading}
+            userSettingsData={userSettings.data}
+            isUserSettingsLoading={userSettings.isLoading}
             selectedKeysFn={setIdList}
             categoryListLengthFn={setCategoryListLength}
           />

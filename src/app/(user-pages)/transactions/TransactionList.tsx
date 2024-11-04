@@ -107,12 +107,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     message: 'Are you sure you want to delete this transaction?',
   });
 
-  const { accountData, isAccountLoading } = useFetchAccount(!!user?.id);
-  const { categoryData, isCategoryLoading } = useFetchCategory(!!user?.id);
+  const { accounts } = useFetchAccount(!!user?.id);
+  const { categories } = useFetchCategory(!!user?.id);
 
-  const { transactionData, isTransactionLoading, deleteTransaction } = useFetchTransaction({
-    enabled: !!accountData,
-    accountData,
+  const { transactions, deleteTransaction } = useFetchTransaction({
+    enabled: !!accounts.data,
+    accountData: accounts.data,
     dateValue,
   });
 
@@ -182,7 +182,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     const start = (page - 1) * +rowsPerPage;
     const end = start + +rowsPerPage;
 
-    const filteredData = transactionData
+    const filteredData = transactions.data
       ?.filter(transaction => {
         const accountMatch =
           Array.from(accountValue).toString() === 'all' || new Set(Array.from(accountValue)).has(transaction.accountId);
@@ -297,7 +297,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         ),
       }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, transactionData, rowsPerPage, sortDescriptor, accountValue, categoryValue]);
+  }, [page, transactions.data, rowsPerPage, sortDescriptor, accountValue, categoryValue, deleteTransaction.isPending]);
 
   const TopContent = () => (
     <>
@@ -318,7 +318,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                     value={dateValue.start}
                     onChange={onChangeStartDateValue}
                     className="w-full lg:w-[160px]"
-                    isDisabled={isTransactionLoading}
+                    isDisabled={transactions.isLoading}
                   />
                   <DatePicker
                     label="Date to"
@@ -326,7 +326,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                     value={dateValue.end}
                     onChange={onChangeEndDateValue}
                     className="w-full lg:w-[160px]"
-                    isDisabled={isTransactionLoading}
+                    isDisabled={transactions.isLoading}
                   />
                 </>
               )}
@@ -338,12 +338,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 items-center w-full lg:w-auto">
-            {categoryData && categoryData.length > 0 && (
+            {categories.data && categories.data.length > 0 && (
               <Select
-                items={[{ id: 'all', categoryName: 'All categories' }, ...categoryData]}
+                items={[{ id: 'all', categoryName: 'All categories' }, ...categories.data]}
                 label="Select category"
-                isLoading={isCategoryLoading}
-                isDisabled={isCategoryLoading}
+                isLoading={categories.isLoading}
+                isDisabled={categories.isLoading}
                 selectedKeys={categoryValue}
                 onSelectionChange={setCategoryValue}
                 className="w-full lg:w-[160px]"
@@ -351,12 +351,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                 {category => <SelectItem key={category.id}>{category.categoryName}</SelectItem>}
               </Select>
             )}
-            {accountData && accountData.length > 0 && (
+            {accounts.data && accounts.data.length > 0 && (
               <Select
-                items={[{ id: 'all', accountName: 'All accounts' }, ...accountData]}
+                items={[{ id: 'all', accountName: 'All accounts' }, ...accounts.data]}
                 label="Select account"
-                isLoading={isAccountLoading}
-                isDisabled={isAccountLoading}
+                isLoading={accounts.isLoading}
+                isDisabled={accounts.isLoading}
                 selectedKeys={accountValue}
                 onSelectionChange={setAccountValue}
                 className="w-full lg:w-[160px]"
@@ -435,7 +435,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         <TableBody
           items={tableContent || []}
           emptyContent={'No transactions to display.'}
-          isLoading={isTransactionLoading}
+          isLoading={transactions.isLoading}
           loadingContent={<Spinner label="Loading..." />}
         >
           {item => (
@@ -445,7 +445,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       </Table>
 
       {/* Mobile content */}
-      {isTransactionLoading ? (
+      {transactions.isLoading ? (
         <div className="flex justify-center bg-white shadow-md rounded-lg p-4 mb-4">
           <Spinner label="Loading..." />
         </div>

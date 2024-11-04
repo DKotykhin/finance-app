@@ -14,7 +14,7 @@ import { createStripeSession } from '@/actions';
 import { useConfirm, useFetchSubscription } from '@/hooks';
 
 export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }) => {
-  const { subscriptionData, cancelSubscription } = useFetchSubscription(!!userId);
+  const { subscription, cancelSubscription } = useFetchSubscription(!!userId);
   const router = useRouter();
 
   const [ConfirmModal, confirm] = useConfirm({
@@ -54,11 +54,11 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
     <>
       <div className="mb-8">
         <p className="w-full text-center mt-1 mb-1 text-2xl uppercase font-bold">Choose the best payment plan</p>
-        {subscriptionData?.type ? (
+        {subscription.data?.type ? (
           <>
             <div className="w-full flex justify-center items-center gap-1">
-              <p className="text-gray-500 italic">{`your current plan: ${subscriptionData?.type}`}</p>
-              <BadgeCheck color={subscriptionData?.type === SubscriptionType.PRO ? '#10b981' : '#f0cc01'} size={20} />
+              <p className="text-gray-500 italic">{`your current plan: ${subscription.data?.type}`}</p>
+              <BadgeCheck color={subscription.data?.type === SubscriptionType.PRO ? '#10b981' : '#f0cc01'} size={20} />
             </div>
           </>
         ) : (
@@ -114,36 +114,36 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
               <p className="text-gray-500 text-sm italic">Unlimited transactions</p>
             </div>
           </div>
-          {subscriptionData?.type === SubscriptionType.PRO &&
-            subscriptionData?.status === SubscriptionStatus.Canceled &&
-            subscriptionData.endDate &&
-            new Date(subscriptionData.endDate) > new Date() && (
+          {subscription.data?.type === SubscriptionType.PRO &&
+            subscription.data?.status === SubscriptionStatus.Canceled &&
+            subscription.data.endDate &&
+            new Date(subscription.data.endDate) > new Date() && (
               <div className="text-sm text-grey-500 text-center space-y-1">
-                <p>{subscriptionData?.status}</p>
-                <p>Expiration Date: {format(new Date(subscriptionData.endDate), 'dd MMM, yyyy')}</p>
+                <p>{subscription.data?.status}</p>
+                <p>Expiration Date: {format(new Date(subscription.data.endDate), 'dd MMM, yyyy')}</p>
               </div>
             )}
-          {(!subscriptionData ||
-            (subscriptionData.endDate && new Date(subscriptionData.endDate) < new Date()) ||
-            (subscriptionData?.type === SubscriptionType.PRO &&
-              subscriptionData?.status === SubscriptionStatus.Active)) && (
+          {(!subscription.data ||
+            (subscription.data.endDate && new Date(subscription.data.endDate) < new Date()) ||
+            (subscription.data?.type === SubscriptionType.PRO &&
+              subscription.data?.status === SubscriptionStatus.Active)) && (
             <Button
               color="primary"
               variant={
-                subscriptionData?.type === SubscriptionType.PRO &&
-                subscriptionData?.status === SubscriptionStatus.Active
+                subscription.data?.type === SubscriptionType.PRO &&
+                subscription.data?.status === SubscriptionStatus.Active
                   ? 'flat'
                   : 'solid'
               }
               onClick={() =>
-                subscriptionData?.type === SubscriptionType.PRO &&
-                subscriptionData?.status === SubscriptionStatus.Active
-                  ? cancelPaymentClick(subscriptionData.subscriptionId)
+                subscription.data?.type === SubscriptionType.PRO &&
+                subscription.data?.status === SubscriptionStatus.Active
+                  ? cancelPaymentClick(subscription.data.subscriptionId)
                   : createPaymentClick(SubscriptionType.PRO)
               }
               isLoading={cancelSubscription.isPending}
             >
-              {subscriptionData?.type === SubscriptionType.PRO && subscriptionData?.status === SubscriptionStatus.Active
+              {subscription.data?.type === SubscriptionType.PRO && subscription.data?.status === SubscriptionStatus.Active
                 ? 'Unsubscribe'
                 : 'Subscribe'}
             </Button>
@@ -180,37 +180,37 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
               <p className="text-gray-500 text-sm italic">Save 17%</p>
             </div>
           </div>
-          {subscriptionData?.type === SubscriptionType.GOLD &&
-            subscriptionData?.status === SubscriptionStatus.Canceled &&
-            subscriptionData.endDate &&
-            new Date(subscriptionData.endDate) > new Date() && (
+          {subscription.data?.type === SubscriptionType.GOLD &&
+            subscription.data?.status === SubscriptionStatus.Canceled &&
+            subscription.data.endDate &&
+            new Date(subscription.data.endDate) > new Date() && (
               <div className="text-sm text-grey-500 text-center space-y-1">
-                <p>{subscriptionData?.status}</p>
-                <p>Expiration Date: {format(new Date(subscriptionData.endDate), 'dd MMM, yyyy')}</p>
+                <p>{subscription.data?.status}</p>
+                <p>Expiration Date: {format(new Date(subscription.data.endDate), 'dd MMM, yyyy')}</p>
               </div>
             )}
-          {(!subscriptionData ||
-            (subscriptionData.endDate && new Date(subscriptionData.endDate) < new Date()) ||
-            (subscriptionData?.type === SubscriptionType.GOLD &&
-              subscriptionData?.status === SubscriptionStatus.Active)) && (
+          {(!subscription.data ||
+            (subscription.data.endDate && new Date(subscription.data.endDate) < new Date()) ||
+            (subscription.data?.type === SubscriptionType.GOLD &&
+              subscription.data?.status === SubscriptionStatus.Active)) && (
             <Button
               color="primary"
               variant={
-                subscriptionData?.type === SubscriptionType.GOLD &&
-                subscriptionData?.status === SubscriptionStatus.Active
+                subscription.data?.type === SubscriptionType.GOLD &&
+                subscription.data?.status === SubscriptionStatus.Active
                   ? 'flat'
                   : 'solid'
               }
               onClick={() =>
-                subscriptionData?.type === SubscriptionType.GOLD &&
-                subscriptionData?.status === SubscriptionStatus.Active
-                  ? cancelPaymentClick(subscriptionData.subscriptionId)
+                subscription.data?.type === SubscriptionType.GOLD &&
+                subscription.data?.status === SubscriptionStatus.Active
+                  ? cancelPaymentClick(subscription.data.subscriptionId)
                   : createPaymentClick(SubscriptionType.GOLD)
               }
               isLoading={cancelSubscription.isPending}
             >
-              {subscriptionData?.type === SubscriptionType.GOLD &&
-              subscriptionData?.status === SubscriptionStatus.Active
+              {subscription.data?.type === SubscriptionType.GOLD &&
+              subscription.data?.status === SubscriptionStatus.Active
                 ? 'Unsubscribe'
                 : 'Subscribe'}
             </Button>

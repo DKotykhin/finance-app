@@ -174,7 +174,7 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         ),
       }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, categoryData, filterValue, rowsPerPage, sortDescriptor]);
+  }, [page, categoryData, filterValue, rowsPerPage, sortDescriptor, deleteCategory.isPending]);
 
   const TopContent = () => (
     <div className="flex gap-6 sm:items-center sm:justify-between mb-6 flex-col sm:flex-row">

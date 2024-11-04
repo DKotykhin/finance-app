@@ -38,35 +38,35 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
     categoriesView: '',
   });
 
-  const { userSettingsData, isUserSettingsLoading, upsertUserSettings } = useFetchSettings(!!userId);
+  const { userSettings, upsertUserSettings } = useFetchSettings(!!userId);
 
   const initialSettings = useCallback(() => {
     setCategorySettings(prevState => ({
       ...prevState,
-      rowsPerPage: userSettingsData?.categoryRowsPerPage || '5',
-      sortField: userSettingsData?.categorySortField || categoryFieldArray[0].key,
-      sortOrder: userSettingsData?.categorySortOrder || sortOrderArray[0].key,
+      rowsPerPage: userSettings.data?.categoryRowsPerPage || '5',
+      sortField: userSettings.data?.categorySortField || categoryFieldArray[0].key,
+      sortOrder: userSettings.data?.categorySortOrder || sortOrderArray[0].key,
     }));
     setAccountSettings(prevState => ({
       ...prevState,
-      rowsPerPage: userSettingsData?.accountRowsPerPage || '5',
-      sortField: userSettingsData?.accountSortField || accountFieldArray[0].key,
-      sortOrder: userSettingsData?.accountSortOrder || sortOrderArray[0].key,
+      rowsPerPage: userSettings.data?.accountRowsPerPage || '5',
+      sortField: userSettings.data?.accountSortField || accountFieldArray[0].key,
+      sortOrder: userSettings.data?.accountSortOrder || sortOrderArray[0].key,
     }));
     setTransactionSettings(prevState => ({
       ...prevState,
-      rowsPerPage: userSettingsData?.transactionRowsPerPage || '5',
-      period: userSettingsData?.transactionPeriod || 30,
-      sortField: userSettingsData?.transactionSortField || transactionFieldArray[0].key,
-      sortOrder: userSettingsData?.transactionSortOrder || sortOrderArray[0].key,
+      rowsPerPage: userSettings.data?.transactionRowsPerPage || '5',
+      period: userSettings.data?.transactionPeriod || 30,
+      sortField: userSettings.data?.transactionSortField || transactionFieldArray[0].key,
+      sortOrder: userSettings.data?.transactionSortOrder || sortOrderArray[0].key,
     }));
     setDashboardSettings(prevState => ({
       ...prevState,
-      period: userSettingsData?.dashboardPeriod || 30,
-      transactionsView: userSettingsData?.dashboardTransactionsChart || TransactionCharts.BarChart,
-      categoriesView: userSettingsData?.dashboardCategoriesChart || CategoriesCharts.PieChart,
+      period: userSettings.data?.dashboardPeriod || 30,
+      transactionsView: userSettings.data?.dashboardTransactionsChart || TransactionCharts.BarChart,
+      categoriesView: userSettings.data?.dashboardCategoriesChart || CategoriesCharts.PieChart,
     }));
-  }, [userSettingsData]);
+  }, [userSettings.data]);
 
   useEffect(() => {
     initialSettings();
@@ -74,19 +74,19 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
 
   const isSaveButtonDisabled = useMemo(() => {
     return (
-      userSettingsData?.categoryRowsPerPage === categorySettings.rowsPerPage &&
-      userSettingsData?.categorySortField === categorySettings.sortField &&
-      userSettingsData?.categorySortOrder === categorySettings.sortOrder &&
-      userSettingsData?.accountRowsPerPage === accountSettings.rowsPerPage &&
-      userSettingsData?.accountSortField === accountSettings.sortField &&
-      userSettingsData?.accountSortOrder === accountSettings.sortOrder &&
-      userSettingsData?.transactionRowsPerPage === transactionSettings.rowsPerPage &&
-      userSettingsData?.transactionPeriod === transactionSettings.period &&
-      userSettingsData?.transactionSortField === transactionSettings.sortField &&
-      userSettingsData?.transactionSortOrder === transactionSettings.sortOrder &&
-      userSettingsData?.dashboardPeriod === dashboardSettings.period &&
-      userSettingsData?.dashboardTransactionsChart === dashboardSettings.transactionsView &&
-      userSettingsData?.dashboardCategoriesChart === dashboardSettings.categoriesView
+      userSettings.data?.categoryRowsPerPage === categorySettings.rowsPerPage &&
+      userSettings.data?.categorySortField === categorySettings.sortField &&
+      userSettings.data?.categorySortOrder === categorySettings.sortOrder &&
+      userSettings.data?.accountRowsPerPage === accountSettings.rowsPerPage &&
+      userSettings.data?.accountSortField === accountSettings.sortField &&
+      userSettings.data?.accountSortOrder === accountSettings.sortOrder &&
+      userSettings.data?.transactionRowsPerPage === transactionSettings.rowsPerPage &&
+      userSettings.data?.transactionPeriod === transactionSettings.period &&
+      userSettings.data?.transactionSortField === transactionSettings.sortField &&
+      userSettings.data?.transactionSortOrder === transactionSettings.sortOrder &&
+      userSettings.data?.dashboardPeriod === dashboardSettings.period &&
+      userSettings.data?.dashboardTransactionsChart === dashboardSettings.transactionsView &&
+      userSettings.data?.dashboardCategoriesChart === dashboardSettings.categoriesView
     );
   }, [
     accountSettings.rowsPerPage,
@@ -102,7 +102,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
     dashboardSettings.period,
     dashboardSettings.transactionsView,
     dashboardSettings.categoriesView,
-    userSettingsData,
+    userSettings.data,
   ]);
 
   const onSaveChanges = () => {
@@ -138,7 +138,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 period: +e.target.value,
               })
             }
-            isLoading={isUserSettingsLoading}
+            isLoading={userSettings.isLoading}
           >
             {periodArray.map(value => (
               <SelectItem key={value}>{value.toString()}</SelectItem>
@@ -155,7 +155,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   transactionsView: e.target.value,
                 })
               }
-              isLoading={isUserSettingsLoading}
+              isLoading={userSettings.isLoading}
             >
               {Object.values(TransactionCharts).map(row => (
                 <SelectItem key={row}>{row}</SelectItem>
@@ -171,7 +171,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   categoriesView: e.target.value,
                 })
               }
-              isLoading={isUserSettingsLoading}
+              isLoading={userSettings.isLoading}
             >
               {Object.values(CategoriesCharts).map(row => (
                 <SelectItem key={row}>{row}</SelectItem>
@@ -193,7 +193,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 period: +e.target.value,
               })
             }
-            isLoading={isUserSettingsLoading}
+            isLoading={userSettings.isLoading}
           >
             {periodArray.map(value => (
               <SelectItem key={value}>{value.toString()}</SelectItem>
@@ -209,7 +209,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 sortField: e.target.value,
               })
             }
-            isLoading={isUserSettingsLoading}
+            isLoading={userSettings.isLoading}
           >
             {transactionFieldArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -227,7 +227,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 rowsPerPage: e.target.value,
               })
             }
-            isLoading={isUserSettingsLoading}
+            isLoading={userSettings.isLoading}
           >
             {rowsPerPageArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -244,7 +244,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 sortOrder: e.target.value as SortOrder,
               })
             }
-            isLoading={isUserSettingsLoading}
+            isLoading={userSettings.isLoading}
           >
             {sortOrderArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -266,7 +266,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 rowsPerPage: e.target.value,
               })
             }
-            isLoading={isUserSettingsLoading}
+            isLoading={userSettings.isLoading}
           >
             {rowsPerPageArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -283,7 +283,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   sortField: e.target.value,
                 })
               }
-              isLoading={isUserSettingsLoading}
+              isLoading={userSettings.isLoading}
             >
               {accountFieldArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -299,7 +299,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   sortOrder: e.target.value as SortOrder,
                 })
               }
-              isLoading={isUserSettingsLoading}
+              isLoading={userSettings.isLoading}
             >
               {sortOrderArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -322,7 +322,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                 rowsPerPage: e.target.value,
               })
             }
-            isLoading={isUserSettingsLoading}
+            isLoading={userSettings.isLoading}
           >
             {rowsPerPageArray.map(row => (
               <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -339,7 +339,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   sortField: e.target.value,
                 })
               }
-              isLoading={isUserSettingsLoading}
+              isLoading={userSettings.isLoading}
             >
               {categoryFieldArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>
@@ -355,7 +355,7 @@ export const PagesSettings: React.FC<{ userId: string | null }> = ({ userId }) =
                   sortOrder: e.target.value as SortOrder,
                 })
               }
-              isLoading={isUserSettingsLoading}
+              isLoading={userSettings.isLoading}
             >
               {sortOrderArray.map(row => (
                 <SelectItem key={row.key}>{row.label}</SelectItem>

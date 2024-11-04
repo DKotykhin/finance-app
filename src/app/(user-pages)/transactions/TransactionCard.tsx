@@ -38,26 +38,26 @@ export const TransactionCard: React.FC = () => {
         : 'Are you sure you want to delete all these transactions?',
   });
 
-  const { accountData, isAccountLoading } = useFetchAccount(!!user?.id);
-  const { userSettingsData, isUserSettingsLoading } = useFetchSettings(!!user?.id);
-  const { subscriptionData } = useFetchSubscription(!!user?.id);
+  const { accounts } = useFetchAccount(!!user?.id);
+  const { userSettings } = useFetchSettings(!!user?.id);
+  const { subscription } = useFetchSubscription(!!user?.id);
 
-  const { todaysTransactionsData, isTodaysTransactionsLoading, bulkDeleteTransaction } = useFetchTransaction({
-    accountData,
-    enabled: !!user?.id && !isUserSettingsLoading && !isAccountLoading && !!subscriptionData?.type,
+  const { todaysTransactions, bulkDeleteTransactions } = useFetchTransaction({
+    accountData: accounts.data,
+    enabled: !!user?.id && !userSettings.isLoading && !accounts.isLoading && !!subscription.data?.type,
   });
 
   useEffect(() => {
-    if (bulkDeleteTransaction.isSuccess) {
+    if (bulkDeleteTransactions.isSuccess) {
       setIdList([]);
     }
-  }, [bulkDeleteTransaction.isSuccess]);
+  }, [bulkDeleteTransactions.isSuccess]);
 
   const onDelete = async () => {
     const ok = await confirm();
 
     if (ok) {
-      bulkDeleteTransaction.mutateAsync(idList);
+      bulkDeleteTransactions.mutateAsync(idList);
     }
   };
 
@@ -86,7 +86,7 @@ export const TransactionCard: React.FC = () => {
                     color="warning"
                     variant="bordered"
                     onPress={onDelete}
-                    isDisabled={bulkDeleteTransaction.isPending}
+                    isLoading={bulkDeleteTransactions.isPending}
                     className="w-full sm:w-auto"
                   >
                     <Trash2 size={16} />
@@ -96,9 +96,9 @@ export const TransactionCard: React.FC = () => {
                 <Button
                   color="secondary"
                   onPress={
-                    !subscriptionData &&
-                    (todaysTransactionsData?.length ?? 0) >= freeLimits.transactions &&
-                    !isTodaysTransactionsLoading
+                    !subscription.data &&
+                    (todaysTransactions.data?.length ?? 0) >= freeLimits.transactions &&
+                    !todaysTransactions.isLoading
                       ? onSubscriptionOpen
                       : onOpen
                   }
@@ -115,8 +115,8 @@ export const TransactionCard: React.FC = () => {
           <TransactionList
             selectedKeysFn={setIdList}
             transactionListLengthFn={setTransactionListLength}
-            userSettingsData={userSettingsData}
-            isUserSettingsLoading={isUserSettingsLoading}
+            userSettingsData={userSettings.data}
+            isUserSettingsLoading={userSettings.isLoading}
           />
         </CardBody>
       </Card>

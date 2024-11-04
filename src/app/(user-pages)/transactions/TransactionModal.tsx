@@ -62,13 +62,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   const [accountValue, setAccountValue] = useState<Selection>(new Set([]));
   const [categoryValue, setCategoryValue] = useState<Selection>(new Set([]));
 
-  const { accountData, isAccountLoading } = useFetchAccount(!!user?.id);
-  const { categoryData, isCategoryLoading } = useFetchCategory(!!user?.id);  
+  const { accounts } = useFetchAccount(!!user?.id);
+  const { categories } = useFetchCategory(!!user?.id);  
   const { createTransaction, updateTransaction } = useFetchTransaction();
 
   useEffect(() => {
-    if (accountData && accountData.length > 0 && !transaction?.id) {
-      const defaultAccountId = accountData.find(account => account.isDefault)?.id;
+    if (accounts.data && accounts.data.length > 0 && !transaction?.id) {
+      const defaultAccountId = accounts.data.find(account => account.isDefault)?.id;
 
       if (defaultAccountId) {
         setAccountValue(new Set([defaultAccountId]));
@@ -102,10 +102,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   }, [createTransaction.isSuccess, updateTransaction.isSuccess]);
 
   const currencySign = useMemo(() => {
-    const acc = accountData && accountData.find(account => account.id === Array.from(accountValue)[0]);
+    const acc = accounts.data && accounts.data.find(account => account.id === Array.from(accountValue)[0]);
 
     return acc?.currency ? currencyMap.get(acc.currency)?.sign : '';
-  }, [accountData, accountValue]);
+  }, [accounts.data, accountValue]);
 
   const {
     control,
@@ -203,17 +203,17 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                     />
                   )}
                 />
-                {accountData && accountData.length > 0 && (
+                {accounts.data && accounts.data.length > 0 && (
                   <Controller
                     name="accountId"
                     control={control}
                     render={({ field }) => (
                       <Select
                         {...field}
-                        items={accountData}
+                        items={accounts.data}
                         label="Select an account"
-                        isLoading={isAccountLoading}
-                        isDisabled={isAccountLoading}
+                        isLoading={accounts.isLoading}
+                        isDisabled={accounts.isLoading}
                         isInvalid={!!errors.accountId}
                         errorMessage={errors.accountId?.message}
                         selectedKeys={accountValue}
@@ -224,17 +224,17 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                     )}
                   />
                 )}
-                {categoryData && categoryData.length > 0 && (
+                {categories.data && categories.data.length > 0 && (
                   <Controller
                     name="categoryId"
                     control={control}
                     render={({ field }) => (
                       <Select
                         {...field}
-                        items={categoryData.filter(category => category.hidden === false)}
+                        items={categories.data.filter(category => category.hidden === false)}
                         label="Select a category"
-                        isLoading={isCategoryLoading}
-                        isDisabled={isCategoryLoading}
+                        isLoading={categories.isLoading}
+                        isDisabled={categories.isLoading}
                         isInvalid={!!errors.categoryId}
                         errorMessage={errors.categoryId?.message}
                         selectedKeys={categoryValue}

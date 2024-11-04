@@ -1,4 +1,4 @@
-import type { UseMutationResult } from '@tanstack/react-query';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
@@ -11,14 +11,13 @@ import { bulkDeleteAccounts, createAccount, deleteAccount, getAccounts, updateAc
 export const useFetchAccount = (
   enabled = true
 ): {
-  accountData?: ExtendedAccount[];
-  isAccountLoading: boolean;
+  accounts: UseQueryResult<ExtendedAccount[], Error>;
   createAccount: UseMutationResult<Account, Error, AccountFormTypes, unknown>;
   updateAccount: UseMutationResult<Account, Error, { accountId: string; accountData: AccountFormTypes }, unknown>;
   deleteAccount: UseMutationResult<void, Error, string, unknown>;
   bulkDeleteAccounts: UseMutationResult<void, Error, string[], unknown>;
 } => {
-  const { data, isLoading } = useQuery({
+  const accounts = useQuery({
     enabled,
     queryKey: ['accounts'],
     queryFn: () => getAccounts(),
@@ -83,8 +82,7 @@ export const useFetchAccount = (
   });
 
   return {
-    accountData: data,
-    isAccountLoading: isLoading,
+    accounts,
     createAccount: createMutation,
     updateAccount: updateMutation,
     deleteAccount: deleteMutation,

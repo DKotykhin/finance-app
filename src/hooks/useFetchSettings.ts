@@ -1,4 +1,4 @@
-import type { UseMutationResult } from '@tanstack/react-query';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
@@ -9,11 +9,10 @@ import { getUserSettings, upsertUserSettings } from '@/actions';
 export const useFetchSettings = (
   enabled = true
 ): {
-  userSettingsData?: UserSettings | null;
-  isUserSettingsLoading: boolean;
+  userSettings: UseQueryResult<UserSettings | null, Error>;
   upsertUserSettings: UseMutationResult<UserSettings, Error, Partial<UserSettings>, unknown>;
 } => {
-  const { data, isLoading } = useQuery({
+  const userSettings = useQuery({
     enabled,
     queryKey: ['userSettings'],
     queryFn: () => getUserSettings(),
@@ -32,5 +31,5 @@ export const useFetchSettings = (
     },
   });
 
-  return { userSettingsData: data, isUserSettingsLoading: isLoading, upsertUserSettings: upsertMutation };
+  return { userSettings, upsertUserSettings: upsertMutation };
 };

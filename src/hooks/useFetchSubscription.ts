@@ -1,4 +1,4 @@
-import type { UseMutationResult } from '@tanstack/react-query';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
@@ -9,11 +9,10 @@ import { cancelStripeSubscription, getSubscription } from '@/actions';
 export const useFetchSubscription = (
   enabled = true
 ): {
-  subscriptionData?: Subscription | null;
-  isSubscriptionLoading: boolean;
+  subscription: UseQueryResult<Subscription | null, Error>;
   cancelSubscription: UseMutationResult<Subscription, Error, string, unknown>;
 } => {
-  const { data, isLoading } = useQuery({
+  const subscription = useQuery({
     enabled,
     queryKey: ['subscription'],
     queryFn: () => getSubscription(),
@@ -32,5 +31,5 @@ export const useFetchSubscription = (
     },
   });
 
-  return { subscriptionData: data, isSubscriptionLoading: isLoading, cancelSubscription: cancelMutation };
+  return { subscription, cancelSubscription: cancelMutation };
 };

@@ -1,4 +1,4 @@
-import type { UseMutationResult } from '@tanstack/react-query';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
@@ -16,14 +16,13 @@ import type { CategoryFormTypes } from '@/validation';
 export const useFetchCategory = (
   enabled = true
 ): {
-  categoryData?: Category[];
-  isCategoryLoading: boolean;
+  categories: UseQueryResult<Category[], Error>;
   createCategory: UseMutationResult<Category, Error, CategoryFormTypes, unknown>;
   updateCategory: UseMutationResult<Category, Error, { categoryId: string; categoryData: CategoryFormTypes }, unknown>;
   deleteCategory: UseMutationResult<void, Error, string, unknown>;
   bulkDeleteCategories: UseMutationResult<void, Error, string[], unknown>;
 } => {
-  const { data, isLoading } = useQuery({
+  const categories = useQuery({
     enabled,
     queryKey: ['categories'],
     queryFn: () => getCategories(),
@@ -107,8 +106,7 @@ export const useFetchCategory = (
   });
 
   return {
-    categoryData: data,
-    isCategoryLoading: isLoading,
+    categories,
     createCategory: createMutation,
     updateCategory: updateMutation,
     deleteCategory: deleteMutation,

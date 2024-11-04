@@ -35,9 +35,9 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
         : 'Are you sure you want to delete all these accounts?',
   });
 
-  const { accountData, isAccountLoading, bulkDeleteAccounts } = useFetchAccount(!!userId);
-  const { userSettingsData, isUserSettingsLoading } = useFetchSettings(!!userId);
-  const { subscriptionData } = useFetchSubscription(!!userId);
+  const { accounts, bulkDeleteAccounts } = useFetchAccount(!!userId);
+  const { userSettings } = useFetchSettings(!!userId);
+  const { subscription } = useFetchSubscription(!!userId);
 
   useEffect(() => {
     if (bulkDeleteAccounts.isSuccess) {
@@ -57,7 +57,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
     <>
       <Card className="-mt-24 mb-12 p-1 sm:p-4">
         <CardHeader className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          {isAccountLoading ? (
+          {accounts.isLoading ? (
             <>
               <Skeleton className="w-[200px] h-10 rounded-lg bg-slate-100"></Skeleton>
               <Skeleton className="w-[200px] h-10 rounded-lg bg-slate-100"></Skeleton>
@@ -78,7 +78,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
                     color="warning"
                     variant="bordered"
                     onPress={onDelete}
-                    isDisabled={bulkDeleteAccounts.isPending}
+                    isLoading={bulkDeleteAccounts.isPending}
                     className="w-full sm:w-auto"
                   >
                     <Trash2 size={16} />
@@ -88,7 +88,7 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
                 <Button
                   color="secondary"
                   onPress={
-                    !subscriptionData && (accountData?.length ?? 0) >= freeLimits.accounts
+                    !subscription.data && (accounts.data?.length ?? 0) >= freeLimits.accounts
                       ? onSubscriptionOpen
                       : onAccountOpen
                   }
@@ -103,12 +103,12 @@ export const AccountCard: React.FC<{ userId: string | null }> = ({ userId }) => 
         </CardHeader>
         <CardBody>
           <AccountList
-            accountData={accountData}
-            isAccountLoading={isAccountLoading}
+            accountData={accounts.data}
+            isAccountLoading={accounts.isLoading}
             selectedKeysFn={setIdList}
             accountListLengthFn={setAccountListLength}
-            userSettingsData={userSettingsData}
-            isUserSettingsLoading={isUserSettingsLoading}
+            userSettingsData={userSettings.data}
+            isUserSettingsLoading={userSettings.isLoading}
           />
         </CardBody>
       </Card>

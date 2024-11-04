@@ -1,4 +1,4 @@
-import type { UseMutationResult } from '@tanstack/react-query';
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 
@@ -21,10 +21,8 @@ export const useFetchTransaction = ({
   accountData,
   dateValue,
 }: { enabled?: boolean; accountData?: Account[]; dateValue?: { start: DateValue; end: DateValue } } = {}): {
-  transactionData?: ExtendedTransaction[];
-  isTransactionLoading: boolean;
-  todaysTransactionsData?: Transaction[];
-  isTodaysTransactionsLoading: boolean;
+  transactions: UseQueryResult<ExtendedTransaction[], Error>;
+  todaysTransactions: UseQueryResult<Transaction[], Error>;
   createTransaction: UseMutationResult<Transaction, Error, TransactionCreate, unknown>;
   updateTransaction: UseMutationResult<
     Transaction,
@@ -33,9 +31,9 @@ export const useFetchTransaction = ({
     unknown
   >;
   deleteTransaction: UseMutationResult<void, Error, string, unknown>;
-  bulkDeleteTransaction: UseMutationResult<void, Error, string[], unknown>;
+  bulkDeleteTransactions: UseMutationResult<void, Error, string[], unknown>;
 } => {
-  const { data: transactionData, isLoading: isTransactionLoading } = useQuery({
+  const transactions = useQuery({
     enabled,
     queryKey: ['transactions', dateValue],
     queryFn: () =>
@@ -46,7 +44,7 @@ export const useFetchTransaction = ({
       }),
   });
 
-  const { data: todaysTransactionsData, isLoading: isTodaysTransactionsLoading } = useQuery({
+  const todaysTransactions = useQuery({
     enabled,
     queryKey: ['todaysTransactionsData'],
     queryFn: () => getTodaysTransactions({ accountIds: accountData?.map(account => account.id) ?? [] }),
@@ -173,13 +171,11 @@ export const useFetchTransaction = ({
   });
 
   return {
-    transactionData,
-    isTransactionLoading,
-    todaysTransactionsData,
-    isTodaysTransactionsLoading,
+    transactions,
+    todaysTransactions,
     createTransaction: createMutation,
     updateTransaction: updateMutation,
     deleteTransaction: deleteMutation,
-    bulkDeleteTransaction: bulkDeleteMutation,
+    bulkDeleteTransactions: bulkDeleteMutation,
   };
 };
