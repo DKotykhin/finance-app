@@ -7,7 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { Button, Divider } from '@nextui-org/react';
-import { Menu, X } from 'lucide-react';
+import { ArrowRightLeft, CircleUserRound, Gauge, House, List, Menu, Settings, X } from 'lucide-react';
 
 import { cn } from '@/utils';
 
@@ -15,26 +15,32 @@ const routes = [
   {
     href: '/',
     label: 'Home',
+    icon: <House size={24} />,
   },
   {
     href: '/dashboard',
     label: 'Dashboard',
+    icon: <Gauge size={24} />,
   },
   {
     href: '/transactions',
     label: 'Transactions',
+    icon: <ArrowRightLeft size={24} />,
   },
   {
     href: '/accounts',
     label: 'Accounts',
+    icon: <CircleUserRound size={24} />,
   },
   {
     href: '/categories',
     label: 'Categories',
+    icon: <List size={24} />,
   },
   {
     href: '/settings',
     label: 'Settings',
+    icon: <Settings size={24} />,
   },
 ];
 
@@ -44,7 +50,7 @@ const Navigation: React.FC = () => {
 
   return (
     <>
-      <nav className="hidden lg:flex items-center gap-x-2 overflow-x-auto">
+      <nav className="hidden lg:flex items-center gap-x-1 overflow-x-auto">
         {routes.map(route => (
           <div key={route.href}>
             <Button
@@ -87,18 +93,22 @@ const Navigation: React.FC = () => {
             <Image src="/logo-blue.svg" width={30} height={30} alt="logo" />
             <p className="ml-2 text-blue-600 text-3xl font-semibold">Finance</p>
           </Link>
-          <Divider className="my-4" />
+          <Divider className="my-3" />
           {routes.map((route, index) => (
-            <div key={route.href} className="mb-4">
+            <div key={route.href} className="mb-3">
               <Button size="md" variant="light" onClick={() => setOpenMenu(false)}>
                 <Link
                   href={route.href}
-                  className={cn('text-xl', pathname === route.href ? 'text-blue-600 font-semibold' : 'text-blue-950')}
+                  className={cn(
+                    'flex items-center gap-2 text-xl',
+                    pathname === route.href ? 'text-blue-600 font-semibold' : 'text-blue-950'
+                  )}
                 >
+                  {route.icon}
                   {route.label}
                 </Link>
               </Button>
-              {index !== routes.length - 1 && <Divider className="mt-4" />}
+              {index !== routes.length - 1 && <Divider className="mt-3" />}
             </div>
           ))}
         </div>
