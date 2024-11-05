@@ -5,7 +5,6 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   Badge,
   Button,
-  Chip,
   DatePicker,
   Pagination,
   Select,
@@ -242,20 +241,21 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           </div>
         ),
         categoryName: (
-          <Chip
-            color={transaction.categoryName ? 'secondary' : 'danger'}
-            variant={transaction.categoryName ? 'faded' : 'light'}
-          >
-            {transaction.categoryName ?? (
-              <p className="flex gap-1">
+          <div className="flex justify-center">
+            {transaction.categoryName ? (
+              <p className="py-0.5 px-3 border-2 bg-orange-50 border-orange-100 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-orange-500">
+                {transaction.categoryName}
+              </p>
+            ) : (
+              <p className="flex gap-1 text-red-500">
                 <TriangleAlert size={18} /> <span>Uncategorized</span>
               </p>
             )}
-          </Chip>
+          </div>
         ),
         accountName: (
           <Badge content="" isInvisible={!transaction.account.isDefault} color="primary">
-            <p className="py-0.5 px-3 border-2 bg-slate-100 border-slate-300 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-blue-700">
+            <p className="py-0.5 px-3 border-2 bg-blue-50 border-blue-100 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-blue-700">
               {transaction.accountName}
             </p>
           </Badge>

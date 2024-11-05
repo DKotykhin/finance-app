@@ -17,14 +17,14 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@clerk/nextjs": "^5.7.2",
+    "@clerk/nextjs": "^5.7.5",
     "@hookform/resolvers": "^3.9.0",
     "@internationalized/date": "^3.5.5",
     "@nextui-org/react": "^2.4.8",
     "@prisma/client": "^5.20.0",
     "@tanstack/react-query": "^5.59.11",
     "date-fns": "^4.1.0",
-    "framer-motion": "^11.11.8",
+    "framer-motion": "^11.11.11",
     "lucide-react": "^0.412.0",
     "next": "^14.2.15",
     "next-themes": "^0.3.0",

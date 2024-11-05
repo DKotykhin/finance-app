@@ -16,6 +16,7 @@ import {
   Select,
   SelectItem,
   Textarea,
+  Tooltip,
 } from '@nextui-org/react';
 import type { DateValue } from '@internationalized/date';
 import { parseAbsoluteToLocal } from '@internationalized/date';
@@ -63,7 +64,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   const [categoryValue, setCategoryValue] = useState<Selection>(new Set([]));
 
   const { accounts } = useFetchAccount(!!user?.id);
-  const { categories } = useFetchCategory(!!user?.id);  
+  const { categories } = useFetchCategory(!!user?.id);
   const { createTransaction, updateTransaction } = useFetchTransaction();
 
   useEffect(() => {
@@ -187,15 +188,17 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                       step={0.01}
                       startContent={
                         currencySign ? (
-                          <Chip
-                            size="sm"
-                            variant="flat"
-                            color={+field?.value ? (+field.value > 0 ? 'success' : 'danger') : 'default'}
-                            onClick={() => field.value && field.onChange((+field.value * -1).toString())}
-                            className="cursor-pointer"
-                          >
-                            {currencySign}
-                          </Chip>
+                          <Tooltip content="Click to change sign">
+                            <Chip
+                              size="sm"
+                              variant="flat"
+                              color={+field?.value ? (+field.value > 0 ? 'success' : 'danger') : 'default'}
+                              onClick={() => field.value && field.onChange((+field.value * -1).toString())}
+                              className="cursor-pointer"
+                            >
+                              {currencySign}
+                            </Chip>
+                          </Tooltip>
                         ) : null
                       }
                       isInvalid={!!errors.amount}
@@ -264,7 +267,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
                 <Button type="button" color="default" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit" color="primary" disabled={createTransaction.isPending || updateTransaction.isPending}>
+                <Button
+                  type="submit"
+                  color="primary"
+                  disabled={createTransaction.isPending || updateTransaction.isPending}
+                >
                   {transaction?.id ? 'Update' : 'Create'}
                 </Button>
               </ModalFooter>

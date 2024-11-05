@@ -159,7 +159,7 @@ export const AccountList: React.FC<AccountListProps> = ({
         hideDecimalValue: account.hideDecimal,
         accountName: (
           <Badge content="" isInvisible={!account.isDefault} color="primary">
-            <p className="py-0.5 px-3 border-2 bg-slate-100 border-slate-300 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-blue-700">
+            <p className="py-0.5 px-3 border-2 bg-blue-50 border-blue-100 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-blue-700">
               {account.accountName}
             </p>
           </Badge>

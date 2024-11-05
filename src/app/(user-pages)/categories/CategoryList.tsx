@@ -149,12 +149,12 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         nameValue: category.categoryName,
         hiddenValue: category.hidden,
         name: (
-          <p className="py-0.5 px-3 border-2 border-slate-300 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-orange-500">
+          <p className="py-0.5 px-3 border-2 bg-orange-50 border-orange-100 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-orange-500">
             {category.categoryName}
           </p>
         ),
         hidden: (
-          <Chip color={category.hidden ? 'danger' : 'success'} variant="bordered">
+          <Chip color={category.hidden ? 'danger' : 'success'} variant="dot">
             {category.hidden ? 'Hidden' : 'Visible'}
           </Chip>
         ),
