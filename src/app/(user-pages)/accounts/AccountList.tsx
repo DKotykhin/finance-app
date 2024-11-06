@@ -29,6 +29,7 @@ import type { ExtendedAccount } from '@/actions';
 import type { AccountFormTypes } from '@/validation';
 import { cn, currencyMap, numberWithSpaces, rowsPerPageArray } from '@/utils';
 import { useFetchAccount, useConfirm } from '@/hooks';
+import { useAccountsStore } from '@/store';
 
 import { columns } from './const';
 import { AccountModal } from './AccountModal';
@@ -63,20 +64,23 @@ export const AccountList: React.FC<AccountListProps> = ({
   const [account, setAccount] = useState<AccountUpdate | null>(null);
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [accountListLength, setAccountListLength] = useState(0);
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: userSettingsData?.accountSortField || 'createdAt',
     direction: userSettingsData?.accountSortOrder || SortOrder.descending,
   });
 
-  const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
-  const [accountListLength, setAccountListLength] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(userSettingsData?.accountRowsPerPage || '5');
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
+  
+  const { rowsPerPage, setRowsPerPage } = useAccountsStore();
   const { deleteAccount } = useFetchAccount();
+
+  useEffect(() => {
+    if (!rowsPerPage) setRowsPerPage(userSettingsData?.accountRowsPerPage || '5');
+  }, [rowsPerPage, setRowsPerPage, userSettingsData?.accountRowsPerPage]);
 
   useEffect(() => {
     accountListLengthFn(accountListLength);
@@ -116,10 +120,10 @@ export const AccountList: React.FC<AccountListProps> = ({
     setPage(1);
   }, []);
 
-  const onRowsPerPageChange = useCallback((e: { target: { value: React.SetStateAction<string> } }) => {
-    setRowsPerPage(e.target.value);
-    setPage(1);
-  }, []);
+  const onRowsPerPageChange = useCallback((e: { target: { value: string } }) => {
+      setRowsPerPage(e.target.value);
+      setPage(1);
+    }, [setRowsPerPage]);
 
   const onSelectedKeys = (keys: Selection) => {
     setSelectedKeys(keys);

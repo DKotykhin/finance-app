@@ -62,30 +62,17 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   userSettingsData,
   isUserSettingsLoading,
 }) => {
-  const {
-    accountValue,
-    categoryValue,
-    startDate,
-    endDate,
-    setAccountValue,
-    setCategoryValue,
-    setStartDate,
-    setEndDate,
-  } = useTransactionsStore();
-
   const [updateTransaction, setUpdateTransaction] = useState<TransactionUpdate | null>(null);
   const [transaction, setTransaction] = useState<ExtendedTransaction | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [transactionListLength, setTransactionListLength] = useState(0);
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: userSettingsData?.transactionSortField || 'date',
     direction: userSettingsData?.transactionSortOrder || SortOrder.descending,
   });
-
-  const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
-  const [transactionListLength, setTransactionListLength] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(userSettingsData?.transactionRowsPerPage || '5');
 
   // to do: move to store
   const [dateValue, setDateValue] = useState<{ start: DateValue; end: DateValue }>({
@@ -93,19 +80,28 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     end: parseAbsoluteToLocal(new Date().toISOString()),
   });
 
-  const { user } = useUser();
   const { isOpen: isOpenView, onOpen: onOpenView, onOpenChange: onOpenChangeView } = useDisclosure();
   const { isOpen: isOpenUpdate, onOpen: onOpenUpdate, onOpenChange: onOpenChangeUpdate } = useDisclosure();
 
-  const periodInDays = useMemo(() => {
-    return differenceInDays(valueToDate(dateValue.end), valueToDate(dateValue.start));
-  }, [dateValue]);
+  const {
+    accountValue,
+    categoryValue,
+    startDate,
+    endDate,
+    rowsPerPage,
+    setAccountValue,
+    setCategoryValue,
+    setStartDate,
+    setEndDate,
+    setRowsPerPage,
+  } = useTransactionsStore();
 
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Delete Transaction',
     message: 'Are you sure you want to delete this transaction?',
   });
 
+  const { user } = useUser();
   const { accounts } = useFetchAccount(!!user?.id);
   const { categories } = useFetchCategory(!!user?.id);
 
@@ -114,6 +110,14 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     accountData: accounts.data,
     dateValue,
   });
+
+  const periodInDays = useMemo(() => {
+    return differenceInDays(valueToDate(dateValue.end), valueToDate(dateValue.start));
+  }, [dateValue]);
+
+  useEffect(() => {
+    if (!rowsPerPage) setRowsPerPage(userSettingsData?.transactionRowsPerPage || '5');
+  }, [rowsPerPage, setRowsPerPage, userSettingsData?.transactionRowsPerPage]);
 
   useEffect(() => {
     if (startDate) {
@@ -137,7 +141,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     if (userSettingsData?.transactionRowsPerPage) {
       setRowsPerPage(userSettingsData.transactionRowsPerPage);
     }
-  }, [userSettingsData?.transactionRowsPerPage]);
+  }, [setRowsPerPage, userSettingsData?.transactionRowsPerPage]);
 
   useEffect(() => {
     transactionListLengthFn(transactionListLength);
@@ -157,10 +161,13 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     onOpenUpdate();
   };
 
-  const onRowsPerPageChange = useCallback((e: { target: { value: React.SetStateAction<string> } }) => {
-    setRowsPerPage(e.target.value);
-    setPage(1);
-  }, []);
+  const onRowsPerPageChange = useCallback(
+    (e: { target: { value: string } }) => {
+      setRowsPerPage(e.target.value);
+      setPage(1);
+    },
+    [setRowsPerPage]
+  );
 
   const onSelectedKeys = (keys: Selection) => {
     setSelectedKeys(keys);
@@ -254,7 +261,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           </div>
         ),
         accountName: (
-          <div className='flex justify-center'>
+          <div className="flex justify-center">
             <AccountName
               color={transaction.account.color}
               accountName={transaction.account.accountName}

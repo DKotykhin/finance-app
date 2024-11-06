@@ -6,10 +6,12 @@ type TransactionsState = {
   categoryValue: Selection;
   startDate?: Date;
   endDate?: Date;
+  rowsPerPage: string;
   setAccountValue: (value: Selection) => void;
   setCategoryValue: (value: Selection) => void;
   setStartDate: (date: Date) => void;
   setEndDate: (date: Date) => void;
+  setRowsPerPage: (row: string) => void;
 };
 
 export const useTransactionsStore = create<TransactionsState>()((set) => ({
@@ -17,8 +19,10 @@ export const useTransactionsStore = create<TransactionsState>()((set) => ({
   categoryValue: new Set(['all']),
   startDate: undefined,
   endDate: undefined,
+  rowsPerPage: '',
   setAccountValue: (value: Selection) => set(() => ({ accountValue: value })),
   setCategoryValue: (value: Selection) => set(() => ({ categoryValue: value })),
   setStartDate: (startDate: Date) => set(() => ({ startDate })),
   setEndDate: (endDate: Date) => set(() => ({ endDate })),
+  setRowsPerPage: (row: string) => set(() => ({ rowsPerPage: row })),
 }));

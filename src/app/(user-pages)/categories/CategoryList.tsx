@@ -28,6 +28,7 @@ import { SortOrder } from '@prisma/client';
 import type { CategoryFormTypes } from '@/validation';
 import { cn, rowsPerPageArray } from '@/utils';
 import { useConfirm, useFetchCategory } from '@/hooks';
+import { useCategoriesStore } from '@/store';
 
 import { CategoryModal } from './CategoryModal';
 import { columns } from './const';
@@ -61,25 +62,28 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   const [category, setCategory] = useState<CategoryUpdate | null>(null);
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set());
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [categoryListLength, setCategoryListLength] = useState(0);
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: userSettingsData?.categorySortField || 'createdAt',
     direction: userSettingsData?.categorySortOrder || SortOrder.descending,
   });
 
-  const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
-  const [categoryListLength, setCategoryListLength] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(userSettingsData?.categoryRowsPerPage || '5');
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+  const { rowsPerPage, setRowsPerPage } = useCategoriesStore();
   const { deleteCategory } = useFetchCategory();
 
   const [ConfirmModal, confirm] = useConfirm({
     title: 'Delete Category',
     message: 'Are you sure you want to delete this category?',
   });
+
+  useEffect(() => {
+    if (!rowsPerPage) setRowsPerPage(userSettingsData?.categoryRowsPerPage || '5');
+  }, [rowsPerPage, setRowsPerPage, userSettingsData?.categoryRowsPerPage]);
 
   useEffect(() => {
     categoryListLengthFn(categoryListLength);
@@ -113,10 +117,10 @@ export const CategoryList: React.FC<CategoryListProps> = ({
     setPage(1);
   }, []);
 
-  const onRowsPerPageChange = useCallback((e: { target: { value: React.SetStateAction<string> } }) => {
+  const onRowsPerPageChange = useCallback((e: { target: { value: string } }) => {
     setRowsPerPage(e.target.value);
     setPage(1);
-  }, []);
+  }, [setRowsPerPage]);
 
   const onSelectedKeys = (keys: Selection) => {
     setSelectedKeys(keys);
