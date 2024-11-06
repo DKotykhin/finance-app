@@ -3,7 +3,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 
 import {
-  Badge,
   Button,
   DatePicker,
   Pagination,
@@ -36,9 +35,10 @@ import { cn, currencyMap, dateToValue, numberWithSpaces, rowsPerPageArray, value
 import { useTransactionsStore } from '@/store';
 import { useConfirm, useFetchAccount, useFetchCategory, useFetchTransaction } from '@/hooks';
 
-import { TransactionModal } from './TransactionModal';
 import { columns } from './const';
+import { TransactionModal } from './TransactionModal';
 import { ViewModal } from './ViewModal';
+import { AccountName } from '../accounts/AccountName';
 
 interface TransactionListProps {
   userSettingsData?: UserSettings | null;
@@ -254,11 +254,13 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           </div>
         ),
         accountName: (
-          <Badge content="" isInvisible={!transaction.account.isDefault} color="primary">
-            <p className="py-0.5 px-3 border-2 bg-blue-50 border-blue-100 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-blue-700">
-              {transaction.accountName}
-            </p>
-          </Badge>
+          <div className='flex justify-center'>
+            <AccountName
+              color={transaction.account.color}
+              accountName={transaction.account.accountName}
+              isDefault={transaction.account.isDefault}
+            />
+          </div>
         ),
         actions: (
           <div className="flex justify-center gap-2 lg:gap-3">

@@ -11,7 +11,13 @@ CREATE TYPE "TransactionCharts" AS ENUM ('BarChart', 'LineChart', 'AreaChart');
 CREATE TYPE "CategoriesCharts" AS ENUM ('PieChart', 'RadarChart', 'RadialBarChart');
 
 -- CreateEnum
-CREATE TYPE "FlowType" AS ENUM ('Income', 'Expenses');
+CREATE TYPE "TransactionType" AS ENUM ('Income', 'Expenses');
+
+-- CreateEnum
+CREATE TYPE "SubscriptionType" AS ENUM ('FREE', 'PRO', 'GOLD');
+
+-- CreateEnum
+CREATE TYPE "SubscriptionStatus" AS ENUM ('Active', 'Inactive', 'Canceled');
 
 -- CreateTable
 CREATE TABLE "Account" (
@@ -23,6 +29,7 @@ CREATE TABLE "Account" (
     "currency" "Currency" NOT NULL DEFAULT 'USD',
     "hideDecimal" BOOLEAN NOT NULL DEFAULT false,
     "isDefault" BOOLEAN NOT NULL DEFAULT false,
+    "color" TEXT NOT NULL DEFAULT 'slate',
 
     CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
 );
@@ -35,6 +42,7 @@ CREATE TABLE "Category" (
     "category_name" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
     "hidden" BOOLEAN NOT NULL DEFAULT false,
+    "color" TEXT NOT NULL DEFAULT 'slate',
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
@@ -72,9 +80,30 @@ CREATE TABLE "UserSettings" (
     "dashboard_period" INTEGER NOT NULL DEFAULT 30,
     "dashboard_transaction_charts" "TransactionCharts" NOT NULL DEFAULT 'BarChart',
     "dashboard_categories_charts" "CategoriesCharts" NOT NULL DEFAULT 'PieChart',
-    "dashboard_flow_type" "FlowType" NOT NULL DEFAULT 'Income',
+    "dashboard_transaction_type" "TransactionType" NOT NULL DEFAULT 'Income',
 
     CONSTRAINT "UserSettings_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Subscription" (
+    "id" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "type" "SubscriptionType" NOT NULL,
+    "start_date" TIMESTAMP(3) NOT NULL,
+    "end_date" TIMESTAMP(3),
+    "cancelled_at" TIMESTAMP(3),
+    "price" INTEGER NOT NULL,
+    "mode" TEXT NOT NULL,
+    "currency" TEXT NOT NULL,
+    "customer_id" TEXT NOT NULL,
+    "customer_email" TEXT,
+    "subscription_id" TEXT NOT NULL,
+    "status" "SubscriptionStatus" NOT NULL DEFAULT 'Inactive',
+
+    CONSTRAINT "Subscription_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex

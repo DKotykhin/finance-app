@@ -10,8 +10,8 @@ import { ApiError } from '@/handlers';
 import { checkAuth } from '../checkAuth';
 
 export interface ExtendedTransaction extends Transaction {
-  category: { categoryName: string } | null;
-  account: { accountName: string; currency: Currency; hideDecimal: boolean; isDefault: boolean };
+  category: { categoryName: string, color: string } | null;
+  account: { accountName: string; currency: Currency; hideDecimal: boolean; isDefault: boolean, color: string };
 }
 
 export const getTransactions = async ({
@@ -43,6 +43,7 @@ export const getTransactions = async ({
         category: {
           select: {
             categoryName: true,
+            color: true,
           },
         },
         account: {
@@ -51,6 +52,7 @@ export const getTransactions = async ({
             currency: true,
             hideDecimal: true,
             isDefault: true,
+            color: true,
           },
         },
       },

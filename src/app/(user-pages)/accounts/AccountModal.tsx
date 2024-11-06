@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   Button,
@@ -26,6 +26,7 @@ import { Currency } from '@prisma/client';
 import type { AccountFormTypes } from '@/validation';
 import { accountFormValidationSchema } from '@/validation';
 import { useFetchAccount } from '@/hooks';
+import { colorsMap } from '@/utils';
 
 import type { AccountUpdate } from './AccountList';
 
@@ -47,12 +48,15 @@ const AccountFormValidation: AccountFormValidationTypes = {
     currency: Currency.USD,
     hideDecimal: false,
     isDefault: false,
+    color: 'slate',
   },
   resolver: zodResolver(accountFormValidationSchema),
   mode: 'onSubmit',
 };
 
 export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange, account }) => {
+  const [currentColor, setCurrentColor] = useState<string>(account?.color || 'slate');
+
   const { createAccount, updateAccount } = useFetchAccount();
 
   useEffect(() => {
@@ -61,7 +65,9 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
       currency: account?.currency || Currency.USD,
       hideDecimal: account?.hideDecimal || false,
       isDefault: account?.isDefault || false,
+      color: account?.color || 'slate',
     });
+    setCurrentColor(account?.color || 'slate');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
@@ -85,7 +91,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
       account?.accountName === accountData.accountName &&
       account?.currency === accountData.currency &&
       account?.hideDecimal === accountData.hideDecimal &&
-      account?.isDefault === accountData.isDefault
+      account?.isDefault === accountData.isDefault &&
+      account?.color === currentColor
     ) {
       toast.info('No changes detected');
 
@@ -93,8 +100,11 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
     }
 
     account?.id
-      ? updateAccount.mutateAsync({ accountId: account?.id as string, accountData })
-      : createAccount.mutateAsync(accountData);
+      ? updateAccount.mutateAsync({
+          accountId: account?.id as string,
+          accountData: { ...accountData, color: currentColor },
+        })
+      : createAccount.mutateAsync({ ...accountData, color: currentColor });
   };
 
   return (
@@ -138,6 +148,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
                   render={({ field }) => (
                     <Select
                       {...field}
+                      isRequired
                       label="Select Currency"
                       labelPlacement="outside"
                       defaultSelectedKeys={[account?.currency || Currency.USD]}
@@ -148,7 +159,33 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
                     </Select>
                   )}
                 />
-                <div className="flex flex-col sm:flex-row gap-2 justify-around mt-4">
+                <p className="text-sm">Appearance</p>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    {Array.from(colorsMap.entries()).map(([colorName, colorValue]) => (
+                      <Tooltip key={colorName} content={colorName}>
+                        <div
+                          className="border-2 rounded-full p-0.5 cursor-pointer"
+                          onClick={() => setCurrentColor(colorName)}
+                          style={{ borderColor: currentColor === colorName ? colorValue.sample : 'white' }}
+                        >
+                          <div className={`w-6 h-6 rounded-full`} style={{ backgroundColor: colorValue.sample }} />
+                        </div>
+                      </Tooltip>
+                    ))}
+                  </div>
+                  <p
+                    className="py-0.5 px-3 border-2 rounded-full"
+                    style={{
+                      color: colorsMap.get(currentColor)?.text,
+                      borderColor: colorsMap.get(currentColor)?.border,
+                      backgroundColor: colorsMap.get(currentColor)?.bg,
+                    }}
+                  >
+                    Account Name
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 justify-around mt-3">
                   <div className="flex gap-2 items-center">
                     <Controller
                       name="hideDecimal"

@@ -4,7 +4,6 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 
 import type { Selection } from '@nextui-org/react';
 import {
-  Badge,
   Button,
   Input,
   Pagination,
@@ -31,8 +30,9 @@ import type { AccountFormTypes } from '@/validation';
 import { cn, currencyMap, numberWithSpaces, rowsPerPageArray } from '@/utils';
 import { useFetchAccount, useConfirm } from '@/hooks';
 
-import { AccountModal } from './AccountModal';
 import { columns } from './const';
+import { AccountModal } from './AccountModal';
+import { AccountName } from './AccountName';
 
 interface AccountListProps {
   accountData?: ExtendedAccount[];
@@ -158,16 +158,12 @@ export const AccountList: React.FC<AccountListProps> = ({
         currencyValue: account.currency,
         hideDecimalValue: account.hideDecimal,
         accountName: (
-          <Badge content="" isInvisible={!account.isDefault} color="primary">
-            <p className="py-0.5 px-3 border-2 bg-blue-50 border-blue-100 rounded-full truncate md:text-clip text-ellipsis max-w-[160px] md:max-w-fit text-blue-700">
-              {account.accountName}
-            </p>
-          </Badge>
+          <AccountName color={account.color} isDefault={account.isDefault} accountName={account.accountName} />
         ),
         balance: (
           <div className="flex gap-1 items-center">
             <div>{currencyMap.get(account.currency)?.sign}</div>
-            <div className={cn('font-semibold', account.balance < 0 ? 'text-red-500' : '')}>
+            <div className={cn('font-semibold shrink-0', account.balance < 0 ? 'text-red-500' : '')}>
               {numberWithSpaces(
                 account.hideDecimal ? Math.round(account.balance) : Math.round(account.balance * 100) / 100
               )}

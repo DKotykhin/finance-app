@@ -10,6 +10,7 @@ export const accountFormValidationSchema = z.object({
   currency: z.nativeEnum(Currency),
   hideDecimal: z.boolean(),
   isDefault: z.boolean(),
+  color: z.string().optional(),
 });
 
 export type AccountFormTypes = z.infer<typeof accountFormValidationSchema>;

@@ -59,6 +59,7 @@ model Account {
   currency    Currency @default(value: USD)
   hideDecimal Boolean  @default(value: false)
   isDefault   Boolean  @default(value: false)
+  color       String   @default(value: "slate")
 
   transactions Transaction[]
 }
@@ -71,6 +72,7 @@ model Category {
   categoryName String  @map("category_name")
   userId       String  @map("user_id")
   hidden       Boolean @default(value: false)
+  color        String  @default(value: "slate")
 
   transactions Transaction[]
 }
