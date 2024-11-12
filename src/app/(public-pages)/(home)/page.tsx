@@ -10,6 +10,7 @@ import { useUser } from '@clerk/nextjs';
 
 import { PaymentSettings } from '@/app/(user-pages)/settings/PaymentSettings';
 import { RedirectButton } from './RedirectButton';
+import { RatingSystem } from './RatingSystem';
 
 const Homepage = () => {
   const { theme } = useTheme();
@@ -88,11 +89,17 @@ const Homepage = () => {
             </div>
           </CardBody>
         </Card>
-        <Card className="p-1 sm:p-4">
-          <CardBody>
-            <PaymentSettings userId={user?.id} />
-          </CardBody>
-        </Card>
+        {user?.id && (
+          <>
+            <Card className="p-1 sm:p-4">
+              <CardBody>
+                <PaymentSettings userId={user?.id} />
+              </CardBody>
+            </Card>
+            <RatingSystem userId={user?.id} />
+          </>
+        )}
+        
       </div>
     </div>
   );

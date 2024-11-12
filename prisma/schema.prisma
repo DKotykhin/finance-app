@@ -100,6 +100,8 @@ model UserSettings {
 
   userId String @unique @map("user_id")
 
+  rating Int @default(value: 0)
+
   accountRowsPerPage String    @default(value: "5") @map("account_rows_per_page")
   accountSortField   String    @default(value: "createdAt") @map("account_sort_field")
   accountSortOrder   SortOrder @default(value: descending) @map("account_sort_order")

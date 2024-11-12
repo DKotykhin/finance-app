@@ -55,8 +55,8 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
         end: dateToValue(new Date()),
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userSettings.data?.dashboardPeriod]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userSettings.data?.dashboardPeriod, userSettings.isLoading]);
 
   const { data: transactionData, isLoading: isTransactionLoading } = useQuery({
     enabled: !!accountId,
