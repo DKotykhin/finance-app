@@ -45,7 +45,7 @@ export const RatingSystem: React.FC<{ userId?: string }> = ({ userId }) => {
             key={index}
             className={cn(
               'text-gray-500 hover:text-green-500 transition-all',
-              loading ? 'opacity-50' : 'cursor-pointer',
+              loading || userSettings.isLoading ? 'opacity-50' : 'cursor-pointer',
               hover === 0 && rating > index ? 'text-green-500' : '',
               hover > index ? 'text-green-500' : ''
             )}

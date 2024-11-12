@@ -21,7 +21,7 @@
     "@hookform/resolvers": "^3.9.0",
     "@internationalized/date": "^3.5.5",
     "@nextui-org/react": "^2.4.8",
-    "@prisma/client": "^5.20.0",
+    "@prisma/client": "^5.22.0",
     "@tanstack/react-query": "^5.59.11",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.11.11",
@@ -33,12 +33,12 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.52.1",
     "react-toastify": "^10.0.5",
-    "recharts": "^2.13.0",
+    "recharts": "^2.13.3",
     "sharp": "^0.33.5",
     "stripe": "^16.12.0",
     "winston": "^3.15.0",
     "zod": "^3.23.8",
-    "zustand": "^5.0.0"
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.14",
@@ -48,7 +48,7 @@
     "eslint-config-next": "^14.2.15",
     "postcss": "^8",
     "prettier": "^3.3.3",
-    "prisma": "^5.20.0",
+    "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
