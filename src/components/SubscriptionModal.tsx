@@ -20,7 +20,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, on
       onOpenChange={onOpenChange}
       isDismissable={false}
       size="5xl"
-      className="max-h-[500px] overflow-auto"
+      className="max-h-[calc(100vh-10%)] overflow-auto"
     >
       <ModalContent>
         {onClose => (
