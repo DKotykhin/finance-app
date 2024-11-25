@@ -13,7 +13,7 @@ import { PaymentSettings } from '../settings/PaymentSettings';
 
 export const metadata: Metadata = paymentIntendMetadata;
 
-const PaymentIntendPage: React.FC<{ searchParams: { status: string } }> = async ({ searchParams }) => {
+const PaymentIntendPage: React.FC<{ searchParams: Promise<{ status: string }> }> = async ({ searchParams }) => {
   const user = await currentUser();
 
   return (
@@ -21,7 +21,7 @@ const PaymentIntendPage: React.FC<{ searchParams: { status: string } }> = async 
       <div className="-mt-24 mb-12 ">
         {user ? (
           <div className="rounded-lg bg-white w-full border px-4 py-6 shadow-md">
-            {searchParams?.status === 'cancel' && (
+            {(await searchParams)?.status === 'cancel' && (
               <p className="text-red-500 text-center mb-4">Subscription has been canceled. Try again</p>
             )}
             <PaymentSettings userId={user.id} />

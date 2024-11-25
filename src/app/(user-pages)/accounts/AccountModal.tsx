@@ -99,19 +99,20 @@ export const AccountModal: React.FC<AccountModalProps> = ({ isOpen, onOpenChange
       return;
     }
 
-    account?.id
-      ? updateAccount.mutateAsync({
-          accountId: account?.id as string,
-          accountData: { ...accountData, color: currentColor },
-        })
-      : createAccount.mutateAsync({ ...accountData, color: currentColor });
+    if (account?.id) {
+      updateAccount.mutateAsync({
+        accountId: account?.id as string,
+        accountData: { ...accountData, color: currentColor },
+      });
+    } else createAccount.mutateAsync({ ...accountData, color: currentColor });
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={() => {
-        onOpenChange(), reset();
+        onOpenChange();
+        reset();
       }}
       isDismissable={false}
     >

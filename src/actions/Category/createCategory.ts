@@ -9,7 +9,7 @@ import { categoryValidate, type CategoryFormTypes } from '@/validation';
 import { checkAuth } from '../checkAuth';
 
 export const createCategory = async (categoryData: CategoryFormTypes): Promise<Category> => {
-  const userId = checkAuth();
+  const userId = await checkAuth();
 
   await categoryValidate(categoryData);
 

@@ -3,8 +3,8 @@ import { auth } from '@clerk/nextjs/server';
 import { ApiError } from '@/handlers';
 import { logger } from '@/logger';
 
-export const checkAuth = () => {
-  const { userId }: { userId: string | null } = auth();
+export const checkAuth = async () => {
+  const { userId }: { userId: string | null } = await auth();
 
   if (!userId) {
     logger.error('Unauthorized');

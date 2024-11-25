@@ -12,7 +12,7 @@ import { ApiError } from '@/handlers';
 import { checkAuth } from '../checkAuth';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2024-11-20.acacia',
 });
 
 type LineItem = Stripe.Checkout.SessionCreateParams.LineItem;
@@ -57,7 +57,7 @@ export const retrieveStripeSession = async (sessionId: string): Promise<Subscrip
     throw ApiError.badRequest('Session ID is required');
   }
 
-  const userId = checkAuth();
+  const userId = await checkAuth();
 
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);

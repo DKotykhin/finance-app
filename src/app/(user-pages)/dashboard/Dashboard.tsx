@@ -44,7 +44,9 @@ export const Dashboard: React.FC<{ userId: string | null }> = ({ userId }) => {
     if (!accountId) {
       const defaultAccount = accounts.data?.find(account => account.isDefault);
 
-      defaultAccount && setAccountId(defaultAccount.id);
+      if (defaultAccount) {
+        setAccountId(defaultAccount.id);
+      }
     }
   }, [accounts.data, accountId, setAccountId]);
 

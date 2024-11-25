@@ -35,7 +35,7 @@ export const getTransactionsWithStats = async ({
   from?: Date;
   to?: Date;
 }): Promise<TransactionsWithStats> => {
-  checkAuth();
+  await checkAuth();
 
   const dateFrom = startOfDay(from || subDays(new Date(), 30));
   const dateTo = endOfDay(to || new Date());

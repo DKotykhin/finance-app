@@ -80,11 +80,24 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
   }, [isOpen]);
 
   useEffect(() => {
-    transaction?.categoryId ? setCategoryValue(new Set([transaction?.categoryId])) : setCategoryValue(new Set([]));
-    transaction?.accountId ? setAccountValue(new Set([transaction?.accountId])) : setAccountValue(new Set([]));
-    transaction?.date
-      ? setDateValue(parseAbsoluteToLocal(transaction?.date.toISOString()))
-      : setDateValue(parseAbsoluteToLocal(new Date().toISOString()));
+    if (transaction?.categoryId) {
+      setCategoryValue(new Set([transaction.categoryId]));
+    } else {
+      setCategoryValue(new Set([]));
+    }
+
+    if (transaction?.accountId) {
+      setAccountValue(new Set([transaction.accountId]));
+    } else {
+      setAccountValue(new Set([]));
+    }
+
+    if (transaction?.date) {
+      setDateValue(parseAbsoluteToLocal(transaction.date.toISOString()));
+    } else {
+      setDateValue(parseAbsoluteToLocal(new Date().toISOString()));
+    }
+
     reset({
       amount: transaction?.amount ? transaction?.amount.toString() : '',
       notes: transaction?.notes || '',
@@ -132,29 +145,31 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onOp
       return;
     }
 
-    transaction?.id
-      ? updateTransaction.mutate({
-          transactionId: transaction.id,
-          transactionData: {
-            ...transactionData,
-            date: valueToDate(dateValue),
-            amount: Math.round(parseFloat(transactionData.amount) * 100) / 100,
-            notes: transactionData.notes || null,
-          },
-        })
-      : createTransaction.mutate({
+    if (transaction?.id) {
+      updateTransaction.mutate({
+        transactionId: transaction.id,
+        transactionData: {
           ...transactionData,
           date: valueToDate(dateValue),
           amount: Math.round(parseFloat(transactionData.amount) * 100) / 100,
           notes: transactionData.notes || null,
-        });
+        },
+      });
+    } else
+      createTransaction.mutate({
+        ...transactionData,
+        date: valueToDate(dateValue),
+        amount: Math.round(parseFloat(transactionData.amount) * 100) / 100,
+        notes: transactionData.notes || null,
+      });
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={() => {
-        onOpenChange(), reset();
+        onOpenChange();
+        reset();
       }}
       isDismissable={false}
     >

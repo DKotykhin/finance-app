@@ -7,7 +7,7 @@ import { ApiError } from '@/handlers';
 import { checkAuth } from '../checkAuth';
 
 export const getCategories = async (hidden?: boolean): Promise<Category[]> => {
-  const userId = checkAuth();
+  const userId = await checkAuth();
 
   try {
     const categories = await db.category.findMany({

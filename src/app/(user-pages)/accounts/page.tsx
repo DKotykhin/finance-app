@@ -8,8 +8,8 @@ import { AccountCard } from './AccountCard';
 
 export const metadata: Metadata = accountMetadata;
 
-const Accounts: React.FC = () => {
-  const { userId }: { userId: string | null } = auth();
+const Accounts: React.FC = async () => {
+  const { userId }: { userId: string | null } = await auth();
 
   return (
     <div className="max-w-screen-2xl mx-auto">

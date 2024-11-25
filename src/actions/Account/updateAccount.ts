@@ -17,7 +17,7 @@ export const updateAccount = async ({
   accountId: string;
   accountData: AccountFormTypes;
 }): Promise<Account> => {
-  checkAuth();
+  await checkAuth();
   await accountValidate(accountData);
 
   if (!accountId) {

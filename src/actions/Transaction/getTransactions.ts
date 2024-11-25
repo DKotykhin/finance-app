@@ -23,7 +23,7 @@ export const getTransactions = async ({
   from?: Date;
   to?: Date;
 }): Promise<ExtendedTransaction[]> => {
-  checkAuth();
+  await checkAuth();
 
   const dateFrom = startOfDay(from || subDays(new Date(), 30));
   const dateTo = endOfDay(to || new Date());

@@ -11,8 +11,8 @@ import { Button } from '@nextui-org/react';
 import Navigation from './Navigation';
 import { ThemeButton } from './ThemeButton';
 
-const Header: React.FC = () => {
-  const { userId }: { userId: string | null } = auth();
+const Header: React.FC = async () => {
+  const { userId }: { userId: string | null } = await auth();
 
   return (
     <header className="bg-gradient-to-b from-blue-700 to-blue-500 dark:from-blue-950 dark:to-blue-600 px-4 py-8 lg:px-8 pb-48">

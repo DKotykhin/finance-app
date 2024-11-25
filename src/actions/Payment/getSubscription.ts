@@ -8,7 +8,7 @@ import { ApiError } from '@/handlers';
 import { checkAuth } from '../checkAuth';
 
 export const getSubscription = async (): Promise<Subscription | null> => {
-  const userId = checkAuth();
+  const userId = await checkAuth();
 
   try {
     const subscription = await db.subscription.findFirst({

@@ -8,7 +8,7 @@ import { ApiError } from '@/handlers';
 import { checkAuth } from '../checkAuth';
 
 export const updateRating = async (rating: number): Promise<UserSettings> => {
-  const userId = checkAuth();
+  const userId = await checkAuth();
 
   try {
     const userSettings = await db.userSettings.upsert({

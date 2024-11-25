@@ -10,7 +10,7 @@ import { ApiError } from '@/handlers';
 import { checkAuth } from '../checkAuth';
 
 export const getTodaysTransactions = async ({ accountIds }: { accountIds: string[] }): Promise<Transaction[]> => {
-  checkAuth();
+  await checkAuth();
 
   const dateFrom = startOfDay(new Date());
   const dateTo = endOfDay(new Date());

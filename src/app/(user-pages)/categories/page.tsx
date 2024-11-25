@@ -8,8 +8,8 @@ import { CategoryCard } from './CategoryCard';
 
 export const metadata: Metadata = categoriesMetadata;
 
-const Categories: React.FC = () => {
-  const { userId }: { userId: string | null } = auth();
+const Categories: React.FC = async () => {
+  const { userId }: { userId: string | null } = await auth();
 
   return (
     <div className="max-w-screen-2xl mx-auto">

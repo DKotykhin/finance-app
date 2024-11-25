@@ -10,8 +10,8 @@ import { PaymentSettings } from './PaymentSettings';
 
 export const metadata: Metadata = settingsMetadata;
 
-const Settings: React.FC = () => {
-  const { userId }: { userId: string | null } = auth();
+const Settings: React.FC = async () => {
+  const { userId }: { userId: string | null } = await auth();
 
   return (
     <div className="max-w-screen-2xl mx-auto">

@@ -7,7 +7,7 @@ import { idValidate } from '@/validation';
 import { checkAuth } from '../checkAuth';
 
 export const deleteTransaction = async (id: string): Promise<void> => {
-  checkAuth();
+  await checkAuth();
 
   await idValidate({ id });
 

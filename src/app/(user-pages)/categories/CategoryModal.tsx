@@ -79,16 +79,19 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onOpenChan
       return;
     }
 
-    category?.id
-      ? updateCategory.mutateAsync({ categoryId: category?.id as string, categoryData })
-      : createCategory.mutateAsync(categoryData);
+    if (category?.id) {
+      await updateCategory.mutateAsync({ categoryId: category?.id as string, categoryData });
+    } else {
+      await createCategory.mutateAsync(categoryData);
+    }
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={() => {
-        onOpenChange(), reset();
+        onOpenChange();
+        reset();
       }}
       isDismissable={false}
     >

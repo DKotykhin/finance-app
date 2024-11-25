@@ -85,22 +85,6 @@ module.exports = {
         'newlines-between': 'always-and-inside-groups'
       }
     ],
-    '@typescript-eslint/ban-types': [
-      'error',
-      {
-        extendDefaults: true,
-        types: {
-          Function: 'Use a specific function type instead',
-          Object: 'Use object instead',
-          Boolean: 'Use boolean instead',
-          Number: 'Use number instead',
-          String: 'Use string instead',
-          Symbol: 'Use symbol instead',
-          any: false,
-          '{}': false
-        }
-      }
-    ]
   },
   settings: {
     react: {

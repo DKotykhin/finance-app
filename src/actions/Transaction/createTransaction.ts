@@ -16,7 +16,7 @@ export interface TransactionCreate {
 }
 
 export const createTransaction = async (data: TransactionCreate): Promise<Transaction> => {
-  checkAuth();
+  await checkAuth();
 
   try {
     const transaction = await db.transaction.create({

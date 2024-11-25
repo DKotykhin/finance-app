@@ -15,7 +15,7 @@ export const updateCategory = async ({
   categoryId: string;
   categoryData: CategoryFormTypes;
 }): Promise<Category> => {
-  checkAuth();
+  await checkAuth();
 
   await categoryValidate(categoryData);
 

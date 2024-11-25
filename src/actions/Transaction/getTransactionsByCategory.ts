@@ -31,7 +31,7 @@ export const getTransactionsByCategory = async ({
   from?: Date;
   to?: Date;
 }): Promise<TransactionsByCategory> => {
-  checkAuth();
+  await checkAuth();
 
   const dateFrom = startOfDay(from || subDays(new Date(), 30));
   const dateTo = endOfDay(to || new Date());

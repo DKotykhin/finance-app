@@ -8,7 +8,7 @@ import { logger } from '@/logger';
 import { checkAuth } from '../checkAuth';
 
 export const deleteAccount = async (id: string): Promise<void> => {
-  checkAuth();
+  await checkAuth();
   
   await idValidate({ id });
 

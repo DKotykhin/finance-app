@@ -15,7 +15,7 @@ export const updateTransaction = async ({
   transactionId: string;
   transactionData: TransactionCreate;
 }): Promise<Transaction> => {
-  checkAuth();
+  await checkAuth();
 
   try {
     const transaction = await db.transaction.update({

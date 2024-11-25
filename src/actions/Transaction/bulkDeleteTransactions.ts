@@ -7,7 +7,7 @@ import { idValidate } from '@/validation';
 import { checkAuth } from '../checkAuth';
 
 export const bulkDeleteTransactions = async (ids: string[]): Promise<void> => {
-  checkAuth();
+  await checkAuth();
 
   ids.forEach(async (id) => {
     await idValidate({ id });
@@ -21,7 +21,7 @@ export const bulkDeleteTransactions = async (ids: string[]): Promise<void> => {
         },
       },
     });
-  } catch (error) {
-    throw ApiError.internalError('Failed to delete transactions');
+  } catch (error: any) {
+    throw ApiError.internalError(error.message || 'Failed to delete transactions');
   }
 };

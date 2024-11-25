@@ -13,7 +13,7 @@ export interface ExtendedAccount extends Account {
 }
 
 export const getAccounts = async (): Promise<ExtendedAccount[]> => {
-  const userId = checkAuth();
+  const userId = await checkAuth();
 
   try {
     const accounts = await db.account.findMany({

@@ -8,7 +8,7 @@ import { checkAuth } from '../checkAuth';
 import { logger } from '@/logger';
 
 export const bulkDeleteAccounts = async (ids: string[]): Promise<void> => {
-  checkAuth();
+  await checkAuth();
 
   ids.forEach(async (id) => {
     await idValidate({ id });
@@ -24,8 +24,8 @@ export const bulkDeleteAccounts = async (ids: string[]): Promise<void> => {
     });
 
     logger.info(`Successfully deleted accounts with ids ${ids.toString()}`);
-  } catch (error) {
+  } catch (error: any) {
     logger.error(error);
-    throw ApiError.internalError('Failed to delete accounts');
+    throw ApiError.internalError(error.message || 'Failed to delete accounts');
   }
 };
