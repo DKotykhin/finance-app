@@ -88,7 +88,9 @@ export const CategoryCard: React.FC<{ userId: string | null }> = ({ userId }) =>
                 <Button
                   color="secondary"
                   onPress={
-                    !subscription.data && (categories.data?.length ?? 0) >= freeLimits.categories
+                    (!subscription.data ||
+                      (subscription.data.endDate && new Date(subscription.data.endDate) < new Date())) &&
+                    (categories.data?.length ?? 0) >= freeLimits.categories
                       ? onSubscriptionOpen
                       : onCategoryOpen
                   }

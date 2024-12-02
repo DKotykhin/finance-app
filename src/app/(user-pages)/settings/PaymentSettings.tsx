@@ -119,7 +119,7 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
             subscription.data.endDate &&
             new Date(subscription.data.endDate) > new Date() && (
               <div className="text-sm text-grey-500 text-center space-y-1">
-                <p>{subscription.data?.status}</p>
+                <p className='text-red-500 font-semibold'>{subscription.data?.status}</p>
                 <p>Expiration Date: {format(new Date(subscription.data.endDate), 'dd MMM, yyyy')}</p>
               </div>
             )}
@@ -185,7 +185,7 @@ export const PaymentSettings: React.FC<{ userId?: string | null }> = ({ userId }
             subscription.data.endDate &&
             new Date(subscription.data.endDate) > new Date() && (
               <div className="text-sm text-grey-500 text-center space-y-1">
-                <p>{subscription.data?.status}</p>
+                <p className='text-red-500 font-semibold'>{subscription.data?.status}</p>
                 <p>Expiration Date: {format(new Date(subscription.data.endDate), 'dd MMM, yyyy')}</p>
               </div>
             )}

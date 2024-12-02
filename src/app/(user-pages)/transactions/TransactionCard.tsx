@@ -96,7 +96,8 @@ export const TransactionCard: React.FC = () => {
                 <Button
                   color="secondary"
                   onPress={
-                    !subscription.data &&
+                    (!subscription.data ||
+                      (subscription.data.endDate && new Date(subscription.data.endDate) < new Date())) &&
                     (todaysTransactions.data?.length ?? 0) >= freeLimits.transactions &&
                     !todaysTransactions.isLoading
                       ? onSubscriptionOpen
