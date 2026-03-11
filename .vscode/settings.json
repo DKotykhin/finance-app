@@ -4,5 +4,6 @@
     },
     "cSpell.words": [
         "Dismissable"
-    ]
+    ],
+    "prisma.pinToPrisma6": true
 }
